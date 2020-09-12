@@ -4,3 +4,4 @@ A Simple Discord Bot that allows people/roles to set up alarms and receive them 
 ## Module installs:
 npm install discord.js
 npm i cron
+npm i file-system

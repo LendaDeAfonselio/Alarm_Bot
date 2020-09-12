@@ -16,11 +16,9 @@ module.exports = {
                 message.author.send("No commands to load!");
                 return;
             }
-
-            const embed = new Discord.RichEmbed()
+            const embed = new Discord.MessageEmbed()
                 .setTitle("A list of my commands:")
-                .setColor(0xff80d5)
-                .setTimestamp();
+                .setColor(0xff80d5);
             jsfiles.forEach((f) => {
                 let props = require(`./${f}`);
                 var namelist = props.name;
