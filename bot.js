@@ -6,6 +6,7 @@ const token = require('./token.json');
 
 // Instances
 const client = new Discord.Client();
+const cron_list = {};
 const cron = require('cron').CronJob;
 const fs = require('fs');
 
@@ -43,7 +44,7 @@ client.once('ready', () => {
 /*************************** Execute Commands ************************/
 client.on('message', message => {
     const channelPrefix = auth.prefix;
-    console.log(cron.scheduledJobs)
+    // console.log(cron_list);
     if (!message.content.startsWith(channelPrefix)) return;
     else {
         var args = message.content.slice(auth.prefix.length).split(/ +/);
@@ -51,7 +52,7 @@ client.on('message', message => {
         if (!client.commands.has(command)) return;
         else {
             try {
-                client.commands.get(command).execute(message, args, client, cron);
+                client.commands.get(command).execute(message, args, client, cron, cron_list);
             } catch (error) {
                 console.error(error);
                 message.reply('there was an error trying to execute that command!');

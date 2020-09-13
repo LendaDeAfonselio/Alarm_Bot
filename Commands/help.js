@@ -6,9 +6,9 @@ const Discord = require('discord.js');
 module.exports = {
     name: 'help',
     description: 'DMs the requiree a list with all the available commands',
-    usage: auth.prefix + 'slap <target>',
+    usage: auth.prefix + 'help',
 
-    execute(message, args, client) {
+    execute(message, args, client, cron_list) {
         fs.readdir("./commands/", (err, files) => {
             if (err) console.error(err);
             let jsfiles = files.filter(f => f.split(".").pop() === "js");
