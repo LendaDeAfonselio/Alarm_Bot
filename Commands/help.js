@@ -6,9 +6,9 @@ const Discord = require('discord.js');
 module.exports = {
     name: 'help',
     description: 'DMs the requiree a list with all the available commands',
-    usage: auth.prefix + 'slap <target>',
+    usage: auth.prefix + 'help',
 
-    execute(message, args, client) {
+    execute(message, args, client, cron_list) {
         fs.readdir("./commands/", (err, files) => {
             if (err) console.error(err);
             let jsfiles = files.filter(f => f.split(".").pop() === "js");
@@ -16,11 +16,9 @@ module.exports = {
                 message.author.send("No commands to load!");
                 return;
             }
-
-            const embed = new Discord.RichEmbed()
+            const embed = new Discord.MessageEmbed()
                 .setTitle("A list of my commands:")
-                .setColor(0xff80d5)
-                .setTimestamp();
+                .setColor(0xff80d5);
             jsfiles.forEach((f) => {
                 let props = require(`./${f}`);
                 var namelist = props.name;

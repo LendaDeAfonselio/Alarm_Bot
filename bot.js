@@ -6,7 +6,9 @@ const token = require('./token.json');
 
 // Instances
 const client = new Discord.Client();
-const cron = require('cron');
+const cron_list = {};
+const cron = require('cron').CronJob;
+const fs = require('fs');
 
 // setup a list and a file with all cron jobs so they can be recharged upon start up and deleted from the file if altered
 
@@ -23,16 +25,12 @@ for (const file of commandFiles) {
 
 /****** Setup the bot for life upon startup ******/
 client.once('ready', () => {
-
-    // When you want to start it, use:
-    utils.fileToMap(prefixFile, guildPrefix, ";");
-    client.user.setStatus(onoffline);
     // client.user.setActivity(" with NP-Hard Problems");
     //Retrieves all main channels the bot is in 
 
-    client.guilds.forEach((guild) => { //for each guild the bot is in
+    client.guilds.cache.forEach((guild) => { //for each guild the bot is in
         let defaultChannel = "";
-        guild.channels.forEach((channel) => {
+        guild.channels.cache.forEach((channel) => {
             if (channel.name == 'bot-and-emote-spam' && channel.type == "text" && defaultChannel == "") {
                 if (channel.permissionsFor(guild.me).has("SEND_MESSAGES")) {
                     defaultChannel = channel;
@@ -45,6 +43,8 @@ client.once('ready', () => {
 
 /*************************** Execute Commands ************************/
 client.on('message', message => {
+    const channelPrefix = auth.prefix;
+    // console.log(cron_list);
     if (!message.content.startsWith(channelPrefix)) return;
     else {
         var args = message.content.slice(auth.prefix.length).split(/ +/);
@@ -52,7 +52,7 @@ client.on('message', message => {
         if (!client.commands.has(command)) return;
         else {
             try {
-                client.commands.get(command).execute(message, args, client);
+                client.commands.get(command).execute(message, args, client, cron, cron_list);
             } catch (error) {
                 console.error(error);
                 message.reply('there was an error trying to execute that command!');
