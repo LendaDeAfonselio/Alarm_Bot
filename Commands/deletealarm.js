@@ -5,6 +5,7 @@ module.exports = {
     execute(msg, args, client, cron, cron_list) {
         var alarm_to_delete = args[0];
         if (cron_list[alarm_to_delete] !== undefined) {
+            cron_list[alarm_to_delete].cancel();
             delete cron_list[alarm_to_delete];
             msg.channel.send(`Sucessfully deleted alarm: ${alarm_to_delete}.\n`);
         }
