@@ -2,15 +2,24 @@
 const Discord = require('discord.js');
 const auth = require('./auth.json');
 const token = require('./token.json');
+const appsettings = require('./appsettings.json');
+// TODO: Change token to appsettings later
 
+// Mongo setup
+const mongoose = require("mongoose");
+mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
+    if (err)
+        console.error(err);
+    else
+        console.log("Connected to the mongodb");
+});
 
 // Instances
 const client = new Discord.Client();
-const cron_list = {};
+const cron_list = {}; // the in memory crono list
 const cron = require('cron').CronJob;
 const fs = require('fs');
 
-// setup a list and a file with all cron jobs so they can be recharged upon start up and deleted from the file if altered
 
 
 /****** Gets all available commands ******/
@@ -42,9 +51,8 @@ client.once('ready', () => {
 });
 
 /*************************** Execute Commands ************************/
-client.on('message', message => {
+client.on('message', async message => {
     const channelPrefix = auth.prefix;
-    // console.log(cron_list);
     if (!message.content.startsWith(channelPrefix)) return;
     else {
         var args = message.content.slice(auth.prefix.length).split(/ +/);
@@ -52,7 +60,7 @@ client.on('message', message => {
         if (!client.commands.has(command)) return;
         else {
             try {
-                client.commands.get(command).execute(message, args, client, cron, cron_list);
+                client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
             } catch (error) {
                 console.error(error);
                 message.reply('there was an error trying to execute that command!');

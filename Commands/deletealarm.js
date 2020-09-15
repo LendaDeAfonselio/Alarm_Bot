@@ -2,7 +2,7 @@ module.exports = {
     name: 'deletealarm',
     description: 'Deletes the alarm with a given id',
     usage: '<prefix>deletealarm <id>',
-    execute(msg, args, client, cron, cron_list) {
+    execute(msg, args, client, cron, cron_list,mongoose) {
         var alarm_to_delete = args[0];
         if (cron_list[alarm_to_delete] !== undefined) {
             cron_list[alarm_to_delete].cancel();
