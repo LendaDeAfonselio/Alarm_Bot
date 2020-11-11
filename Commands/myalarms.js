@@ -3,7 +3,7 @@ module.exports = {
     name: 'myalarms',
     description: 'Fetches all of your alarms',
     usage: '<prefix>myalarms',
-    execute(msg, args, client, cron, cron_list) {
+    async execute(msg, args, client, cron, cron_list, mongoose) {
         const embed = new Discord.MessageEmbed()
             .setTitle("Your alarms are:")
             .setColor(0xff80d5);
@@ -13,9 +13,6 @@ module.exports = {
                 embed.addField(alarm_text);
             }
         }
-
         msg.channel.send({ embed });
-
-
     }
 }

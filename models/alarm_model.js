@@ -5,7 +5,8 @@ const alarmSchema = mongoose.Schema({
     alarm_args: String,
     message: String,
     target: String,
+    guild: String,
     timestamp: Date
 });
 
-module.exports= mongoose.model("Alarm_model", alarmSchema);
+module.exports = mongoose.model("Alarm_model", alarmSchema);
