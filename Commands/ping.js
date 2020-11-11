@@ -1,7 +1,7 @@
 module.exports = {
-    name: 'ping',
-    description: 'Ping!',
-    execute(msg, args, client, cron_list) {
-      msg.channel.send('pong');
-    },
-  };
+  name: 'ping',
+  description: 'Ping!',
+  execute(msg, args, client, cron, cron_list, mongoose) {
+    msg.channel.send('pong');
+  },
+};

@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const auth = require('./auth.json');
 const token = require('./token.json');
 const appsettings = require('./appsettings.json');
+const load_alarms = require('./load_alarms');
 // TODO: Change token to appsettings later
 
 // Mongo setup
@@ -33,8 +34,7 @@ for (const file of commandFiles) {
 
 
 /****** Setup the bot for life upon startup ******/
-client.once('ready', () => {
-    // client.user.setActivity(" with NP-Hard Problems");
+client.once('ready', async x => {
     //Retrieves all main channels the bot is in 
 
     client.guilds.cache.forEach((guild) => { //for each guild the bot is in
@@ -43,6 +43,7 @@ client.once('ready', () => {
             if (channel.name == 'bot-and-emote-spam' && channel.type == "text" && defaultChannel == "") {
                 if (channel.permissionsFor(guild.me).has("SEND_MESSAGES")) {
                     defaultChannel = channel;
+                    load_alarms.fetchAlarmsforGuild(cron_list, cron, guild.id, channel);
                 }
             }
         });
@@ -60,7 +61,7 @@ client.on('message', async message => {
         if (!client.commands.has(command)) return;
         else {
             try {
-                client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
+                await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
             } catch (error) {
                 console.error(error);
                 message.reply('there was an error trying to execute that command!');

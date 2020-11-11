@@ -1,12 +1,18 @@
+const Alarm_model = require('../models/alarm_model');
+
+
 module.exports = {
     name: 'deletealarm',
     description: 'Deletes the alarm with a given id',
     usage: '<prefix>deletealarm <id>',
-    execute(msg, args, client, cron, cron_list,mongoose) {
+    async execute(msg, args, client, cron, cron_list, mongoose) {
         var alarm_to_delete = args[0];
         if (cron_list[alarm_to_delete] !== undefined) {
-            cron_list[alarm_to_delete].cancel();
             delete cron_list[alarm_to_delete];
+            var x = await Alarm_model.deleteOne(
+                {alarm_id: alarm_to_delete}
+            )
+            console.log(x);
             msg.channel.send(`Sucessfully deleted alarm: ${alarm_to_delete}.\n`);
         }
         else {
