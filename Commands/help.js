@@ -2,6 +2,17 @@ const fs = require("fs");
 const auth = require('./../auth.json');
 const Discord = require('discord.js');
 
+// copied from https://stackoverflow.com/questions/7033639/split-large-string-in-n-size-chunks-in-javascript
+function chunkSubstr(str, size) {
+    const numChunks = Math.ceil(str.length / size)
+    const chunks = new Array(numChunks)
+
+    for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
+        chunks[i] = str.substr(o, size)
+    }
+
+    return chunks
+}
 
 module.exports = {
     name: 'help',
@@ -16,20 +27,33 @@ module.exports = {
                 message.author.send("No commands to load!");
                 return;
             }
-            const embed = new Discord.MessageEmbed()
-                .setTitle("A list of my commands:")
-                .setColor(0xff80d5);
+            let msg_fields = [];
             jsfiles.forEach((f) => {
                 let props = require(`./${f}`);
                 var namelist = props.name;
                 var desclist = props.description;
                 var usage = props.usage;
-                msg = `Command - **${namelist}** \n\tDescription - ${desclist} \n\tUsage - ${usage}\n`;
-                embed.addField(msg);
+                msg = `\tDescription - ${desclist} \n\tUsage - ${usage}\n`;
+                field = {
+                    name: `Command - **${namelist}**`,
+                    value: msg
+                }
+                msg_fields.push(field);
             });
 
             // sends dm
-            message.author.send({ embed });
+            try {
+                message.author.send({
+                    embed: {
+                        color: 0xff80d5,
+                        title: 'A list of my commands',
+                        fields: msg_fields,
+                        timestamp: new Date()
+                    }
+                });
+            } catch (e) {
+                console.err(e);
+            }
         });
     },
 };

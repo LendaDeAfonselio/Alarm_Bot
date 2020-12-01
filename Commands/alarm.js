@@ -1,7 +1,8 @@
 const Alarm_model = require('../models/alarm_model');
 module.exports = {
     name: 'alarm',
-    description: 'Sets up an alarm that will be repeated',
+    description: 'Sets up an alarm that will be repeated\n' +
+    'This alarm will send a message to the _channel_ of the _server_ in which it is activated',
     usage: '<prefix>alarm <m> <h> <weekday> <month> <year> <message> <target>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var crono = args.slice(0, 5).join(' ');
