@@ -1,7 +1,6 @@
 // Packages and dependencies
 const Discord = require('discord.js');
 const auth = require('./auth.json');
-const token = require('./token.json');
 const appsettings = require('./appsettings.json');
 const load_alarms = require('./load_alarms');
 // TODO: Change token to appsettings later
@@ -71,4 +70,4 @@ client.on('message', async message => {
 });
 
 //Login
-client.login(token.token);
+client.login(appsettings.token);
