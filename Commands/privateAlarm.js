@@ -36,7 +36,7 @@ module.exports = {
                     console.log(`${result} added to database`);
                     msg.author.send({
                         embed: {
-                            title: `Alarm with message: ${message} was sucessfully saved!`,
+                            title: `Alarm with message: ${message} was sucessfully saved with params: ${crono}`,
                             color: 2447003,
                             timestamp: new Date()
                         }

@@ -2,7 +2,7 @@ const Alarm_model = require('../models/alarm_model');
 module.exports = {
     name: 'alarm',
     description: 'Sets up an alarm that will be repeated\n' +
-    'This alarm will send a message to the _channel_ of the _server_ in which it is activated',
+        'This alarm will send a message to the _channel_ of the _server_ in which it is activated',
     usage: '<prefix>alarm <m> <h> <weekday> <month> <year> <message> <target>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var crono = args.slice(0, 5).join(' ');
@@ -34,8 +34,17 @@ module.exports = {
                 timestamp: Date.now(),
             });
             newAlarm.save()
-            .then(result => console.log(`${result} added to database`))
-            .catch(err => console.log(err));
+                .then((result) => {
+                    console.log(`${result} added to database`);
+                    msg.channel.send({
+                        embed: {
+                            title: 'Alarm added successfully!',
+                            fields: { name: `Alarm with params: ${crono}, for target ${target} was added with success!` },
+                            timestamp: new Date()
+                        }
+                    });
+                })
+                .catch(err => console.log(err));
         } catch (err) {
             console.error(err);
             msg.channel.send(`Error adding the alarm with params: ${crono}, for target ${target}`);
