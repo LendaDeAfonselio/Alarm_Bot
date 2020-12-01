@@ -11,13 +11,7 @@ module.exports = {
 
         try {
             let scheduledMessage = new cron(crono, () => {
-                msg.author.send({
-                    embed: {
-                        color: 3447003,
-                        title: `${message_stg}!`,
-                        timestamp: new Date()
-                    }
-                });
+                msg.author.send(`${message_stg}!`);
             }, {
                 scheduled: true
             });
