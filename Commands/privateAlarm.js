@@ -29,6 +29,7 @@ module.exports = {
                 alarm_args: crono,
                 message: message_stg,
                 user_id: alarm_user,
+                guild: msg.guild.id,
                 timestamp: Date.now(),
             });
             newAlarm.save()
@@ -36,7 +37,7 @@ module.exports = {
                     console.log(`${result} added to database`);
                     msg.author.send({
                         embed: {
-                            title: `Alarm with message: ${message} was sucessfully saved with params: ${crono}`,
+                            title: `Alarm with message: ${message_stg} was sucessfully saved with params: ${crono}`,
                             color: 2447003,
                             timestamp: new Date()
                         }

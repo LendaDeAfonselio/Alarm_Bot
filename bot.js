@@ -37,18 +37,18 @@ for (const file of commandFiles) {
 client.once('ready', async x => {
     //Retrieves all main channels the bot is in 
 
-    client.guilds.cache.forEach((guild) => { //for each guild the bot is in
+    client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
         let defaultChannel = "";
-        guild.channels.cache.forEach((channel) => {
+        guild.channels.cache.forEach(async (channel) => {
             if (channel.name == 'bot-and-emote-spam' && channel.type == "text" && defaultChannel == "") {
                 if (channel.permissionsFor(guild.me).has("SEND_MESSAGES")) {
                     defaultChannel = channel;
-                    load_alarms.fetchAlarmsforGuild(cron_list, cron, guild.id, channel);
+                    await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild.id, channel);
                 }
             }
         });
+        await load_alarms.fetchPrivateAlarms(cron_list, cron, guild, guild.id);
     });
-
 });
 
 /*************************** Execute Commands ************************/
