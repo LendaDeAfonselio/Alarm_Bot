@@ -1,10 +1,11 @@
 const Alarm_model = require('../models/alarm_model');
 
+const auth = require('./../auth.json');
 
 module.exports = {
     name: 'deletealarm',
     description: 'Deletes the alarm with a given id',
-    usage: '<prefix>deletealarm <id>',
+    usage: auth.prefix + 'deletealarm <id>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var alarm_to_delete = args[0];
         if (cron_list[alarm_to_delete] !== undefined) {

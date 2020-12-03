@@ -1,9 +1,12 @@
 const Alarm_model = require('../models/alarm_model');
+const auth = require('./../auth.json');
+
 module.exports = {
     name: 'alarm',
     description: 'Sets up an alarm that will be repeated\n' +
-        'This alarm will send a message to the _channel_ of the _server_ in which it is activated',
-    usage: '<prefix>alarm <m> <h> <weekday> <month> <year> <message> <target>',
+        'This alarm will send a message to the _channel_ of the _server_ in which it is activated.\n'
+        + 'The parameter <target> is optional.',
+    usage: auth.prefix + 'alarm <m> <h> <month> <year> <weekday> <message> <target>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var crono = args.slice(0, 5).join(' ');
         var message_stg = args.slice(5, args.length - 1).join(' ');
@@ -38,8 +41,7 @@ module.exports = {
                     console.log(`${result} added to database`);
                     msg.channel.send({
                         embed: {
-                            title: 'Alarm added successfully!',
-                            fields: { name: `Alarm with params: ${crono}, for target ${target} was added with success!` },
+                            fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono}, for channel ${msg.channel.name} was added with success!` },
                             timestamp: new Date()
                         }
                     });

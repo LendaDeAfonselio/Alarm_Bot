@@ -1,10 +1,12 @@
 const Private_alarm_model = require('../models/private_alarm_model');
+const auth = require('./../auth.json');
+
 module.exports = {
     name: 'privateAlarm',
     description: 'Sets up a private alarm that will be repeated as specified in the arguments\n'
         + 'The remainders will be sent to you via Direct Message!\n'
         + '**The bot has to have a server in comun with you to send a private message!**',
-    usage: '<prefix>alarm <m> <h> <weekday> <month> <year> <message>',
+    usage: auth.prefix + 'alarm <m> <h> <month> <year> <weekday> <message>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var crono = args.slice(0, 5).join(' ');
         var message_stg = args.slice(5, args.length).join(' ');

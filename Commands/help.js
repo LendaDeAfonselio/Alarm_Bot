@@ -2,18 +2,6 @@ const fs = require("fs");
 const auth = require('./../auth.json');
 const Discord = require('discord.js');
 
-// copied from https://stackoverflow.com/questions/7033639/split-large-string-in-n-size-chunks-in-javascript
-function chunkSubstr(str, size) {
-    const numChunks = Math.ceil(str.length / size)
-    const chunks = new Array(numChunks)
-
-    for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
-        chunks[i] = str.substr(o, size)
-    }
-
-    return chunks
-}
-
 module.exports = {
     name: 'help',
     description: 'DMs the requiree a list with all the available commands',
