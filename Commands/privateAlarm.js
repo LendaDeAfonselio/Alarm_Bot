@@ -1,5 +1,6 @@
 const Private_alarm_model = require('../models/private_alarm_model');
 const auth = require('./../auth.json');
+const private_flag = auth.private_prefix;
 
 module.exports = {
     name: 'privateAlarm',
@@ -20,7 +21,7 @@ module.exports = {
             scheduledMessage.start();
             let alarm_user = msg.author.id;
             let this_alarm_id = Math.random().toString(36).substring(4);
-            let alarm_id = `${this_alarm_id}_${alarm_user}`;
+            let alarm_id = `${private_flag}_${this_alarm_id}_${alarm_user}`;
             // save locally
             cron_list[alarm_id] = scheduledMessage;
 
