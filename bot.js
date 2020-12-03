@@ -42,10 +42,10 @@ client.once('ready', async x => {
             if (channel.name == 'bot-and-emote-spam' && channel.type == "text" && defaultChannel == "") {
                 if (channel.permissionsFor(guild.me).has("SEND_MESSAGES")) {
                     defaultChannel = channel;
-                    await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild.id, channel);
                 }
             }
         });
+        await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
         await load_alarms.fetchPrivateAlarms(cron_list, cron, guild, guild.id);
     });
 });

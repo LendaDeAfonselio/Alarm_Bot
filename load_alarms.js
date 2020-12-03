@@ -3,13 +3,15 @@ const Private_alarm_model = require('./models/private_alarm_model');
 
 
 
-async function fetchAlarmsforGuild(cron_list, cron, guild, channel) {
-    var alarms = await Alarm_model.find({ guild: guild });
+async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
+    var alarms = await Alarm_model.find({ guild: guild_id });
     for (alarm of alarms) {
         let message_stg = alarm.message;
         let crono = alarm.alarm_args;
         let target = alarm.target;
         let alarm_id = alarm.alarm_id;
+        let channel_id = alarm.channel;
+        let channel = await guild.channels.cache.get(channel_id);
         let scheduledMessage = new cron(crono, () => {
             channel.send(`${message_stg}! ${target}`);
         }, {
