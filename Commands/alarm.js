@@ -42,7 +42,8 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
     return num >= min && num <= max;
 }
 
-function validate_alarm_parameters(msg, cron_params, message_stg) {
+function validate_alarm_parameters(msg, cron_stg, message_stg) {
+    let cron_params = cron_stg.split(" ");
     if (message_stg.length === 0) {
         msg.channel.send('The message is empty! Please insert a message before proceding!');
         return false;
@@ -64,34 +65,26 @@ function validate_alarm_parameters(msg, cron_params, message_stg) {
     }
 
     let hours = cron_params[1];
-    let num = parseInt(hours);
-    if(isAValidRangeGroupOrNumber(hours, 0, 23)){
+    if (!isAValidRangeGroupOrNumber(hours, 0, 23)) {
         msg.channel.send("The hour parameter is invalid! Try `#alarmHelp` for more information!");
         return false;
     }
-    // if (isNaN(num) || num < 0 || num > 23) {
-    //     msg.channel.send("The hour parameter is invalid! Try `#alarmHelp` for more information!");
-    //     return false;
-    // }
 
     let month_day = cron_params[2];
-    let month_num_day = parseInt(month_day);
-    if (isNaN(month_num_day) || month_num_day < 1 || month_num_day > 31) {
+    if (!isAValidRangeGroupOrNumber(month_day, 1, 31)) {
         msg.channel.send("The day of the month parameter is invalid! Try `#alarmHelp` for more information!");
         return false;
     }
 
     let month = cron_params[3];
-    let month_num = parseInt(month);
-    if (isNaN(month_num_day) || month_num < 1 || month_num > 12) {
+    if(!isAValidRangeGroupOrNumber(month, 1, 12)){
         msg.channel.send("The month parameter is invalid! Try `#alarmHelp` for more information!");
         return false;
     }
 
     let weekday = cron_params[4];
-    let weekday_num = parseInt(weekday);
-    if (isNaN(weekday_num) || weekday_num < 0 || weekday_num > 7) {
-        msg.channel.send("The month parameter is invalid! Try `#alarmHelp` for more information!");
+    if(!isAValidRangeGroupOrNumber(weekday, 0, 7)){
+        msg.channel.send("The weekday parameter is invalid! Try `#alarmHelp` for more information!");
         return false;
     }
 
@@ -106,19 +99,14 @@ module.exports = {
     usage: auth.prefix + 'alarm <m> <h> <month> <weekday> <message> <target>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var crono = args.slice(0, 5).join(' ');
-        var message_stg = args.slice(5, args.length - 1).join(' ');
-        var target = args[args.length - 1];
+        var message_stg = args.slice(5, args.length).join(' ');
 
-        // Check if the message has a single word and no target
-        if (!target.includes('<@&')) {
-            message_stg = target;
-        }
         if (validate_alarm_parameters(msg, crono, message_stg)) {
             var guild = msg.guild.id;
 
             try {
                 let scheduledMessage = new cron(crono, () => {
-                    msg.channel.send(`${message_stg}! ${target}`);
+                    msg.channel.send(`${message_stg}`);
                 }, {
                     scheduled: true
                 });
@@ -135,7 +123,6 @@ module.exports = {
                     alarm_id: alarm_id,
                     alarm_args: crono,
                     message: message_stg,
-                    target: target,
                     guild: guild,
                     channel: msg.channel.id,
                     timestamp: Date.now(),
