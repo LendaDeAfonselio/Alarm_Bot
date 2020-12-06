@@ -38,9 +38,9 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 **Sending `1234!` at the 23rd of every month at 19:35** => `$alarm 35 19 23 * * 1234!`
 
-**Sending `Goodbye` every Monday, Wednesday and Friday at 19:00** => `$alarm  00 19 * * 1,3,5`
+**Sending `Goodbye` every Monday, Wednesday and Friday at 19:00** => `$alarm  00 19 * * 1,3,5 Goodbye`
 
-**Send `aaa` hourly from 9 to 19 everyday** => `$alarm * 9-19 * * * aaa`
+**Send `aaa` hourly from 9 to 19 everyday** => `$alarm 0 9-19 * * * aaa`
 
 **Send `aaa` every 30 minutes from 9 to 19(excluding) everyday** => `$alarm */30 9-18 * * * aaa`
 
