@@ -5,10 +5,10 @@ function small_time_interval(mins) {
     if (mins === '*') {
         return true;
     }
-    if (mins.contains('-')) {
+    if (mins.includes('-')) {
         return true;
     }
-    if (!mins.contains('*/')) {
+    if (!mins.includes('*/')) {
         return false;
     }
     let num_minutes = mins.replace('*/', '');
@@ -17,31 +17,85 @@ function small_time_interval(mins) {
     return isNaN(n) || n < 15;
 }
 
+function isAValidRangeGroupOrNumber(stg, min, max) {
+    if (stg == '*') {
+        return true;
+    } else if (stg.includes('-')) {
+        let tokens = stg.split('-');
+        let a = parseInt(tokens[0]);
+        let b = parseInt(tokens[1]);
+        return a >= min && b <= max;
+    } else if (stg.includes('/*')) {
+        let num = mins.replace('*/', '');
+        let n = parseInt(num);
+        return n >= min && n <= max;
+    } else if (stg.includes(',')) {
+        let tokens = stg.split(',');
+        for (let t of tokens) {
+            if (t < min || t > max) {
+                return false;
+            }
+        }
+        return true;
+    }
+    let num = parseInt(stg);
+    return num >= min && num <= max;
+}
+
 function validate_alarm_parameters(msg, cron_params, message_stg) {
-    if (cron_params.length < 6) {
+    if (message_stg.length === 0) {
+        msg.channel.send('The message is empty! Please insert a message before proceding!');
+        return false;
+    }
+
+    if (message_stg.length > 350) { // message is too long
+        msg.channel.send('The message is too long, please trim it down!');
+        return false;
+    }
+
+    if (cron_params.length < 5) {
         msg.channel.send('Not enough parameters were passed, try `#alarmHelp` for more information!');
         return false;
     }
     let mins = cron_params[0];
     if (small_time_interval(mins)) {
         msg.channel.send("The minute parameter you sent is either invalid or too short. Only time intervals bigger than 15 minutes are allowed to avoid spam");
-    }
-    let hours = cron_params[1];
-    let num = parseInt(hours);
-    if(isNaN(num) || num < 0 || num > 23){
-        msg.channel.send("The hour parameter is invalid! Try `#alarmHelp` for more information!")
-    }
-    let month_day = cron_params[2];
-    let month_num_day = parseInt(month_day);
-    if(isNaN)
-    let month = cron_params[3];
-    let weekday = cron_params[3];
-
-    let message = message_stg;
-    if (message.length > 350) { // message is too long
-        msg.channel.send('Not enough parameters were passed, try `#alarmHelp` for more information!');
         return false;
     }
+
+    let hours = cron_params[1];
+    let num = parseInt(hours);
+    if(isAValidRangeGroupOrNumber(hours, 0, 23)){
+        msg.channel.send("The hour parameter is invalid! Try `#alarmHelp` for more information!");
+        return false;
+    }
+    // if (isNaN(num) || num < 0 || num > 23) {
+    //     msg.channel.send("The hour parameter is invalid! Try `#alarmHelp` for more information!");
+    //     return false;
+    // }
+
+    let month_day = cron_params[2];
+    let month_num_day = parseInt(month_day);
+    if (isNaN(month_num_day) || month_num_day < 1 || month_num_day > 31) {
+        msg.channel.send("The day of the month parameter is invalid! Try `#alarmHelp` for more information!");
+        return false;
+    }
+
+    let month = cron_params[3];
+    let month_num = parseInt(month);
+    if (isNaN(month_num_day) || month_num < 1 || month_num > 12) {
+        msg.channel.send("The month parameter is invalid! Try `#alarmHelp` for more information!");
+        return false;
+    }
+
+    let weekday = cron_params[4];
+    let weekday_num = parseInt(weekday);
+    if (isNaN(weekday_num) || weekday_num < 0 || weekday_num > 7) {
+        msg.channel.send("The month parameter is invalid! Try `#alarmHelp` for more information!");
+        return false;
+    }
+
+    return true;
 }
 
 module.exports = {
@@ -56,49 +110,51 @@ module.exports = {
         var target = args[args.length - 1];
 
         // Check if the message has a single word and no target
-        if (target.contains('<@&')) {
+        if (!target.includes('<@&')) {
             message_stg = target;
         }
-        var guild = msg.guild.id;
+        if (validate_alarm_parameters(msg, crono, message_stg)) {
+            var guild = msg.guild.id;
 
-        try {
-            let scheduledMessage = new cron(crono, () => {
-                msg.channel.send(`${message_stg}! ${target}`);
-            }, {
-                scheduled: true
-            });
-            scheduledMessage.start();
-            let alarm_user = msg.author.id;
-            let this_alarm_id = Math.random().toString(36).substring(4);
-            let alarm_id = `${this_alarm_id}_${alarm_user}`;
-            // save locally
-            cron_list[alarm_id] = scheduledMessage;
+            try {
+                let scheduledMessage = new cron(crono, () => {
+                    msg.channel.send(`${message_stg}! ${target}`);
+                }, {
+                    scheduled: true
+                });
+                scheduledMessage.start();
+                let alarm_user = msg.author.id;
+                let this_alarm_id = Math.random().toString(36).substring(4);
+                let alarm_id = `${this_alarm_id}_${alarm_user}`;
+                // save locally
+                cron_list[alarm_id] = scheduledMessage;
 
-            // save to DB
-            const newAlarm = new Alarm_model({
-                _id: mongoose.Types.ObjectId(),
-                alarm_id: alarm_id,
-                alarm_args: crono,
-                message: message_stg,
-                target: target,
-                guild: guild,
-                channel: msg.channel.id,
-                timestamp: Date.now(),
-            });
-            newAlarm.save()
-                .then((result) => {
-                    console.log(`${result} added to database`);
-                    msg.channel.send({
-                        embed: {
-                            fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono}, for channel ${msg.channel.name} was added with success!` },
-                            timestamp: new Date()
-                        }
-                    });
-                })
-                .catch(err => console.log(err));
-        } catch (err) {
-            console.error(err);
-            msg.channel.send(`Error adding the alarm with params: ${crono}, for target ${target}`);
+                // save to DB
+                const newAlarm = new Alarm_model({
+                    _id: mongoose.Types.ObjectId(),
+                    alarm_id: alarm_id,
+                    alarm_args: crono,
+                    message: message_stg,
+                    target: target,
+                    guild: guild,
+                    channel: msg.channel.id,
+                    timestamp: Date.now(),
+                });
+                newAlarm.save()
+                    .then((result) => {
+                        console.log(`${result} added to database`);
+                        msg.channel.send({
+                            embed: {
+                                fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono}, for channel ${msg.channel.name} was added with success!` },
+                                timestamp: new Date()
+                            }
+                        });
+                    })
+                    .catch(err => console.log(err));
+            } catch (err) {
+                console.error(err);
+                msg.channel.send(`Error adding the alarm with params: ${crono}, for target ${target}`);
+            }
         }
     }
 };
