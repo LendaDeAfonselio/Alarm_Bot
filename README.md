@@ -26,9 +26,9 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 `*/x` => Every number that divides by x, for example: `*/15`  would be 15, 30 and 45 
 
-`x1,...,xn` => Defines a set interval, for example: `1,3,5` would be mean 1, 3 and 5 **ONLY**
+`x1,...,xn` => Defines a set with specific values, for example: `1,3,5` would be mean 1, 3 and 5 **ONLY**
 
-`x1-xn`=> 
+`x1-xn`=>  Defines a set with all values within that interval, for example : `1-5` would mean every number between 1 and 5 including the extremes, *i.e* - `1,2,3,4,5`
 
 ### Examples:
 
