@@ -4,7 +4,6 @@ const alarmSchema = mongoose.Schema({
     alarm_id: String,
     alarm_args: String,
     message: String,
-    target: String,
     guild: String,
     channel: String,
     timestamp: Date
