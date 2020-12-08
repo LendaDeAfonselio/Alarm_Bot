@@ -3,6 +3,7 @@ const Private_alarm_model = require('../models/private_alarm_model');
 
 const auth = require('./../auth.json');
 const private_flag = auth.private_prefix;
+const temp_flag = auth.one_time_prefix;
 
 function can_delete_alarm(message, alarm_id) {
     return (message.member.hasPermission("ADMINISTRATOR") || alarm_id.includes(msg.author.id));
@@ -20,12 +21,12 @@ module.exports = {
         else {
             if (cron_list[alarm_to_delete] !== undefined) {
                 try {
-                    if (!alarm_to_delete.includes(private_flag)) {
-                        await Alarm_model.deleteOne(
+                    if (alarm_to_delete.includes(private_flag)) {
+                        await Private_alarm_model.deleteOne(
                             { alarm_id: alarm_to_delete }
                         )
-                    } else {
-                        await Private_alarm_model.deleteOne(
+                    } else if (!alarm_to_delete.includes(temp_flag)) {
+                        await Alarm_model.deleteOne(
                             { alarm_id: alarm_to_delete }
                         )
                     }
