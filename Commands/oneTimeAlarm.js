@@ -37,15 +37,16 @@ module.exports = {
                     if (date_tokens.length === 3) {
                         year = date_tokens[2];
                     }
-                    console.log(date_tokens);
-                    console.log(day );
-                    console.log(month);
-                    console.log(year);
+
                     var hour_min_tokens = hour_min_args.split(':');
                     if (hour_min_tokens.length === 2) {
                         var minutes = hour_min_tokens[1];
                         var hour = hour_min_tokens[0];
-                        var d = new Date(year, month, day, hour, minutes, 0, 0);
+                        console.log(hour);
+                        console.log(minutes);
+                        var date_stg = `${year}-${month}-${day} ${hour_min_args}`;
+                        var d = new Date(date_stg);
+                        //var d = new Date(year, month, day, hour, minutes, 0, 0);
                         if (isValidDate(d)) {
                             var now = new Date();
                             if (d > now) {
@@ -71,30 +72,21 @@ module.exports = {
                                         console.error(e);
                                     }
                                 }, dif + 5000);
+                            } else {
+                                msg.channel.send(`The date you entered is ${date_args} already happened!`);
                             }
-
                         } else {
-                            msg.channel.send(`The date you entered is ${date_args} already happened!`);
-
+                            msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                         }
                     } else {
                         msg.channel.send(`The format for the hours _${hour_min_args}_ is invalid, it should be <HH:MM>! Please correct any errors and try again!`);
                     }
+
                 } else {
                     msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
-                }
-            } else {
 
+                }
             }
         }
-
-        // msg.channel.send({
-        //     embed: {
-        //         color: 0xff80d5,
-        //         title: "Your alarms are:",
-        //         fields: fields,
-        //         timestamp: new Date()
-        //     }
-        // });
     }
 }
