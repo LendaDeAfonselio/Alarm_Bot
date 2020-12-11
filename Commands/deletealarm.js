@@ -10,9 +10,9 @@ function can_delete_alarm(message, alarm_id) {
 }
 
 module.exports = {
-    name: 'deletealarm',
+    name: 'deleteAlarm',
     description: 'Deletes the alarm with a given id',
-    usage: auth.prefix + 'deletealarm <id>',
+    usage: auth.prefix + 'deleteAlarm <id>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var alarm_to_delete = args[0];
         if (!can_delete_alarm(msg, alarm_to_delete)) {

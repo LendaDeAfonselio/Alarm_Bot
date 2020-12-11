@@ -2,9 +2,9 @@ const Discord = require('discord.js');
 const auth = require('./../auth.json');
 
 module.exports = {
-    name: 'myalarms',
+    name: 'myAlarms',
     description: 'Fetches all of your alarms',
-    usage: auth.prefix + 'myalarms',
+    usage: auth.prefix + 'myAlarms',
     async execute(msg, args, client, cron, cron_list, mongoose) {
 
         let fields = [];
