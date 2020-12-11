@@ -8,6 +8,7 @@ module.exports = {
     async execute(msg, args, client, cron, cron_list, mongoose) {
 
         let fields = [];
+        
         for (let [key, value] of Object.entries(cron_list)) {
             if (key.includes(msg.author.id)) {
                 alarm_text = `ID: ${key}\n\tWith params: ${value.cronTime.source}`

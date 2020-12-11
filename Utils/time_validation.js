@@ -74,7 +74,7 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
     }
 
     let month = cron_params[3];
-    if(!isAValidRangeGroupOrNumber(month, 1, 12)){
+    if(!isAValidRangeGroupOrNumber(month, 0, 11)){
         msg.channel.send("The month parameter is invalid! Try `#alarmHelp` for more information!");
         return false;
     }
