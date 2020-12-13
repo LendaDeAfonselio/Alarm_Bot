@@ -1,4 +1,5 @@
 const auth = require('./../auth.json');
+const utils = require('../Utils/utility_functions');
 
 function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
@@ -57,64 +58,67 @@ module.exports = {
         + 'P.S - These alarms are not persistent - they are not saved on a DB, therefore if the bot goes down you will have to set them up again.',
     usage: auth.prefix + 'oneTimeAlarm <-p> <HH:MM> <Day/Month/Year> <Message>\n',
     async execute(msg, args, client, cron, cron_list, mongoose) {
+        if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
+            if (args.length < 2) {
+                msg.channel.send('Insuficient arguments were passed for this alarm!\n'
+                    + 'Try $help for more information!');
+            }
+            var isPrivate = args[0].toLowerCase() === '-p';
+            var hour_min_args = args[1];
+            var date_args = '';
+            var message = '';
+            if (!isPrivate) {
+                hour_min_args = args[0];
+                if (args[1].includes('/') && args[1].length >= 8 && args[1].length <= 10) {
+                    date_args = args[1];
+                    message = args.slice(2, args.length).join(' ');
 
-        if (args.length < 2) {
-            msg.channel.send('Insuficient arguments were passed for this alarm!\n'
-                + 'Try $help for more information!');
-        }
-        var isPrivate = args[0].toLowerCase() === '-p';
-        var hour_min_args = args[1];
-        var date_args = '';
-        var message = '';
-        if (!isPrivate) {
-            hour_min_args = args[0];
-            if (args[1].includes('/') && args[1].length >= 8 && args[1].length <= 10) {
-                date_args = args[1];
-                message = args.slice(2, args.length).join(' ');
+                    var d = parseDateAndTime(date_args, hour_min_args, msg);
 
-                var d = parseDateAndTime(date_args, hour_min_args, msg);
-
-                if (isValidDate(d)) {
-                    var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                    var now = new Date();
-                    if (d > now) {
-                        let ota = new cron(d, () => {
-                            msg.channel.send(`${message}`);
-                        });
-                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg);
+                    if (isValidDate(d)) {
+                        var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                        var now = new Date();
+                        if (d > now) {
+                            let ota = new cron(d, () => {
+                                msg.channel.send(`${message}`);
+                            });
+                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg);
+                        } else {
+                            msg.channel.send(`The date you entered: **${params_stg}** already happened, please verify the parameters and try again!`);
+                        }
                     } else {
-                        msg.channel.send(`The date you entered: **${params_stg}** already happened, please verify the parameters and try again!`);
+                        msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                     }
                 } else {
                     msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                 }
             } else {
-                msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                if (args[2].includes('/') && args[2].length >= 8 && args[2].length <= 10) {
+                    date_args = args[2];
+                    message = args.slice(3, args.length).join(' ');
+
+                    var d = parseDateAndTime(date_args, hour_min_args, msg); // TODO: Will bug
+
+                    if (isValidDate(d)) {
+                        var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                        var now = new Date();
+                        if (d > now) {
+                            let ota = new cron(d, () => {
+                                msg.author.send(`${message}`);
+                            });
+                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg);
+                        } else {
+                            msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                        }
+                    } else {
+                        msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                    }
+                } else {
+                    msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                }
             }
         } else {
-            if (args[2].includes('/') && args[2].length >= 8 && args[2].length <= 10) {
-                date_args = args[2];
-                message = args.slice(3, args.length).join(' ');
-
-                var d = parseDateAndTime(date_args, hour_min_args, msg); // TODO: Will bug
-
-                if (isValidDate(d)) {
-                    var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                    var now = new Date();
-                    if (d > now) {
-                        let ota = new cron(d, () => {
-                            msg.author.send(`${message}`);
-                        });
-                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg);
-                    } else {
-                        msg.channel.send(`The date you entered:${params_stg} already happened!`);
-                    }
-                } else {
-                    msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
-                }
-            } else {
-                msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
-            }
+            msg.channel.send('You do not have permissions to set that alarm! Ask for the admins on your server to give you the `Alarming` role!');
         }
     }
 }
