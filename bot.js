@@ -48,6 +48,7 @@ client.once('ready', async x => {
         await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
         await load_alarms.fetchPrivateAlarms(cron_list, cron, guild, guild.id);
     });
+    client.user.setActivity("$help to get started!");
 });
 
 /*************************** Execute Commands ************************/
