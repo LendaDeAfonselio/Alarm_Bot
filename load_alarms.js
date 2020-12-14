@@ -11,13 +11,15 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
         let alarm_id = alarm.alarm_id;
         let channel_id = alarm.channel;
         let channel = await guild.channels.cache.get(channel_id);
-        let scheduledMessage = new cron(crono, () => {
-            channel.send(`${message_stg}`);
-        }, {
-            scheduled: true
-        });
-        scheduledMessage.start();
-        cron_list[alarm_id] = scheduledMessage;
+        if (channel !== undefined) {
+            let scheduledMessage = new cron(crono, () => {
+                channel.send(`${message_stg}`);
+            }, {
+                scheduled: true
+            });
+            scheduledMessage.start();
+            cron_list[alarm_id] = scheduledMessage;
+        }
     }
 }
 
