@@ -44,3 +44,15 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 **Send `aaa` every 30 minutes from 9 to 19(excluding) everyday** => `$alarm */30 9-18 * * * aaa`
 
+### Available Commands:
+
+Currently the bot has the following commands:
+
+- `help` - Help command with all you need to know about the bot and the commands!
+- `alarm` - Sets up an alarm to the channel in which you're sending the message.
+- `alarmHelp` - Some examples and help on how to setup an alarm.
+- `deleteAlarm` - deletes an alarm given an id.
+- `myAlarms` - Shows you a list of your public and private alarms.
+- `oneTimeAlarm` - Sets up an one time alarm, use -p for a private alarm!
+- `ping` - Just to check if the bot is alive.
+- `privateAlarm`- Sets up a private alarm via DM.
