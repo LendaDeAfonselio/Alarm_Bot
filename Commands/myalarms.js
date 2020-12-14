@@ -22,7 +22,7 @@ module.exports = {
             let alarm_preview = alarm.message.substring(0, 50);
             let field = {
                 name: `ID: ${alarm_id}`,
-                value: `\tWith params: ${alarm_params}\nMessage:${alarm_preview}`
+                value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}`
             };
             general_alarms.push(field);
         }
@@ -33,7 +33,7 @@ module.exports = {
             let alarm_preview = p_alarm.message.substring(0, 50);
             let field = {
                 name: `ID: ${alarm_id}`,
-                value: `\tWith params: ${alarm_params}\nMessage:${alarm_preview}`
+                value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}`
             };
             private_alarms.push(field);
         }
