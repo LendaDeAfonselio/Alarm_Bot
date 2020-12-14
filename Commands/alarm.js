@@ -44,7 +44,7 @@ module.exports = {
                             console.log(`${result} added to database`);
                             msg.channel.send({
                                 embed: {
-                                    fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono}, for channel ${msg.channel.name} was added with success!` },
+                                    fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono} and message ${message_stg} for channel ${msg.channel.name} was added with success!` },
                                     timestamp: new Date()
                                 }
                             });
