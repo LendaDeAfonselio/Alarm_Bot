@@ -47,7 +47,7 @@ module.exports = {
             }
         });
 
-        msg.channel.send({
+        msg.author.send({
             embed: {
                 color: 0xff80d5,
                 title: "Your private alarms are:",
