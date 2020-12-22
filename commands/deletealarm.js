@@ -35,13 +35,12 @@ module.exports = {
                     msg.channel.send(`Sucessfully deleted alarm: ${alarm_to_delete}.`);
                 } catch (e) {
                     console.log(e);
-                    msg.channel.send(`Error deleting that alarm from the database... Please try again later!`);
+                    msg.channel.send(`Error deleting alarm with id:${alarm_to_delete}... Please try again later!`);
                 }
             }
             else {
-                console.log(`Impossible to delete alarm with id ${alarm_to_delete}`);
                 var myalarms_command_stg = "`myalarms`";
-                msg.channel.send(`Impossible to delete alarm with id ${alarm_to_delete}.\nPlease check if you entered the id of the alarm correctly!\nTo see your alarms, do: ${myalarms_command_stg}`);
+                msg.channel.send(`Impossible to delete alarm with id ${alarm_to_delete}.\nPlease check if you entered the id of the alarm correctly!\nTo see your alarms, type: ${auth.prefix}${myalarms_command_stg}`);
             }
         }
 

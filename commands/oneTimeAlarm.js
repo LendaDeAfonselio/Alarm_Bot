@@ -22,7 +22,7 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
             let d = new Date(date_stg);
             return d;
         } else {
-            msg.channel.send(`The format for the hours _${hour_min_args}_ is invalid, it should be <HH:MM>! Please correct any errors and try again!`);
+            msg.channel.send(`The format for the date _${date_args}_ is invalid, it should be <DD/MM/YYYY>! Please correct any errors and try again!`);
         }
     }
     return undefined;
@@ -93,11 +93,11 @@ module.exports = {
                     msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                 }
             } else {
-                if (args[2].includes('/') && args[2].length >= 8 && args[2].length <= 10) {
+                if (args[2].includes('/') && args[2].length >= 3 && args[2].length <= 10) {
                     date_args = args[2];
                     message = args.slice(3, args.length).join(' ');
 
-                    var d = parseDateAndTime(date_args, hour_min_args, msg); // TODO: Will bug
+                    var d = parseDateAndTime(date_args, hour_min_args, msg);
 
                     if (isValidDate(d)) {
                         var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
@@ -114,7 +114,26 @@ module.exports = {
                         msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                     }
                 } else {
-                    msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                    message = args.slice(2, args.length).join(' ');
+
+                    let today = new Date();
+                    date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+                    var d = parseDateAndTime(date_args, hour_min_args, msg);
+
+                    if (isValidDate(d)) {
+                        var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                        var now = new Date();
+                        if (d > now) {
+                            let ota = new cron(d, () => {
+                                msg.author.send(`${message}`);
+                            });
+                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg);
+                        } else {
+                            msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                        }
+                    } else {
+                        msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                    }
                 }
             }
         } else {

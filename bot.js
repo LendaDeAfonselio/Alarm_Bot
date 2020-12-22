@@ -45,8 +45,12 @@ client.once('ready', async x => {
                 }
             }
         });
-        await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
-        await load_alarms.fetchPrivateAlarms(cron_list, cron, guild, guild.id);
+        try {
+            await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
+            await load_alarms.fetchPrivateAlarms(cron_list, cron, guild, guild.id);
+        } catch (e) {
+            console.log(e);
+        }
     });
     client.user.setActivity("$help to get started!");
 });
