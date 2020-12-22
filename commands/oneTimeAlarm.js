@@ -69,7 +69,7 @@ module.exports = {
             var message = '';
             if (!isPrivate) {
                 hour_min_args = args[0];
-                if (args[1].includes('/') && args[1].length >= 8 && args[1].length <= 10) {
+                if (args[1].includes('/') && args[1].length >= 3 && args[1].length <= 10) {
                     date_args = args[1];
                     message = args.slice(2, args.length).join(' ');
 
@@ -90,7 +90,26 @@ module.exports = {
                         msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                     }
                 } else {
-                    msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                    message = args.slice(1, args.length).join(' ');
+
+                    let today = new Date();
+                    date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+                    var d = parseDateAndTime(date_args, hour_min_args, msg);
+
+                    if (isValidDate(d)) {
+                        var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                        var now = new Date();
+                        if (d > now) {
+                            let ota = new cron(d, () => {
+                                msg.channel.send(`${message}`);
+                            });
+                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg);
+                        } else {
+                            msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                        }
+                    } else {
+                        msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                    }
                 }
             } else {
                 if (args[2].includes('/') && args[2].length >= 3 && args[2].length <= 10) {
