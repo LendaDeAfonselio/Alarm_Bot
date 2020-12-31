@@ -22,8 +22,8 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
         let a = parseInt(tokens[0]);
         let b = parseInt(tokens[1]);
         return a >= min && b <= max;
-    } else if (stg.includes('/*')) {
-        let num = mins.replace('*/', '');
+    } else if (stg.includes('*/')) {
+        let num = stg.replace('*/', '');
         let n = parseInt(num);
         return n >= min && n <= max;
     } else if (stg.includes(',')) {
