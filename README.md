@@ -6,6 +6,7 @@ A Simple Discord Bot that allows people/roles to set up alarms and receive them 
 - npm i cron
 - npm i mongoose
 - npm i file-system
+- npm i timezones.json
 
 ## Usage and examples
 

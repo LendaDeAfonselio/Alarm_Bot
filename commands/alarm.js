@@ -8,14 +8,32 @@ module.exports = {
     description: 'Sets up an alarm that will be repeated\n' +
         'This alarm will send a message to the _channel_ of the _server_ in which it is activated.\n'
         + 'The parameter <target> is optional.',
-    usage: auth.prefix + 'alarm <m> <h> <month> <weekday> <message> <target>',
+    usage: auth.prefix + 'alarm <timezone/city/UTC> <m> <h> <month> <weekday> <message> <target>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
-            var crono = args.slice(0, 5).join(' ');
+            var timezone = args[0];
+            var crono = args.slice(1, 6).join(' ');
             var message_stg = args.slice(5, args.length).join(' ');
-            if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
-                var guild = msg.guild.id;
+            var difference = time_utils.get_offset_difference(timezone);
+            if (!difference) {
+                msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
+            }
+            else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
+                let hour_diff = Math.trunc(difference);
+                let min_diff = (difference % 1) * 60;
+                let cron_params = crono.split(" ");
 
+                let r = 0;
+                cron_params[1] = cron_params[1] + min_diff;
+                if (cron_params[1] > 60) {
+                    cron_params[1] = cron_params[1] % 60;
+                    r += 1;
+                }
+                cron_params[0] += cron_params[0] + hour_diff + r;
+
+                crono = cron_params.slice().join(' ');
+                console.log(crono);
+                var guild = msg.guild.id;
                 try {
                     let scheduledMessage = new cron(crono, () => {
                         msg.channel.send(`${message_stg}`);

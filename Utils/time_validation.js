@@ -1,3 +1,6 @@
+const timezones = require('timezones.json');
+const utility = require("./utility_functions");
+// Parameter parsing
 function small_time_interval(mins) {
     if (mins === '*') {
         return true;
@@ -74,13 +77,13 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
     }
 
     let month = cron_params[3];
-    if(!isAValidRangeGroupOrNumber(month, 0, 11)){
+    if (!isAValidRangeGroupOrNumber(month, 0, 11)) {
         msg.channel.send("The month parameter is invalid! Try `#alarmHelp` for more information!");
         return false;
     }
 
     let weekday = cron_params[4];
-    if(!isAValidRangeGroupOrNumber(weekday, 0, 7)){
+    if (!isAValidRangeGroupOrNumber(weekday, 0, 7)) {
         msg.channel.send("The weekday parameter is invalid! Try `#alarmHelp` for more information!");
         return false;
     }
@@ -88,6 +91,82 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
     return true;
 }
 
+// Timezones arranging 
+
+// https://stackoverflow.com/questions/11887934/how-to-check-if-dst-daylight-saving-time-is-in-effect-and-if-so-the-offset
+Date.prototype.stdTimezoneOffset = function () {
+    var jan = new Date(this.getFullYear(), 0, 1);
+    var jul = new Date(this.getFullYear(), 6, 1);
+    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+}
+
+// https://stackoverflow.com/questions/11887934/how-to-check-if-dst-daylight-saving-time-is-in-effect-and-if-so-the-offset
+Date.prototype.isDstObserved = function () {
+    return this.getTimezoneOffset() < this.stdTimezoneOffset();
+}
+
+
+function get_timezone_by_abreviation(abr) {
+    return timezones.filter(
+        function (data) { return data.abbr == abr }
+    )[0];
+}
+
+function get_timezone_by_city(city) {
+    return timezones.filter(
+        function (data) {
+            return data.utc.find(a => a.includes(city))
+        }
+    )[0];
+}
+
+function get_timezone_offset(stg) {
+    if (stg.includes('UTC')) {
+        let hour_diff = stg.replace('UTC', '');
+        let signal = hour_diff[0];
+        hour_diff = hour_diff.replace(signal, '');
+        if (!(signal === '-' || signal === '+')) {
+            return undefined;
+        }
+        let tokens = hour_diff.split(':');
+        if (tokens.length >= 1) {
+            let hours = parseInt(signal.concat(tokens[0]));
+            let offset = hours;
+            if (tokens.length >= 2) {
+                let minutes = parseInt(signal.concat(tokens[1]));
+                offset = offset + (minutes / 60);
+            }
+            return offset;
+        }
+        return undefined;
+    }
+    var timezone = get_timezone_by_abreviation(stg);
+    if (!timezone) {
+        timezone = get_timezone_by_city(stg);
+    }
+
+    return timezone !== undefined ? timezone.offset : undefined;
+}
+
+function get_offset_difference(stg) {
+    let other_offset = get_timezone_offset(stg);
+    if (!other_offset) {
+        return undefined;
+    }
+
+    var today = new Date();
+    let current_offset = 0;
+    if (today.isDstObserved()) {
+        current_offset = 1;
+    }
+    return other_offset - current_offset;
+    //return utility.getAbsoluteDiff(other_offset, current_offset);
+}
+
+
+
 module.exports = {
-    validate_alarm_parameters : validate_alarm_parameters
+    validate_alarm_parameters: validate_alarm_parameters,
+    get_timezone_offset: get_timezone_offset,
+    get_offset_difference: get_offset_difference
 }
