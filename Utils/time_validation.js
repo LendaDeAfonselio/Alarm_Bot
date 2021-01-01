@@ -150,7 +150,7 @@ function get_timezone_offset(stg) {
 
 function get_offset_difference(stg) {
     let other_offset = get_timezone_offset(stg);
-    if (!other_offset) {
+    if (other_offset === undefined) {
         return undefined;
     }
 

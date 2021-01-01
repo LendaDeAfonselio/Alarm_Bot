@@ -22,17 +22,18 @@ module.exports = {
                 let hour_diff = Math.trunc(difference);
                 let min_diff = (difference % 1) * 60;
                 let cron_params = crono.split(" ");
-
                 let r = 0;
-                cron_params[1] = cron_params[1] + min_diff;
-                if (cron_params[1] > 60) {
-                    cron_params[1] = cron_params[1] % 60;
+                cron_params[0] = parseInt(cron_params[0]) + min_diff;
+                if(cron_params[0] < 0){
+                    cron_params[0] = parseInt(cron_params[0]) + 60;
                     r += 1;
                 }
-                cron_params[0] += cron_params[0] + hour_diff + r;
-
+                if (cron_params[0] > 60) {
+                    cron_params[0] = parseInt(cron_params[0]) + 60;
+                    r += 1;
+                }
+                cron_params[1] = parseInt(cron_params[1]) + hour_diff + r;
                 crono = cron_params.slice().join(' ');
-                console.log(crono);
                 var guild = msg.guild.id;
                 try {
                     let scheduledMessage = new cron(crono, () => {
@@ -62,7 +63,7 @@ module.exports = {
                             console.log(`${result} added to database`);
                             msg.channel.send({
                                 embed: {
-                                    fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono} and message ${message_stg} for channel ${msg.channel.name} was added with success!` },
+                                    fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono} (server time) and message ${message_stg} for channel ${msg.channel.name} was added with success!` },
                                     timestamp: new Date()
                                 }
                             });
