@@ -24,7 +24,7 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
         let tokens = stg.split('-');
         let a = parseInt(tokens[0]);
         let b = parseInt(tokens[1]);
-        return a >= min && b <= max;
+        return a < b && a >= min && b <= max;
     } else if (stg.includes('*/')) {
         let num = stg.replace('*/', '');
         let n = parseInt(num);
@@ -163,10 +163,77 @@ function get_offset_difference(stg) {
     //return utility.getAbsoluteDiff(other_offset, current_offset);
 }
 
+function updateParams(difference, crono) {
+    let hour_diff = Math.trunc(difference);
+    let min_diff = (difference % 1) * 60;
+    let cron_params = crono.split(" ");
+    var r = 0;
+    cron_params[0] = updateParamsAux(cron_params[0], 60, min_diff, r);
+    console.log(r);
+    cron_params[1] = updateParamsAux(cron_params[1], 24, hour_diff, r);
+    console.log(r);
+
+    crono = cron_params.slice().join(' ');
+    return crono;
+}
+
+function updateParamsAux(stg, max_value, diff, r) {
+    if (diff === 0 && r === 0) {
+        return stg;
+    }
+    if (stg == '*') {
+        return stg;
+    } else if (stg.includes('-')) {
+        let tokens = stg.split('-');
+        let a = parseInt(tokens[0]);
+        let b = parseInt(tokens[1]);
+        // update range
+        a = (a + diff + r);
+        b = (b + diff + r);
+        if (b >= max_value && a >= max_value) {
+            a %= max_value;
+            b %= max_value;
+            r++;
+        }
+        else if (b >= max_value && a < max_value) {
+            return `${a}-23,0-${b % max_value}`;
+        }
+        return `${a}-${b}`;
+
+    } else if (stg.includes('*/')) {
+        let num = stg.replace('*/', '');
+        let n = parseInt(num);
+        // idk if this works tbh 
+        //TODO:  Work this out
+        return stg;
+    } else if (stg.includes(',')) {
+        let tokens = stg.split(',');
+        let updateValues = new Array();
+        for (let t of tokens) {
+            let tot_sum = parseInt(t) + diff + r;
+            let new_t = tot_sum % max_value;
+            updateValues.push(new_t);
+        }
+        return updateValues.join();
+    } else {
+        let update_stg = parseInt(stg) + diff;
+        if (update_stg < 0) {
+            update_stg = update_stg + max_value;
+            r--;
+        }
+        if (update_stg > max_value) {
+            update_stg = update_stg % max_value;
+            r++;
+        }
+        return update_stg;
+    }
+}
+
 
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
     get_timezone_offset: get_timezone_offset,
-    get_offset_difference: get_offset_difference
+    get_offset_difference: get_offset_difference,
+    updateParams: updateParams
 }

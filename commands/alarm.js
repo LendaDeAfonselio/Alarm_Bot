@@ -19,21 +19,7 @@ module.exports = {
                 msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
             }
             else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
-                let hour_diff = Math.trunc(difference);
-                let min_diff = (difference % 1) * 60;
-                let cron_params = crono.split(" ");
-                let r = 0;
-                cron_params[0] = parseInt(cron_params[0]) + min_diff;
-                if(cron_params[0] < 0){
-                    cron_params[0] = parseInt(cron_params[0]) + 60;
-                    r += 1;
-                }
-                if (cron_params[0] > 60) {
-                    cron_params[0] = parseInt(cron_params[0]) + 60;
-                    r += 1;
-                }
-                cron_params[1] = parseInt(cron_params[1]) + hour_diff + r;
-                crono = cron_params.slice().join(' ');
+                crono = updateParams(difference, crono);
                 var guild = msg.guild.id;
                 try {
                     let scheduledMessage = new cron(crono, () => {
@@ -80,4 +66,5 @@ module.exports = {
         }
     }
 };
+
 
