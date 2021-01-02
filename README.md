@@ -25,7 +25,7 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 **Some semantics:**
 
-`*/x` => Every number that divides by x, for example: `*/15`  would be 15, 30 and 45 
+`*/x` => Every number that divides by x, for example: `*/15`  would be 15, 30 and 45 -> If you want to use this I strongly advise to use in the timezone of the bot, otherwise the behavior might not be as expected.
 
 `x1,...,xn` => Defines a set with specific values, for example: `1,3,5` would be mean 1, 3 and 5 **ONLY**
 
@@ -33,17 +33,17 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 ### Examples:
 
-**Sending `hello` everyday at 19:35** => `$alarm 35 19 * * * Hello!`
+**Sending `hello` everyday at 19:35 (GMT)** => `$alarm GMT 35 19 * * * Hello!`
 
-**Sending `Greetings` wednesday at 19:35** => `$alarm 35 19 * * 3 Greetings!`
+**Sending `Greetings` wednesday at 19:35** => `$alarm GMT 35 19 * * 3 Greetings!`
 
-**Sending `1234!` at the 23rd of every month at 19:35** => `$alarm 35 19 23 * * 1234!`
+**Sending `1234!` at the 23rd of every month at 19:35** => `$alarm GMT 35 19 23 * * 1234!`
 
-**Sending `Goodbye` every Monday, Wednesday and Friday at 19:00** => `$alarm  00 19 * * 1,3,5 Goodbye`
+**Sending `Goodbye` every Monday, Wednesday and Friday at 19:00** => `$alarm GMT 00 19 * * 1,3,5 Goodbye`
 
-**Send `aaa` hourly from 9 to 19 everyday** => `$alarm 0 9-19 * * * aaa`
+**Send `aaa` hourly from 9 to 19 everyday** => `$alarm GMT 0 9-19 * * * aaa`
 
-**Send `aaa` every 30 minutes from 9 to 19(excluding) everyday** => `$alarm */30 9-18 * * * aaa`
+**Send `aaa` every 30 minutes from 9 to 19(excluding) everyday** => `$alarm GMT */30 9-18 * * * aaa`
 
 ### Available Commands:
 

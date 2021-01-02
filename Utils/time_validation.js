@@ -130,6 +130,10 @@ function get_timezone_by_city(city) {
 function get_timezone_offset(stg) {
     if (stg.includes('UTC')) {
         let hour_diff = stg.replace('UTC', '');
+        if(hour_diff === ''){
+            // simply UTC
+            return 0;
+        }
         let signal = hour_diff[0];
         hour_diff = hour_diff.replace(signal, '');
         if (!(signal === '-' || signal === '+')) {

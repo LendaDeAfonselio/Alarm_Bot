@@ -23,27 +23,27 @@ module.exports = {
 
         let example1 = {
             name: 'Sending `hello` everyday at 19:35',
-            value: '`$alarm 35 19 * * * Hello!`'
+            value: '`$alarm GMT 35 19 * * * Hello!`'
         }
 
         msg_fields.push(example1);
 
         let example3 = {
             name: 'Sending `I am here` every wednesday at 19:35',
-            value: '`$alarm 35 19 * * 3 I am here!`'
+            value: '`$alarm GMT 35 19 * * 3 I am here!`'
         }
 
         msg_fields.push(example3);
 
         let example2 = {
             name: 'Sending `Goodbye` every Monday, Wednesday and Friday at 19:00',
-            value: '`$alarm  00 19 * * 1,3,5`'
+            value: '`$alarm UTC+0 00 19 * * 1,3,5`'
         }
         msg_fields.push(example2);
 
         let example4 = {
             name: 'Send `aaa` every 30 minutes from 9 to 19(excluding) everyday',
-            value: '`$alarm */30 9-18 * * * aaa`'
+            value: '`$alarm UTC+0 */30 9-18 * * * aaa`'
         }
 
         msg_fields.push(example4);

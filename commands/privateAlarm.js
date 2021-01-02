@@ -2,18 +2,25 @@ const Private_alarm_model = require('../models/private_alarm_model');
 const auth = require('./../auth.json');
 const private_flag = auth.private_prefix;
 const utils = require('../Utils/time_validation');
+const time_utils = require('../Utils/time_validation');
+
 
 module.exports = {
     name: 'privateAlarm',
     description: 'Sets up a private alarm that will be repeated as specified in the arguments\n'
         + 'The remainders will be sent to you via Direct Message!\n'
         + '**The bot has to have a server in common with you to send a private message!**',
-    usage: auth.prefix + 'alarm <m> <h> <month> <year> <weekday> <message>',
+    usage: auth.prefix + 'alarm <timezone> <m> <h> <month> <year> <weekday> <message>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
-        var crono = args.slice(0, 5).join(' ');
-        var message_stg = args.slice(5, args.length).join(' ');
-
+        var timezone = args[0];
+        var crono = args.slice(1, 6).join(' ');
+        var message_stg = args.slice(6, args.length).join(' ');
+        var difference = time_utils.get_offset_difference(timezone);
+        if (difference === undefined) {
+            msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
+        }
         if (utils.validate_alarm_parameters(msg, crono, message_stg)) {
+            crono = time_utils.updateParams(difference, crono);
             try {
                 let scheduledMessage = new cron(crono, () => {
                     msg.author.send(`${message_stg}!`);

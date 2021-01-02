@@ -13,13 +13,13 @@ module.exports = {
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
             var timezone = args[0];
             var crono = args.slice(1, 6).join(' ');
-            var message_stg = args.slice(5, args.length).join(' ');
+            var message_stg = args.slice(6, args.length).join(' ');
             var difference = time_utils.get_offset_difference(timezone);
-            if (!difference) {
+            if (difference === undefined) {
                 msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
             }
             else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
-                crono = updateParams(difference, crono);
+                crono = time_utils.updateParams(difference, crono);
                 var guild = msg.guild.id;
                 try {
                     let scheduledMessage = new cron(crono, () => {
