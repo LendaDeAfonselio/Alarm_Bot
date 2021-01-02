@@ -1,5 +1,6 @@
 const timezones = require('timezones.json');
 const utility = require("./utility_functions");
+let r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
     if (mins === '*') {
@@ -17,7 +18,14 @@ function small_time_interval(mins) {
     return isNaN(n) || n < 15;
 }
 
+/**
+ * 
+ * @param {String} stg - The stg to be validated
+ * @param {Number} min - The min value that a number can have within this group or number
+ * @param {Number} max - The max value that a number can have within this group or number
+ */
 function isAValidRangeGroupOrNumber(stg, min, max) {
+    // TODO: Rework this function to be recursive
     if (stg == '*') {
         return true;
     } else if (stg.includes('-')) {
@@ -167,7 +175,6 @@ function updateParams(difference, crono) {
     let hour_diff = Math.trunc(difference);
     let min_diff = (difference % 1) * 60;
     let cron_params = crono.split(" ");
-    var r = 0;
     cron_params[0] = updateParamsAux(cron_params[0], 60, min_diff, r);
     console.log(r);
     cron_params[1] = updateParamsAux(cron_params[1], 24, hour_diff, r);
@@ -188,15 +195,22 @@ function updateParamsAux(stg, max_value, diff, r) {
         let a = parseInt(tokens[0]);
         let b = parseInt(tokens[1]);
         // update range
-        a = (a + diff + r);
-        b = (b + diff + r);
+        a = (a - diff + r);
+        b = (b - diff + r);
+        r = 0;
         if (b >= max_value && a >= max_value) {
             a %= max_value;
             b %= max_value;
             r++;
-        }
-        else if (b >= max_value && a < max_value) {
+        } else if (b >= max_value && a < max_value) {
             return `${a}-23,0-${b % max_value}`;
+        } else if (b < 0 && a < 0) {
+            a += max_value;
+            b += max_value;
+            r--;
+        } else if (a < 0 && b >= 0) {
+            r--;
+            return `${a + max_value}-23,0-${b}`;
         }
         return `${a}-${b}`;
 
@@ -209,14 +223,26 @@ function updateParamsAux(stg, max_value, diff, r) {
     } else if (stg.includes(',')) {
         let tokens = stg.split(',');
         let updateValues = new Array();
+        let dec = false;
+        let inc = false;
         for (let t of tokens) {
-            let tot_sum = parseInt(t) + diff + r;
+            let tot_sum = parseInt(t) - diff + r;
             let new_t = tot_sum % max_value;
+            if (tot_sum < 0) {
+                new_t = tot_sum + max_value;
+                dec = true;
+            }
+            if (tot_sum > max_value) {
+                inc = true;
+            }
             updateValues.push(new_t);
         }
+        inc ? r = 1 : r = 0;
+        dec ? r = -1 : r = 0;
         return updateValues.join();
     } else {
-        let update_stg = parseInt(stg) + diff;
+        let update_stg = parseInt(stg) - diff + r;
+        r = 0;
         if (update_stg < 0) {
             update_stg = update_stg + max_value;
             r--;
@@ -228,8 +254,7 @@ function updateParamsAux(stg, max_value, diff, r) {
         return update_stg;
     }
 }
-
-
+console.log(updateParams(-4.5,"25 12 */2 * *"))
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
