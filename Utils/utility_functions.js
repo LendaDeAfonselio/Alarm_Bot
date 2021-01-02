@@ -7,7 +7,12 @@ function hasAlarmRole(message, alarm_role) {
     return x !== undefined;
 }
 
+function getAbsoluteDiff (a, b) {
+    return a > b ? a - b : b - a;
+} 
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
-    isAdministrator: isAdministrator
+    isAdministrator: isAdministrator,
+    getAbsoluteDiff : getAbsoluteDiff
 }

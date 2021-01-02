@@ -37,14 +37,10 @@ client.once('ready', async x => {
     //Retrieves all main channels the bot is in 
 
     client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
-        let defaultChannel = "";
-        guild.channels.cache.forEach(async (channel) => {
-            if (channel.name == 'bot-and-emote-spam' && channel.type == "text" && defaultChannel == "") {
-                if (channel.permissionsFor(guild.me).has("SEND_MESSAGES")) {
-                    defaultChannel = channel;
-                }
-            }
-        });
+        var chx = guild.channels.cache.filter(chx => chx.type === "text").find(x => x.position === 0);
+        chx.send('Hello everyone, sorry about the spam but it is a very important message.\n'
+        + 'AlarmBot now requires a timezone in order to setup an alarm. Fear not because **your previous alarms will NOT be lost**.\n'
+        + 'For more information visit https://top.gg/bot/754350217876340816');
         try {
             await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
             await load_alarms.fetchPrivateAlarms(cron_list, cron, guild, guild.id);
@@ -53,6 +49,7 @@ client.once('ready', async x => {
         }
     });
     client.user.setActivity("$help to get started!");
+    console.log(client.guilds.cache.size);
 });
 
 /*************************** Execute Commands ************************/

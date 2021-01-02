@@ -8,14 +8,19 @@ module.exports = {
     description: 'Sets up an alarm that will be repeated\n' +
         'This alarm will send a message to the _channel_ of the _server_ in which it is activated.\n'
         + 'The parameter <target> is optional.',
-    usage: auth.prefix + 'alarm <m> <h> <month> <weekday> <message> <target>',
+    usage: auth.prefix + 'alarm <timezone/city/UTC> <m> <h> <month> <weekday> <message> <target>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
-            var crono = args.slice(0, 5).join(' ');
-            var message_stg = args.slice(5, args.length).join(' ');
-            if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
+            var timezone = args[0];
+            var crono = args.slice(1, 6).join(' ');
+            var message_stg = args.slice(6, args.length).join(' ');
+            var difference = time_utils.get_offset_difference(timezone);
+            if (difference === undefined) {
+                msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
+            }
+            else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
+                crono = time_utils.updateParams(difference, crono);
                 var guild = msg.guild.id;
-
                 try {
                     let scheduledMessage = new cron(crono, () => {
                         msg.channel.send(`${message_stg}`);
@@ -44,7 +49,7 @@ module.exports = {
                             console.log(`${result} added to database`);
                             msg.channel.send({
                                 embed: {
-                                    fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono} and message ${message_stg} for channel ${msg.channel.name} was added with success!` },
+                                    fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono} (server time) and message ${message_stg} for channel ${msg.channel.name} was added with success!` },
                                     timestamp: new Date()
                                 }
                             });
@@ -61,4 +66,5 @@ module.exports = {
         }
     }
 };
+
 
