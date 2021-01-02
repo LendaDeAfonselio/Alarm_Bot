@@ -1,5 +1,4 @@
 const timezones = require('timezones.json');
-const utility = require("./utility_functions");
 var r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
@@ -176,9 +175,12 @@ function updateParams(difference, crono) {
     let min_diff = (difference % 1) * 60;
     let cron_params = crono.split(" ");
     cron_params[0] = updateParamsAux(cron_params[0], 60, min_diff);
-    console.log(r);
     cron_params[1] = updateParamsAux(cron_params[1], 24, hour_diff);
-    console.log(r);
+    let r1 = r;
+    cron_params[2] = updateParamsAux(cron_params[2], 31, 0);
+    cron_params[3] = updateParamsAux(cron_params[3], 11, 0);
+    r = r1;
+    cron_params[4] = updateParamsAux(cron_params[4], 7, 0);
 
     crono = cron_params.slice().join(' ');
     return crono;
@@ -254,7 +256,6 @@ function updateParamsAux(stg, max_value, diff) {
         return update_stg;
     }
 }
-console.log(updateParams(-4.5,"45 12 */2 * *"))
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
