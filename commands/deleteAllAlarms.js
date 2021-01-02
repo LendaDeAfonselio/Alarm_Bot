@@ -19,15 +19,19 @@ module.exports = {
                 var to_be_removed = await Private_alarm_model.find(
                     { alarm_id: { $regex: `.*${alarm_user}.*` } },
                 );
-                var x = await Private_alarm_model.remove(
-                    { alarm_id: { $regex: `.*${alarm_user}.*` } },
-                );
-                console.log(to_be_removed);
-                to_be_removed.find(function (i) {
-                    cron_list[i.alarm_id].stop();
-                    delete cron_list[i.alarm_id];
-                });
-                msg.channel.send(`Sucessfully deleted ${x.deletedCount} alarms.`);
+                if (to_be_removed.length > 0) {
+                    var x = await Private_alarm_model.remove(
+                        { alarm_id: { $regex: `.*${alarm_user}.*` } },
+                    );
+                    console.log(to_be_removed);
+                    to_be_removed.find(function (i) {
+                        cron_list[i.alarm_id].stop();
+                        delete cron_list[i.alarm_id];
+                    });
+                    msg.channel.send(`Sucessfully deleted ${x.deletedCount} alarms.`);
+                } else {
+                    msg.channel.send('No private alarm found for your user. Try `myAlarms` to check your alarms');
+                }
             } catch (e) {
                 console.log(e);
                 msg.channel.send(`Error deleting your private alarms...`);
@@ -41,17 +45,23 @@ module.exports = {
                         { guild: msg.guild.id },
                     ]
                 });
-                var y = await Alarm_model.remove({
-                    $and: [
-                        { alarm_id: { $regex: `.*${alarm_user}.*` } },
-                        { guild: msg.guild.id },
-                    ]
-                });
-                to_be_removed.find(function (i) {
-                    cron_list[i.alarm_id].stop();
-                    delete cron_list[i.alarm_id];
-                });
-                msg.channel.send(`Sucessfully deleted ${y.deletedCount} alarms.`);
+                if (to_be_removed.length > 0) {
+
+                    var y = await Alarm_model.remove({
+                        $and: [
+                            { alarm_id: { $regex: `.*${alarm_user}.*` } },
+                            { guild: msg.guild.id },
+                        ]
+                    });
+                    to_be_removed.find(function (i) {
+                        cron_list[i.alarm_id].stop();
+                        delete cron_list[i.alarm_id];
+                    });
+                    msg.channel.send(`Sucessfully deleted ${y.deletedCount} alarms.`);
+                }else{
+                    msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
+
+                }
             } catch (e) {
                 console.log(e);
                 msg.channel.send(`Error deleting your alarms...`);
