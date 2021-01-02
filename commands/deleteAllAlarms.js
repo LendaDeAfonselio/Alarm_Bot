@@ -14,58 +14,63 @@ module.exports = {
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var flag = args[0];
         let alarm_user = msg.author.id;
-        if (flag.toLowerCase() === '-p') {
-            try {
-                var to_be_removed = await Private_alarm_model.find(
-                    { alarm_id: { $regex: `.*${alarm_user}.*` } },
-                );
-                if (to_be_removed.length > 0) {
-                    var x = await Private_alarm_model.remove(
+        if (args.length > 0) {
+            if (flag.toLowerCase() === '-p') {
+                try {
+                    var to_be_removed = await Private_alarm_model.find(
                         { alarm_id: { $regex: `.*${alarm_user}.*` } },
                     );
-                    console.log(to_be_removed);
-                    to_be_removed.find(function (i) {
-                        cron_list[i.alarm_id].stop();
-                        delete cron_list[i.alarm_id];
-                    });
-                    msg.channel.send(`Sucessfully deleted ${x.deletedCount} alarms.`);
-                } else {
-                    msg.channel.send('No private alarm found for your user. Try `myAlarms` to check your alarms');
+                    if (to_be_removed.length > 0) {
+                        var x = await Private_alarm_model.deleteMany(
+                            { alarm_id: { $regex: `.*${alarm_user}.*` } },
+                        );
+                        to_be_removed.find(function (i) {
+                            cron_list[i.alarm_id].stop();
+                            delete cron_list[i.alarm_id];
+                        });
+                        msg.channel.send(`Sucessfully deleted ${x.deletedCount} alarms.`);
+                    } else {
+                        msg.channel.send('No private alarm found for your user. Try `myAlarms` to check your alarms');
+                    }
+                } catch (e) {
+                    console.log(e);
+                    msg.channel.send(`Error deleting your private alarms...`);
                 }
-            } catch (e) {
-                console.log(e);
-                msg.channel.send(`Error deleting your private alarms...`);
             }
-        }
-        else if (flag.toLowerCase() === '-a') {
-            try {
-                var to_be_removed = await Alarm_model.find({
-                    $and: [
-                        { alarm_id: { $regex: `.*${alarm_user}.*` } },
-                        { guild: msg.guild.id },
-                    ]
-                });
-                if (to_be_removed.length > 0) {
-
-                    var y = await Alarm_model.remove({
+            else if (flag.toLowerCase() === '-a') {
+                try {
+                    var to_be_removed = await Alarm_model.find({
                         $and: [
                             { alarm_id: { $regex: `.*${alarm_user}.*` } },
                             { guild: msg.guild.id },
                         ]
                     });
-                    to_be_removed.find(function (i) {
-                        cron_list[i.alarm_id].stop();
-                        delete cron_list[i.alarm_id];
-                    });
-                    msg.channel.send(`Sucessfully deleted ${y.deletedCount} alarms.`);
-                }else{
-                    msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
+                    if (to_be_removed.length > 0) {
 
+                        var y = await Alarm_model.deleteMany({
+                            $and: [
+                                { alarm_id: { $regex: `.*${alarm_user}.*` } },
+                                { guild: msg.guild.id },
+                            ]
+                        });
+                        to_be_removed.find(function (i) {
+                            cron_list[i.alarm_id].stop();
+                            delete cron_list[i.alarm_id];
+                        });
+                        msg.channel.send(`Sucessfully deleted ${y.deletedCount} alarms.`);
+                    } else {
+                        msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
+                    }
+                } catch (e) {
+                    console.log(e);
+                    msg.channel.send(`Error deleting your alarms...`);
                 }
-            } catch (e) {
-                console.log(e);
-                msg.channel.send(`Error deleting your alarms...`);
             }
+        } else {
+            var stg = "You did not specify what alarms you wish to delete.\n"
+            + "`:deleteAllAlarms -p` deletes all of your private alarms.\n"
+            + "`:deleteAllAlarms -a` deletes YOUR alarms for this server";
+            msg.channel.send(stg.replace(/:/g, auth.prefix));
         }
     }
 };

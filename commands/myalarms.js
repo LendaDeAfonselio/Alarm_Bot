@@ -47,13 +47,15 @@ module.exports = {
             }
         });
 
-        msg.author.send({
-            embed: {
-                color: 0xff80d5,
-                title: "Your private alarms are:",
-                fields: private_alarms,
-                timestamp: new Date()
-            }
-        });
+        if (private_alarms.length > 0) {
+            msg.author.send({
+                embed: {
+                    color: 0xff80d5,
+                    title: "Your private alarms are:",
+                    fields: private_alarms,
+                    timestamp: new Date()
+                }
+            });
+        }
     }
 }
