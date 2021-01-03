@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const auth = require('./../auth.json');
-
+const utility = require('./../Utils/utility_functions');
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 
@@ -38,24 +38,37 @@ module.exports = {
             private_alarms.push(field);
         }
 
-        msg.channel.send({
-            embed: {
-                color: 0xff80d5,
-                title: "Your public alarms are:",
-                fields: general_alarms,
-                timestamp: new Date()
-            }
-        });
+        // chunk it because of the max size for discord messages
+        var public_chunks = utility.chunkArray(general_alarms, 20);
+        var private_chunks = utility.chunkArray(private_alarms, 20);
 
-        if (private_alarms.length > 0) {
-            msg.author.send({
+
+        if (general_alarms.length <= 0) {
+            msg.channel.send('You do not have any alarm in any server!');
+        }
+
+        for (let chunk of public_chunks) {
+            msg.channel.send({
                 embed: {
                     color: 0xff80d5,
-                    title: "Your private alarms are:",
-                    fields: private_alarms,
+                    title: "Your public alarms are:",
+                    fields: chunk,
                     timestamp: new Date()
                 }
             });
+        }
+
+        if (private_alarms.length > 0) {
+            for (let chunk of private_chunks) {
+                msg.author.send({
+                    embed: {
+                        color: 0xff80d5,
+                        title: "Your private alarms are:",
+                        fields: chunk,
+                        timestamp: new Date()
+                    }
+                });
+            }
         }
     }
 }
