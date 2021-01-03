@@ -57,3 +57,4 @@ Currently the bot has the following commands:
 - `oneTimeAlarm` - Sets up an one time alarm, use -p for a private alarm!
 - `ping` - Just to check if the bot is alive.
 - `privateAlarm`- Sets up a private alarm via DM.
+- `deleteAllAlarms` - Deletes all private alarms or alarms that **YOU** have set in a server.
