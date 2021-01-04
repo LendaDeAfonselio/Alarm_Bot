@@ -1,6 +1,7 @@
 const auth = require('./../auth.json');
 const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
+const time_utils = require('../Utils/time_validation');
 
 function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
@@ -59,25 +60,31 @@ module.exports = {
         + 'For a private alarm use the -p flag as the second argument otherwise it will send the message to the channel you typed the command at\n'
         + 'If no Date is specified then it will default to today\n'
         + 'P.S - These alarms are not persistent - they are not saved on a DB, therefore if the bot goes down you will have to set them up again.',
-    usage: auth.prefix + 'oneTimeAlarm <-p> <HH:MM> <Day/Month/Year> <Message>\n',
+    usage: auth.prefix + 'oneTimeAlarm <-p> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
-            if (args.length < 2) {
+            if (args.length < 3) {
                 msg.channel.send('Insuficient arguments were passed for this alarm!\n'
+                    + 'Usage: ' + auth.prefix + 'oneTimeAlarm <-p> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n'
                     + 'Try $help for more information!');
             }
-            var isPrivate = args[0].toLowerCase() === '-p';
-            var hour_min_args = args[1];
-            var date_args = '';
-            var message = '';
+            let isPrivate = args[0].toLowerCase() === '-p';
+            let timezone = args[1];
+            let hour_min_args = args[2];
+            let date_args = '';
+            let message = '';
+            let difference = time_utils.get_offset_difference(timezone);
+            if (difference === undefined) {
+                msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
+            }
             if (!isPrivate) {
-                hour_min_args = args[0];
-                if (args[1].includes('/') && args[1].length >= 3 && args[1].length <= 10) {
-                    date_args = args[1];
-                    message = args.slice(2, args.length).join(' ');
+                hour_min_args = args[1];
+                if (args[2].includes('/') && args[2].length >= 3 && args[2].length <= 10) {
+                    date_args = args[2];
+                    message = args.slice(3, args.length).join(' ');
 
-                    var d = parseDateAndTime(date_args, hour_min_args, msg);
-
+                    var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                    let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
                     if (isValidDate(d)) {
                         var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                         var now = new Date();
@@ -93,11 +100,13 @@ module.exports = {
                         msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                     }
                 } else {
-                    message = args.slice(1, args.length).join(' ');
+                    message = args.slice(2, args.length).join(' ');
 
                     let today = new Date();
                     date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-                    var d = parseDateAndTime(date_args, hour_min_args, msg);
+
+                    var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                    let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
 
                     if (isValidDate(d)) {
                         var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
@@ -115,11 +124,12 @@ module.exports = {
                     }
                 }
             } else {
-                if (args[2].includes('/') && args[2].length >= 3 && args[2].length <= 10) {
-                    date_args = args[2];
-                    message = args.slice(3, args.length).join(' ');
+                if (args[3].includes('/') && args[3].length >= 3 && args[3].length <= 10) {
+                    date_args = args[3];
+                    message = args.slice(4, args.length).join(' ');
 
-                    var d = parseDateAndTime(date_args, hour_min_args, msg);
+                    var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                    let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
 
                     if (isValidDate(d)) {
                         var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
@@ -136,12 +146,14 @@ module.exports = {
                         msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                     }
                 } else {
-                    message = args.slice(2, args.length).join(' ');
+                    message = args.slice(3, args.length).join(' ');
 
                     let today = new Date();
                     date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-                    var d = parseDateAndTime(date_args, hour_min_args, msg);
 
+                    var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                    let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
+                    
                     if (isValidDate(d)) {
                         var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                         var now = new Date();

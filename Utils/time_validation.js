@@ -130,7 +130,7 @@ function get_timezone_by_city(city) {
 function get_timezone_offset(stg) {
     if (stg.includes('UTC')) {
         let hour_diff = stg.replace('UTC', '');
-        if(hour_diff === ''){
+        if (hour_diff === '') {
             // simply UTC
             return 0;
         }
@@ -261,9 +261,19 @@ function updateParamsAux(stg, max_value, diff) {
     }
 }
 
+function generateDateGivenOffset(originalDate, offset) {
+    // get UTC time in msec
+    var original = originalDate.getTime();
+
+    // create new Date object for different city
+    // using supplied offset
+    return new Date(original - (3600000 * offset));
+}
+
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
     get_timezone_offset: get_timezone_offset,
     get_offset_difference: get_offset_difference,
-    updateParams: updateParams
+    updateParams: updateParams,
+    generateDateGivenOffset: generateDateGivenOffset
 }
