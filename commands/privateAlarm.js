@@ -3,6 +3,7 @@ const auth = require('./../auth.json');
 const private_flag = auth.private_prefix;
 const utils = require('../Utils/time_validation');
 const time_utils = require('../Utils/time_validation');
+const logging = require('../Utils/logging');
 
 
 module.exports = {
@@ -46,7 +47,7 @@ module.exports = {
                 });
                 newAlarm.save()
                     .then((result) => {
-                        console.log(`${result} added to database`);
+                        logging.logger.info(`${result} added to database`);
                         msg.author.send({
                             embed: {
                                 title: `Alarm with message: ${message_stg} was sucessfully saved with params: ${crono} and message ${message_stg}`,
@@ -55,9 +56,9 @@ module.exports = {
                             }
                         })
                     })
-                    .catch(err => console.log(err));
+                    .catch(err => logging.logger.error(err));
             } catch (err) {
-                console.error(err);
+                logging.logger.error(err);
                 msg.channel.send(`Error adding the alarm with params: ${crono}, for target ${target}`);
             }
         }

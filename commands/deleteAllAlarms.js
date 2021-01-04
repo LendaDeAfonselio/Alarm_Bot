@@ -33,7 +33,7 @@ module.exports = {
                         msg.channel.send('No private alarm found for your user. Try `myAlarms` to check your alarms');
                     }
                 } catch (e) {
-                    console.log(e);
+                    logging.logger.error(e);
                     msg.channel.send(`Error deleting your private alarms...`);
                 }
             }
@@ -62,7 +62,7 @@ module.exports = {
                         msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
                     }
                 } catch (e) {
-                    console.log(e);
+                    logging.logger.error(e);
                     msg.channel.send(`Error deleting your alarms...`);
                 }
             }

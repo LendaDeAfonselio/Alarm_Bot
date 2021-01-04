@@ -3,15 +3,17 @@ const Discord = require('discord.js');
 const auth = require('./auth.json');
 const appsettings = require('./appsettings.json');
 const load_alarms = require('./load_alarms');
-// TODO: Change token to appsettings later
+const logging = require('./Utils/logging');
 
 // Mongo setup
 const mongoose = require("mongoose");
 mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
-    if (err)
-        console.error(err);
-    else
-        console.log("Connected to the mongodb");
+    if (err) {
+        logging.logger.error(err);
+    }
+    else {
+        logging.logger.info("Connected to the mongodb");
+    }
 });
 
 // Instances
@@ -39,11 +41,11 @@ client.once('ready', async x => {
             await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
             await load_alarms.fetchPrivateAlarms(cron_list, cron, guild, guild.id);
         } catch (e) {
-            console.log(e);
+            logging.logger.error(e);
         }
     });
     client.user.setActivity("$help to get started!");
-    console.log(client.guilds.cache.size);
+    logging.logger.info("Running in" + client.guilds.cache.size + " guilds");
 });
 
 /*************************** Execute Commands ************************/
@@ -58,8 +60,8 @@ client.on('message', async message => {
             try {
                 await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
             } catch (error) {
-                console.error(error);
-                message.reply('there was an error trying to execute that command!');
+                logging.logger.error(error);
+                message.reply('There was an error trying to execute that command!');
             }
         }
     }

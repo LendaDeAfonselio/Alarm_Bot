@@ -7,6 +7,7 @@ A Simple Discord Bot that allows people/roles to set up alarms and receive them 
 - npm i mongoose
 - npm i file-system
 - npm i timezones.json
+- npm i winston
 
 ## Usage and examples
 
@@ -25,7 +26,7 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 **Some semantics:**
 
-`*/x` => Every number that divides by x, for example: `*/15`  would be 15, 30 and 45 -> If you want to use this I strongly advise to use in the timezone of the bot, otherwise the behavior might not be as expected.
+`*/x` => Every number that divides by x, for example: `*/15`  would be 15, 30 and 45 -> For now, if you want to use this I strongly advise to use in the timezone of the bot(Dublin's time), otherwise the behavior might not be the expected.
 
 `x1,...,xn` => Defines a set with specific values, for example: `1,3,5` would be mean 1, 3 and 5 **ONLY**
 

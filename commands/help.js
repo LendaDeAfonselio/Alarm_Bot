@@ -1,6 +1,7 @@
 const fs = require("fs");
 const auth = require('./../auth.json');
 const Discord = require('discord.js');
+const logging = require('../Utils/logging');
 
 module.exports = {
     name: 'help',
@@ -9,7 +10,7 @@ module.exports = {
 
     execute(message, args, client, cron_list) {
         fs.readdir("./commands/", (err, files) => {
-            if (err) console.error(err);
+            if (err) logging.logger.error(err);
             let jsfiles = files.filter(f => f.split(".").pop() === "js");
             if (jsfiles.length <= 0) {
                 message.author.send("No commands to load!");
@@ -40,7 +41,7 @@ module.exports = {
                     }
                 });
             } catch (e) {
-                console.err(e);
+                logging.logger.error(e);
             }
         });
     },
