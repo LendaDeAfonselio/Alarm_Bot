@@ -55,8 +55,12 @@ module.exports = {
                                 }
                             });
                         })
-                        .catch(err => logging.logger.error(err));
+                        .catch((err) => {
+                            logging.logger.info(`An error while trying to add ${result} to the database. Message: ${newAlarm}`);
+                            logging.logger.error(err);
+                        });
                 } catch (err) {
+                    logging.logger.info(`An error while trying to add alarm with params: ${msg}`);
                     logging.logger.error(err);
                     msg.channel.send(`Error adding the alarm with params: ${crono}, for target ${target}`);
                 }

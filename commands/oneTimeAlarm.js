@@ -46,9 +46,11 @@ function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg) {
             delete cron_list[alarm_id];
         }
         catch (e) {
+            logging.logger.info(`Error stopping or deleting the cron for OneTimeAlarm.`);
             logging.logger.error(e);
         }
     }, dif + 5000);
+    logging.logger.info(`One time alarm: ${alarm_id} has been setup for ${ota.cronTime.source}`)
 }
 
 module.exports = {

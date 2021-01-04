@@ -35,6 +35,7 @@ module.exports = {
                     delete cron_list[alarm_to_delete];
                     msg.channel.send(`Sucessfully deleted alarm: ${alarm_to_delete}.`);
                 } catch (e) {
+                    logging.logger.info(`Error deleting alarm with id:${alarm_to_delete}... Please try again later!`);
                     logging.logger.error(e);
                     msg.channel.send(`Error deleting alarm with id:${alarm_to_delete}... Please try again later!`);
                 }

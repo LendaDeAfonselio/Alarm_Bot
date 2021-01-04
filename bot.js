@@ -60,6 +60,7 @@ client.on('message', async message => {
             try {
                 await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
             } catch (error) {
+                logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
                 logging.logger.error(error);
                 message.reply('There was an error trying to execute that command!');
             }

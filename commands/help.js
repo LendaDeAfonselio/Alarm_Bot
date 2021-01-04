@@ -41,6 +41,7 @@ module.exports = {
                     }
                 });
             } catch (e) {
+                logging.logger.info(`Error trying to get the help command`);
                 logging.logger.error(e);
             }
         });

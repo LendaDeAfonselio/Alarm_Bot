@@ -62,14 +62,15 @@ module.exports = {
                         msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
                     }
                 } catch (e) {
+                    logging.logger.info(`Error deleting alarms for user:${alarm_user} with params ${flag}`);
                     logging.logger.error(e);
                     msg.channel.send(`Error deleting your alarms...`);
                 }
             }
         } else {
             var stg = "You did not specify what alarms you wish to delete.\n"
-            + "`:deleteAllAlarms -p` deletes all of your private alarms.\n"
-            + "`:deleteAllAlarms -a` deletes YOUR alarms for this server";
+                + "`:deleteAllAlarms -p` deletes all of your private alarms.\n"
+                + "`:deleteAllAlarms -a` deletes YOUR alarms for this server";
             msg.channel.send(stg.replace(/:/g, auth.prefix));
         }
     }
