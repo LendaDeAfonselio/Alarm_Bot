@@ -4,6 +4,7 @@ const Private_alarm_model = require('../models/private_alarm_model');
 const auth = require('./../auth.json');
 const private_flag = auth.private_prefix;
 const temp_flag = auth.one_time_prefix;
+const logging = require('../Utils/logging');
 
 function can_delete_alarm(message, alarm_id) {
     return (message.member.hasPermission("ADMINISTRATOR") || alarm_id.includes(msg.author.id));
@@ -11,7 +12,7 @@ function can_delete_alarm(message, alarm_id) {
 
 module.exports = {
     name: 'deleteAlarm',
-    description: 'Deletes the alarm with a given id',
+    description: 'Deletes the alarm with a given id - **THIS ACTION CANNOT BE REVERTED**',
     usage: auth.prefix + 'deleteAlarm <id>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var alarm_to_delete = args[0];
@@ -34,7 +35,8 @@ module.exports = {
                     delete cron_list[alarm_to_delete];
                     msg.channel.send(`Sucessfully deleted alarm: ${alarm_to_delete}.`);
                 } catch (e) {
-                    console.log(e);
+                    logging.logger.info(`Error deleting alarm with id:${alarm_to_delete}... Please try again later!`);
+                    logging.logger.error(e);
                     msg.channel.send(`Error deleting alarm with id:${alarm_to_delete}... Please try again later!`);
                 }
             }

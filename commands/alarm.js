@@ -2,6 +2,7 @@ const Alarm_model = require('../models/alarm_model');
 const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
 const utils = require('../Utils/utility_functions');
+const logging = require('../Utils/logging');
 
 module.exports = {
     name: 'alarm',
@@ -46,7 +47,7 @@ module.exports = {
                     });
                     newAlarm.save()
                         .then((result) => {
-                            console.log(`${result} added to database`);
+                            logging.logger.info(`${result} added to database`);
                             msg.channel.send({
                                 embed: {
                                     fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono} (server time) and message ${message_stg} for channel ${msg.channel.name} was added with success!` },
@@ -54,9 +55,13 @@ module.exports = {
                                 }
                             });
                         })
-                        .catch(err => console.log(err));
+                        .catch((err) => {
+                            logging.logger.info(`An error while trying to add ${result} to the database. Message: ${newAlarm}`);
+                            logging.logger.error(err);
+                        });
                 } catch (err) {
-                    console.error(err);
+                    logging.logger.info(`An error while trying to add alarm with params: ${msg}`);
+                    logging.logger.error(err);
                     msg.channel.send(`Error adding the alarm with params: ${crono}, for target ${target}`);
                 }
             }
