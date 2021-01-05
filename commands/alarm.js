@@ -60,9 +60,9 @@ module.exports = {
                             logging.logger.error(err);
                         });
                 } catch (err) {
-                    logging.logger.info(`An error while trying to add alarm with params: ${msg}`);
+                    logging.logger.info(`An error while trying to add alarm with params: ${msg.content}`);
                     logging.logger.error(err);
-                    msg.channel.send(`Error adding the alarm with params: ${crono}, for target ${target}`);
+                    msg.channel.send(`Error adding the alarm with params: ${crono}, with message ${message_stg}`);
                 }
             }
         }
