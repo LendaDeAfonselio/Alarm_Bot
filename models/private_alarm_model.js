@@ -6,6 +6,7 @@ const privateAlarmSchema = mongoose.Schema({
     message: String,
     user_id: String,
     guild: String,
+    isActive: Boolean,
     timestamp: Date
 });
 

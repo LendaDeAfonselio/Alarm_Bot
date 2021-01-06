@@ -43,6 +43,7 @@ module.exports = {
                         message: message_stg,
                         guild: guild,
                         channel: msg.channel.id,
+                        isActive: true,
                         timestamp: Date.now(),
                     });
                     newAlarm.save()

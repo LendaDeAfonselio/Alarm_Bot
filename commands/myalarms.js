@@ -20,9 +20,10 @@ module.exports = {
             let alarm_id = alarm.alarm_id;
             let alarm_params = alarm.alarm_args;
             let alarm_preview = alarm.message.substring(0, 50);
+            let active_alarm = alarm.isActive ? "Active" : "Silenced";
             let field = {
                 name: `ID: ${alarm_id}`,
-                value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}`
+                value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}`
             };
             general_alarms.push(field);
         }
