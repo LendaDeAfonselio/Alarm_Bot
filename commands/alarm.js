@@ -51,7 +51,7 @@ module.exports = {
                                 logging.logger.info(`${result} added to database`);
                                 msg.channel.send({
                                     embed: {
-                                        fields: { name: 'Alarm added successfully!', value: `Alarm with params: ${crono} (server time) and message ${message_stg} for channel ${msg.channel.name} was added with success!` },
+                                        fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${crono} (server time) and message ${message_stg} for channel ${msg.channel.name} was added with success!` },
                                         timestamp: new Date()
                                     }
                                 });
