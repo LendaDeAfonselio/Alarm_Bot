@@ -18,6 +18,10 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
                 scheduled: true
             });
             scheduledMessage.start();
+            if(!alarm.isActive){
+                // it is not active
+                scheduledMessage.stop();
+            }
             cron_list[alarm_id] = scheduledMessage;
         }
     }
@@ -39,6 +43,10 @@ async function fetchPrivateAlarms(cron_list, cron, guild, guild_id) {
                 scheduled: true
             });
             scheduledMessage.start();
+            if(!alarm.isActive){
+                // it is not active
+                scheduledMessage.stop();
+            }
             cron_list[alarm_id] = scheduledMessage;
         }
     }

@@ -6,6 +6,7 @@ const alarmSchema = mongoose.Schema({
     message: String,
     guild: String,
     channel: String,
+    isActive: Boolean,
     timestamp: Date
 });
 
