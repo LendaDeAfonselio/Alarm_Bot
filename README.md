@@ -59,3 +59,6 @@ Currently the bot has the following commands:
 - `ping` - Just to check if the bot is alive.
 - `privateAlarm`- Sets up a private alarm via DM.
 - `deleteAllAlarms` - Deletes all private alarms or alarms that **YOU** have set in a server.
+
+### Support ###
+Join our discord server for more information: https://discord.gg/zV3xnt8zkA
