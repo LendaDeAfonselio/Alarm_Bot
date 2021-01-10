@@ -22,7 +22,6 @@ module.exports = {
                     );
 
                     // update in memory list
-                    console.log(x);
                     x.forEach(alarm => {
                         cron_list[alarm.alarm_id].start();
                     });
@@ -31,12 +30,12 @@ module.exports = {
                         { isActive: false, user_id: alarm_user },
                         { isActive: true }
                     );
-                    msg.channel.send(`Sucesfully silenced ${x.length} private alarms.`);
+                    msg.channel.send(`Sucesfully re-activated ${x.length} private alarms.`);
 
                 } else if (flag === '-a') {
                     var x = await Alarm_model.find(
                         { isActive: false, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } });
-                    console.log(x);
+
                     x.forEach(alarm => {
                         cron_list[alarm.alarm_id].start();
                     });
@@ -45,7 +44,7 @@ module.exports = {
                         { isActive: false, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } },
                         { isActive: true }
                     );
-                    msg.channel.send(`Sucesfully silenced ${x.length} alarms.`);
+                    msg.channel.send(`Sucesfully re-activated ${x.length} alarms.`);
                 } else {
                     msg.channel.send(`The flag you have provided: ${flag} is invalid. Try silenceAllAlarms -p to silent all of your private alarms or -a to silent all of your alarms in this server.`);
                 }
