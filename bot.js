@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const auth = require('./auth.json');
 const appsettings = require('./appsettings.json');
 const load_alarms = require('./load_alarms');
+const delete_alarms_when_kicked = require('./delete_alarms_for_guilds');
 const logging = require('./Utils/logging');
 
 // Mongo setup
@@ -65,6 +66,20 @@ client.on('message', async message => {
                 message.reply('There was an error trying to execute that command!');
             }
         }
+    }
+});
+
+
+// If the bot is kicked, delete the alarms
+client.on('guildDelete', async (guild) => {
+    logging.logger.info(`Bot left the guild: ${guild.id}... Deleting the alarms for that guild`);
+
+    try {
+        let results = await delete_alarms_when_kicked.deleteAlarmsForGuild(cron_list, guild.id);
+        logging.logger.info(`Sucessfully deleted ${results.deletedCount} alarms that were being used in guild ${guild.id}`);
+    } catch (e) {
+        logging.logger.info(`An error has occured while trying to delete the alarms for guild ${guild.id}`);
+        logging.logger.error(e);
     }
 });
 
