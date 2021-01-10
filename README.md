@@ -51,14 +51,19 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 Currently the bot has the following commands:
 
 - `help` - Help command with all you need to know about the bot and the commands!
+- `activateAlarm` - Reactivates a silenced alarm.
+- `activateAllAlarms` - Reactives **all** of the silenced alarms.
 - `alarm` - Sets up an alarm to the channel in which you're sending the message.
 - `alarmHelp` - Some examples and help on how to setup an alarm.
 - `deleteAlarm` - deletes an alarm given an id.
+- `deleteAllAlarms` - Deletes **all** private alarms or alarms that **YOU** have set in a server.
 - `myAlarms` - Shows you a list of your public and private alarms.
 - `oneTimeAlarm` - Sets up an one time alarm, use -p for a private alarm!
 - `ping` - Just to check if the bot is alive.
 - `privateAlarm`- Sets up a private alarm via DM.
-- `deleteAllAlarms` - Deletes all private alarms or alarms that **YOU** have set in a server.
+- `silenceAlarm` - Silences a specific alarm until they are activated it again.
+- `silenceAllAlarms` - Silences all alarms until they are activated again.
+
 
 ### Support ###
 Join our discord server for more information: https://discord.gg/zV3xnt8zkA
