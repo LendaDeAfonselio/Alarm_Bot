@@ -18,10 +18,7 @@ module.exports = {
             try {
                 if (flag === '-p') {
                     var x = await Private_alarm_model.find(
-                        { isActive: false, user_id: alarm_user },
-                        {
-                            isActive: true
-                        }
+                        { isActive: false, user_id: alarm_user }
                     );
 
                     // update in memory list
@@ -36,11 +33,9 @@ module.exports = {
                     );
                     msg.channel.send(`Sucesfully silenced ${x.length} private alarms.`);
 
-                } else if (flag === 'a') {
+                } else if (flag === '-a') {
                     var x = await Alarm_model.find(
-                        { isActive: false, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } },
-                        { isActive: true }
-                    );
+                        { isActive: false, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } });
                     console.log(x);
                     x.forEach(alarm => {
                         cron_list[alarm.alarm_id].start();
@@ -56,9 +51,9 @@ module.exports = {
                 }
 
             } catch (e) {
-                logging.logger.info(`Error silencing alarm with id:${alarm_to_silence}... Please try again later!`);
+                logging.logger.info(`Error activating all alarm. ${flag}`);
                 logging.logger.error(e);
-                msg.channel.send(`Error silencing alarm with id:${alarm_to_silence}... Please try again later!`);
+                msg.channel.send(`Error activating all alarms`);
             }
         }
         else {
