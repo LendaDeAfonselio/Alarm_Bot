@@ -30,6 +30,11 @@ module.exports = {
                 msg_fields.push(field);
             });
 
+            msg_fields.push(field = {
+                name: 'Join our discord server for more information!',
+                value: 'https://discord.gg/zV3xnt8zkA'
+            });
+
             // sends dm
             try {
                 message.author.send({
