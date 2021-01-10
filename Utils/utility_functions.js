@@ -3,7 +3,7 @@ function isAdministrator(message) {
 }
 
 function hasAlarmRole(message, alarm_role) {
-    var x = message.member.roles.cache.find(r => r.name.toLowerCase() === alarm_role.toLowerCase());
+    let x = message.member.roles.cache.find(r => r.name.toLowerCase() === alarm_role.toLowerCase());
     return x !== undefined;
 }
 

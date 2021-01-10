@@ -62,7 +62,7 @@ module.exports = {
         + 'P.S - These alarms are not persistent - they are not saved on a DB, therefore if the bot goes down you will have to set them up again.',
     usage: auth.prefix + 'oneTimeAlarm <-p> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n',
     async execute(msg, args, client, cron, cron_list, mongoose) {
-        if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
+        if (utils.isAdministrator(msg) || utils.hasAlarmRole(msg, auth.alarm_role_name)) {
             if (args.length > 1) {
                 let isPrivate = args[0].toLowerCase() === '-p';
                 if (isPrivate && args.length < 4 || !isPrivate && args.length < 3) {
