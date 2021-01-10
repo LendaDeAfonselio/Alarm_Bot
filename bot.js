@@ -45,7 +45,7 @@ client.once('ready', async x => {
         }
     });
     client.user.setActivity("$help to get started!");
-    logging.logger.info("Running in" + client.guilds.cache.size + " guilds");
+    logging.logger.info("Running in " + client.guilds.cache.size + " guilds");
 });
 
 /*************************** Execute Commands ************************/
