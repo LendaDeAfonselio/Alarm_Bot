@@ -1,3 +1,5 @@
+"use strict";
+
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 

@@ -10,7 +10,6 @@ async function deleteAlarmsForGuild(cron_list, guild_id) {
         delete cron_list[alarm.alarm_id];
     });
 
-
     // delete from DB
     return await Alarm_model.deleteMany({ guild: guild_id });
 }

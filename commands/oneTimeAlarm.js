@@ -31,7 +31,6 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
 }
 
 function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone) {
-
     ota.start();
     msg.channel.send(`Alarm for ${data_stg} (${timezone}) has been setup`);
     let alarm_user = msg.author.id;
@@ -51,7 +50,7 @@ function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone) {
             logging.logger.error(e);
         }
     }, dif + 5000);
-    logging.logger.info(`One time alarm: ${alarm_id} has been setup for ${ota.cronTime.source}`)
+    logging.logger.info(`One time alarm: ${alarm_id} has been setup for ${ota.cronTime.source}`);
 }
 
 module.exports = {

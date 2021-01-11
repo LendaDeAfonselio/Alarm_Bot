@@ -1,3 +1,5 @@
+"use strict";
+
 const Private_alarm_model = require('../models/private_alarm_model');
 const auth = require('./../auth.json');
 const private_flag = auth.private_prefix;
@@ -66,13 +68,12 @@ module.exports = {
                 } catch (err) {
                     logging.logger.info(`Error adding a private alarm with params:${msg}`);
                     logging.logger.error(err);
-                    msg.channel.send(`Error adding the alarm with params: ${crono}, for target ${target}`);
+                    msg.channel.send(`Error adding the alarm with params: ${crono}, with message ${msg}. Try verifying if there are enough arguments and if they are correct.`);
                 }
             }
         } else {
             msg.channel.send('Insuficient parameters were passed.\n'
                 + 'Usage ' + this.usage);
-
         }
     }
 };

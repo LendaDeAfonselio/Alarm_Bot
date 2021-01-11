@@ -56,9 +56,9 @@ module.exports = {
                     msg.channel.send(`Impossible to silence alarm with id ${alarm_to_silence}.\nPlease check if you entered the id of the alarm correctly!\nTo see your alarms, type: ${auth.prefix}${myalarms_command_stg}`);
                 }
             }
-        }else{
+        } else {
             msg.channel.send(`No arguments were passed to execute this command.\n`
-            + 'Usage: ' + this.usage);
+                + 'Usage: ' + this.usage);
         }
 
     }

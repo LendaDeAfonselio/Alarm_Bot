@@ -1,3 +1,5 @@
+"use strict";
+
 const Alarm_model = require('../models/alarm_model');
 const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
