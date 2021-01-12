@@ -42,7 +42,7 @@ module.exports = {
                     }
                 }
                 else {
-                    var myalarms_command_stg = "`myalarms`";
+                    var myalarms_command_stg = "`myAlarms`";
                     msg.channel.send(`Impossible to delete alarm with id ${alarm_to_delete}.\nPlease check if you entered the id of the alarm correctly!\nTo see your alarms, type: ${auth.prefix}${myalarms_command_stg}`);
                 }
             }

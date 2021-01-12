@@ -10,7 +10,7 @@ module.exports = {
     name: 'alarm',
     description: 'Sets up an alarm that will be repeated\n' +
         'This alarm will send a message to the _channel_ of the _server_ in which it is activated.\n',
-    usage: auth.prefix + 'alarm <timezone/city/UTC> <m> <h> <month> <weekday> <message>',
+    usage: auth.prefix + 'alarm <timezone/city/UTC> <m> <h> <day_of_the_month> <month> <weekday> <message>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
             if (args.length > 6) {
