@@ -23,7 +23,7 @@ The parameters for `alarm` and `privateAlarm` work as follows:
     # |  +------------- hour (0 - 23)
     # |  |  +---------- day of month (1 - 31)
     # |  |  |  +------- month (0 - 11)
-    # |  |  |  |  +---- day of week (0 - 7) (Sunday=0 or 7)
+    # |  |  |  |  +---- day of week (0 - 6) (Sunday=0, Monday=1, ...)
     # |  |  |  |  |
     # *  *  *  *  *  command to be executed
 ```
