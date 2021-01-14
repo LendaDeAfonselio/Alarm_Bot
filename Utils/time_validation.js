@@ -1,20 +1,32 @@
+"use strict";
+
 const timezones = require('timezones.json');
 var r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
+    if (mins.includes(',')) {
+        var tokens = mins.split(',');
+        return (tokens.length < 6) && tokens.some(v => small_time_interval(v));
+    }
+    if (mins.includes('/')) {
+        var tokens = mins.split('/');
+        if (tokens.length !== 2) {
+            return true;
+        }
+        var num_minutes = tokens[1];
+        var n = parseInt(num_minutes);
+        var isDigit = num_minutes.match(/^[0-9]+$/);
+
+        return isDigit == null || isNaN(n) || n < 15;
+    }
     if (mins === '*') {
         return true;
     }
     if (mins.includes('-')) {
         return true;
     }
-    if (!mins.includes('*/')) {
-        return false;
-    }
-    let num_minutes = mins.replace('*/', '');
-    let n = parseInt(num_minutes);
-
-    return isNaN(n) || n < 15;
+    var isDigit = mins.match(/^[0-9]+$/);
+    return isDigit == null;
 }
 
 /**
@@ -27,26 +39,27 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
     // TODO: Rework this function to be recursive
     if (stg == '*') {
         return true;
+    } else if (stg.includes(',')) {
+        var tokens = stg.split(',');
+        return tokens.every(v => isAValidRangeGroupOrNumber(v, min, max));
+    } else if (stg.includes('/')) {
+        var tokens = stg.split('/');
+        if (tokens.length !== 2) {
+            return false;
+        }
+        var a = isAValidRangeGroupOrNumber(tokens[0], min, max);
+        let isDigit = tokens[1].match(/^[0-9]+$/);
+        var b = parseInt(tokens[1]);
+        return isDigit != null && a && b >= min && b <= max;
     } else if (stg.includes('-')) {
         let tokens = stg.split('-');
         let a = parseInt(tokens[0]);
         let b = parseInt(tokens[1]);
         return a < b && a >= min && b <= max;
-    } else if (stg.includes('*/')) {
-        let num = stg.replace('*/', '');
-        let n = parseInt(num);
-        return n >= min && n <= max;
-    } else if (stg.includes(',')) {
-        let tokens = stg.split(',');
-        for (let t of tokens) {
-            if (t < min || t > max) {
-                return false;
-            }
-        }
-        return true;
     }
+    let isDigit = stg.match(/^[0-9]+$/);
     let num = parseInt(stg);
-    return num >= min && num <= max;
+    return isDigit != null && num >= min && num <= max;
 }
 
 function validate_alarm_parameters(msg, cron_stg, message_stg) {
@@ -66,8 +79,12 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
         return false;
     }
     let mins = cron_params[0];
+    if (!isAValidRangeGroupOrNumber(mins, 0, 59)) {
+        msg.channel.send("The minute parameter is invalid. Try `#alarmHelp` for more information!");
+        return false;
+    }
     if (small_time_interval(mins)) {
-        msg.channel.send("The minute parameter you sent is either invalid or too short. Only time intervals bigger than 15 minutes are allowed to avoid spam");
+        msg.channel.send("The minute parameter you sent is susceptible to spam. Only time intervals bigger than 15 minutes, groups of 5 members or less and digits are allowed to avoid spam.");
         return false;
     }
 
@@ -269,6 +286,33 @@ function generateDateGivenOffset(originalDate, offset) {
     // using supplied offset
     return new Date(original - (3600000 * offset));
 }
+// console.log(isAValidRangeGroupOrNumber("*", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("*/2", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("*/2,*/3", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("1-5,6-8", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("6-5,6-8", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("*/11", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("1-32/11/2", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
+// console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("1", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("+1", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("1.1", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("111", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("11-12/1-10", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
+// console.log('--------------------------------------');
+// console.log(small_time_interval('*'));
+// console.log(small_time_interval('*/15'));
+// console.log(small_time_interval('*/14'));
+// console.log(small_time_interval('1-31/2'));
+// console.log(small_time_interval('1-31/10'));
+// console.log(small_time_interval('1-60/15'));
+// console.log(small_time_interval('1'));
+// console.log(small_time_interval('-1'));
+// console.log(small_time_interval('+1'));
+// console.log(small_time_interval('1,2,3,4,5-10'));
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
