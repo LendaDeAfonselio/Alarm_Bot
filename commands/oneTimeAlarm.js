@@ -128,49 +128,54 @@ module.exports = {
                     } else {
                         let timezone = args[1];
                         let difference = time_utils.get_offset_difference(timezone);
-                        if (args[3].includes('/') && args[3].length >= 3 && args[3].length <= 10) {
-                            date_args = args[3];
-                            message = args.slice(4, args.length).join(' ');
+                        if (difference === undefined) {
+                            msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
+                        }
+                        else {
+                            if (args[3].includes('/') && args[3].length >= 3 && args[3].length <= 10) {
+                                date_args = args[3];
+                                message = args.slice(4, args.length).join(' ');
 
-                            var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
-                            let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
+                                var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
 
-                            if (isValidDate(d)) {
-                                var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                var now = new Date();
-                                if (d > now) {
-                                    let ota = new cron(d, () => {
-                                        msg.author.send(`${message}`);
-                                    });
-                                    setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
+                                if (isValidDate(d)) {
+                                    var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    var now = new Date();
+                                    if (d > now) {
+                                        let ota = new cron(d, () => {
+                                            msg.author.send(`${message}`);
+                                        });
+                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
+                                    } else {
+                                        msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                                    }
                                 } else {
-                                    msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                                    msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                                 }
                             } else {
-                                msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
-                            }
-                        } else {
-                            message = args.slice(3, args.length).join(' ');
+                                message = args.slice(3, args.length).join(' ');
 
-                            let today = new Date();
-                            date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+                                let today = new Date();
+                                date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
 
-                            var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
-                            let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
+                                var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
 
-                            if (isValidDate(d)) {
-                                var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                var now = new Date();
-                                if (d > now) {
-                                    let ota = new cron(d, () => {
-                                        msg.author.send(`${message}`);
-                                    });
-                                    setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
+                                if (isValidDate(d)) {
+                                    var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    var now = new Date();
+                                    if (d > now) {
+                                        let ota = new cron(d, () => {
+                                            msg.author.send(`${message}`);
+                                        });
+                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
+                                    } else {
+                                        msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                                    }
                                 } else {
-                                    msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                                    msg.channel.send(`The time _${hour_min_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                                 }
-                            } else {
-                                msg.channel.send(`The time _${hour_min_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
                             }
                         }
                     }
