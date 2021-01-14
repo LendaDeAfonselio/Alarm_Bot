@@ -66,7 +66,7 @@ module.exports = {
                 let isPrivate = args[0].toLowerCase() === '-p';
                 if (isPrivate && args.length < 4 || !isPrivate && args.length < 3) {
                     msg.channel.send('Insuficient arguments were passed for this alarm!\n'
-                        + 'Usage: `' + auth.prefix + 'oneTimeAlarm <-p> <Timezone> <HH:MM> <Day/Month/Year> <Message>`\n'
+                        + 'Usage: `' + this.usage + '`\n'
                         + 'Try `$help` for more information!');
                 }
                 else {
@@ -182,7 +182,7 @@ module.exports = {
                 }
             } else {
                 msg.channel.send('No arguments were passed for this alarm!\n'
-                    + 'Usage: `' + auth.prefix + 'oneTimeAlarm <-p> <Timezone> <HH:MM> <Day/Month/Year> <Message>`\n'
+                    + 'Usage: `' + this.usage + '`\n'
                     + 'Try `$help` for more information!');
             }
         } else {

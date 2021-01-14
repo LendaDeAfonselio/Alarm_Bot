@@ -1,13 +1,17 @@
 # AlarmBot
-A Simple Discord Bot that allows people/roles to set up alarms and receive them via DM or in a certain channel 
+A Simple Discord Bot that allows people/roles to set up alarms and receive them via DM or in a certain channel.
 
 ## Module installs:
-- npm install discord.js
-- npm i cron
-- npm i mongoose
-- npm i file-system
-- npm i timezones.json
-- npm i winston
+- `npm install discord.js`
+- `npm i cron`
+- `npm i mongoose`
+- `npm i file-system`
+- `npm i timezones.json`
+- `npm i winston`
+
+## Running the bot
+
+After installing all the modules, simply do `node bot.js` in the project's folder.
 
 ## Usage and examples
 
@@ -28,11 +32,11 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 `*/x` => Every number that divides by x, for example: `*/15`  would be 15, 30 and 45 -> For now, if you want to use this I strongly advise to use in the timezone of the bot(Dublin's time), otherwise the behavior might not be the expected.
 
-`x1,...,xn` => Defines a set with specific values, for example: `1,3,5` would be mean 1, 3 and 5 **ONLY**
+`x1,...,xn` => Defines a set with specific values, for example: `1,3,5` would be mean 1, 3 and 5 **ONLY**.
 
-`x1-xn`=>  Defines a set with all values within that interval, for example : `1-5` would mean every number between 1 and 5 including the extremes, *i.e* - `1,2,3,4,5`
+`x1-xn`=>  Defines a set with all values within that interval, for example : `1-5` would mean every number between 1 and 5 including the extremes, *i.e*. - `1,2,3,4,5`.
 
-### Examples:
+### Examples of `alarm` usage:
 
 **Sending `hello` everyday at 19:35 (GMT)** => `$alarm GMT 35 19 * * * Hello!`
 
@@ -46,19 +50,33 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 **Send `aaa` every 30 minutes from 9 to 19(excluding) everyday** => `$alarm GMT */30 9-18 * * * aaa`
 
+**Note:** These examples also work for the privateAlarm command by replacing alarm with privateAlarm.
+
+### Some examples `oneTimeAlarm` usage:
+
+**Sending `Hello` today at 19:00 for GMT timezone** => `$oneTimeAlarm GMT 19:00 Hello`
+
+**Sending `Hello` via DM, today at 19:00 for GMT timezone** => `$oneTimeAlarm -p GMT 19:00 Hello`
+
+**Sending 25 de Abril sempre! in the 25th of April of the current year at 8:00 for GMT timezone**=> `$oneTimeAlarm GMT 8:00 25/04 25 de Abril sempre!`
+
+**Sending `50 years of 25 de Abril!` in the 25th of April of 2024 at 8:00 for GMT timezone** => `$oneTimeAlarm GMT 8:00 25/04/2024 50 years of 25 de Abril!`
+
+**Note:** -p flag is used to receive a DM instead of a message in the channel.
+
 ### Available Commands:
 
 Currently the bot has the following commands:
 
-- `help` - Help command with all you need to know about the bot and the commands!
+- `help` - Help command with all you need to know about the bot and the commands.
 - `activateAlarm` - Reactivates a silenced alarm.
 - `activateAllAlarms` - Reactives **all** of the silenced alarms.
 - `alarm` - Sets up an alarm to the channel in which you're sending the message.
 - `alarmHelp` - Some examples and help on how to setup an alarm.
-- `deleteAlarm` - deletes an alarm given an id.
+- `deleteAlarm` - Deletes an alarm given an id.
 - `deleteAllAlarms` - Deletes **all** private alarms or alarms that **YOU** have set in a server.
 - `myAlarms` - Shows you a list of your public and private alarms.
-- `oneTimeAlarm` - Sets up an one time alarm, use -p for a private alarm!
+- `oneTimeAlarm` - Sets up an one time alarm, use -p for a private alarm.
 - `ping` - Just to check if the bot is alive.
 - `privateAlarm`- Sets up a private alarm via DM.
 - `silenceAlarm` - Silences a specific alarm until they are activated it again.

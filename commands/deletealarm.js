@@ -48,7 +48,7 @@ module.exports = {
             }
         } else {
             msg.channel.send(`No arguments were passed to execute this command.\n`
-                + 'Usage: ' + auth.prefix + 'deleteAlarm <id>');
+                + 'Usage: ' + this.usage);
         }
 
     }

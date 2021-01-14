@@ -69,8 +69,8 @@ module.exports = {
             }
         } else {
             var stg = "You did not specify what alarms you wish to delete.\n"
-                + "`:deleteAllAlarms -p` deletes all of your private alarms.\n"
-                + "`:deleteAllAlarms -a` deletes YOUR alarms for this server";
+                + "`" + auth.prefix + "`:deleteAllAlarms -p` deletes all of your private alarms.\n"
+                + "`" + auth.prefix + ":deleteAllAlarms -a` deletes YOUR alarms for this server.";
             msg.channel.send(stg.replace(/:/g, auth.prefix));
         }
     }
