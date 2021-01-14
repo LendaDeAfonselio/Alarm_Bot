@@ -1,15 +1,18 @@
+"use strict";
+
 const timezones = require('timezones.json');
 var r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
+    if (mins.includes('/')) {
+        var tokens = stg.split('/');
+        return false;
+    }
     if (mins === '*') {
         return true;
     }
     if (mins.includes('-')) {
         return true;
-    }
-    if (!mins.includes('*/')) {
-        return false;
     }
     let num_minutes = mins.replace('*/', '');
     let n = parseInt(num_minutes);
@@ -27,23 +30,17 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
     // TODO: Rework this function to be recursive
     if (stg == '*') {
         return true;
+    } else if (stg.includes(',')) {
+        var tokens = stg.split(',');
+        return tokens.every(v => isAValidRangeGroupOrNumber(v, min, max));
+    } else if (stg.includes('/')) {
+        var tokens = stg.split('/');
+        return tokens.length === 2 && tokens.every(v => isAValidRangeGroupOrNumber(v, min, max));
     } else if (stg.includes('-')) {
         let tokens = stg.split('-');
         let a = parseInt(tokens[0]);
         let b = parseInt(tokens[1]);
         return a < b && a >= min && b <= max;
-    } else if (stg.includes('*/')) {
-        let num = stg.replace('*/', '');
-        let n = parseInt(num);
-        return n >= min && n <= max;
-    } else if (stg.includes(',')) {
-        let tokens = stg.split(',');
-        for (let t of tokens) {
-            if (t < min || t > max) {
-                return false;
-            }
-        }
-        return true;
     }
     let num = parseInt(stg);
     return num >= min && num <= max;
@@ -269,6 +266,24 @@ function generateDateGivenOffset(originalDate, offset) {
     // using supplied offset
     return new Date(original - (3600000 * offset));
 }
+console.log(isAValidRangeGroupOrNumber("*",0,10));
+console.log(isAValidRangeGroupOrNumber("*/2",0,10));
+console.log(isAValidRangeGroupOrNumber("*/2,*/3",0,10));
+console.log(isAValidRangeGroupOrNumber("1-5,6-8",0,10));
+console.log(isAValidRangeGroupOrNumber("6-5,6-8",0,10));
+console.log(isAValidRangeGroupOrNumber("*/11",0,10));
+console.log(isAValidRangeGroupOrNumber("1-32/11",0,10));
+console.log(isAValidRangeGroupOrNumber("1-32/11/2",0,10));
+console.log(isAValidRangeGroupOrNumber("1-32/11",0,79));
+console.log(isAValidRangeGroupOrNumber("1",0,79));
+console.log(isAValidRangeGroupOrNumber("111",0,79));
+
+
+
+
+
+
+
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
