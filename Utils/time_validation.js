@@ -107,7 +107,7 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
     }
 
     let weekday = cron_params[4];
-    if (!isAValidRangeGroupOrNumber(weekday, 0, 7)) {
+    if (!isAValidRangeGroupOrNumber(weekday, 0, 6)) {
         msg.channel.send("The weekday parameter is invalid! Try `#alarmHelp` for more information!");
         return false;
     }
