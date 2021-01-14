@@ -6,7 +6,14 @@ var r = 0;
 function small_time_interval(mins) {
     if (mins.includes('/')) {
         var tokens = stg.split('/');
-        return false;
+        if (tokens.length !== 2) {
+            return true;
+        }
+        var num_minutes = tokens[1];
+        var n = parseInt(num_minutes);
+        var isDigit = num_minutes.match(/^[0-9]+$/);
+
+        return isDigit != null && isNaN(n) || n < 15;
     }
     if (mins === '*') {
         return true;
@@ -14,10 +21,8 @@ function small_time_interval(mins) {
     if (mins.includes('-')) {
         return true;
     }
-    let num_minutes = mins.replace('*/', '');
-    let n = parseInt(num_minutes);
 
-    return isNaN(n) || n < 15;
+    return true;
 }
 
 /**
@@ -35,15 +40,22 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
         return tokens.every(v => isAValidRangeGroupOrNumber(v, min, max));
     } else if (stg.includes('/')) {
         var tokens = stg.split('/');
-        return tokens.length === 2 && tokens.every(v => isAValidRangeGroupOrNumber(v, min, max));
+        if (tokens.length !== 2) {
+            return false;
+        }
+        var a = isAValidRangeGroupOrNumber(tokens[0], min, max);
+        let isDigit = tokens[1].match(/^[0-9]+$/);
+        var b = parseInt(tokens[1]);
+        return isDigit != null && a && b >= min && b <= max;
     } else if (stg.includes('-')) {
         let tokens = stg.split('-');
         let a = parseInt(tokens[0]);
         let b = parseInt(tokens[1]);
         return a < b && a >= min && b <= max;
     }
+    let isDigit = stg.match(/^[0-9]+$/);
     let num = parseInt(stg);
-    return num >= min && num <= max;
+    return isDigit != null && num >= min && num <= max;
 }
 
 function validate_alarm_parameters(msg, cron_stg, message_stg) {
@@ -266,17 +278,24 @@ function generateDateGivenOffset(originalDate, offset) {
     // using supplied offset
     return new Date(original - (3600000 * offset));
 }
-console.log(isAValidRangeGroupOrNumber("*",0,10));
-console.log(isAValidRangeGroupOrNumber("*/2",0,10));
-console.log(isAValidRangeGroupOrNumber("*/2,*/3",0,10));
-console.log(isAValidRangeGroupOrNumber("1-5,6-8",0,10));
-console.log(isAValidRangeGroupOrNumber("6-5,6-8",0,10));
-console.log(isAValidRangeGroupOrNumber("*/11",0,10));
-console.log(isAValidRangeGroupOrNumber("1-32/11",0,10));
-console.log(isAValidRangeGroupOrNumber("1-32/11/2",0,10));
-console.log(isAValidRangeGroupOrNumber("1-32/11",0,79));
-console.log(isAValidRangeGroupOrNumber("1",0,79));
-console.log(isAValidRangeGroupOrNumber("111",0,79));
+console.log(isAValidRangeGroupOrNumber("*", 0, 10));
+console.log(isAValidRangeGroupOrNumber("*/2", 0, 10));
+console.log(isAValidRangeGroupOrNumber("*/2,*/3", 0, 10));
+console.log(isAValidRangeGroupOrNumber("1-5,6-8", 0, 10));
+console.log(isAValidRangeGroupOrNumber("6-5,6-8", 0, 10));
+console.log(isAValidRangeGroupOrNumber("*/11", 0, 10));
+console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 10));
+console.log(isAValidRangeGroupOrNumber("1-32/11/2", 0, 10));
+console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
+console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 79));
+console.log(isAValidRangeGroupOrNumber("1", 0, 79));
+console.log(isAValidRangeGroupOrNumber("+1", 0, 79));
+console.log(isAValidRangeGroupOrNumber("1.1", 0, 79));
+console.log(isAValidRangeGroupOrNumber("111", 0, 79));
+console.log(isAValidRangeGroupOrNumber("11-12/1-10", 0, 79));
+console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
+
+
 
 
 
