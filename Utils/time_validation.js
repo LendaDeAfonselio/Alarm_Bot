@@ -4,8 +4,12 @@ const timezones = require('timezones.json');
 var r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
+    if (mins.includes(',')) {
+        var tokens = mins.split(',');
+        return (tokens.length < 6) && tokens.some(v => small_time_interval(v));
+    }
     if (mins.includes('/')) {
-        var tokens = stg.split('/');
+        var tokens = mins.split('/');
         if (tokens.length !== 2) {
             return true;
         }
@@ -13,7 +17,7 @@ function small_time_interval(mins) {
         var n = parseInt(num_minutes);
         var isDigit = num_minutes.match(/^[0-9]+$/);
 
-        return isDigit != null && isNaN(n) || n < 15;
+        return isDigit == null || isNaN(n) || n < 15;
     }
     if (mins === '*') {
         return true;
@@ -21,8 +25,8 @@ function small_time_interval(mins) {
     if (mins.includes('-')) {
         return true;
     }
-
-    return true;
+    var isDigit = mins.match(/^[0-9]+$/);
+    return isDigit == null;
 }
 
 /**
@@ -75,8 +79,12 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
         return false;
     }
     let mins = cron_params[0];
+    if (!isAValidRangeGroupOrNumber(mins, 0, 59)) {
+        msg.channel.send("The minute parameter is invalid. Try `#alarmHelp` for more information!");
+        return false;
+    }
     if (small_time_interval(mins)) {
-        msg.channel.send("The minute parameter you sent is either invalid or too short. Only time intervals bigger than 15 minutes are allowed to avoid spam");
+        msg.channel.send("The minute parameter you sent is susceptible to spam. Only time intervals bigger than 15 minutes are allowed to avoid spam, groups of 5 members of less or digits are allowed");
         return false;
     }
 
@@ -278,31 +286,33 @@ function generateDateGivenOffset(originalDate, offset) {
     // using supplied offset
     return new Date(original - (3600000 * offset));
 }
-console.log(isAValidRangeGroupOrNumber("*", 0, 10));
-console.log(isAValidRangeGroupOrNumber("*/2", 0, 10));
-console.log(isAValidRangeGroupOrNumber("*/2,*/3", 0, 10));
-console.log(isAValidRangeGroupOrNumber("1-5,6-8", 0, 10));
-console.log(isAValidRangeGroupOrNumber("6-5,6-8", 0, 10));
-console.log(isAValidRangeGroupOrNumber("*/11", 0, 10));
-console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 10));
-console.log(isAValidRangeGroupOrNumber("1-32/11/2", 0, 10));
-console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
-console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 79));
-console.log(isAValidRangeGroupOrNumber("1", 0, 79));
-console.log(isAValidRangeGroupOrNumber("+1", 0, 79));
-console.log(isAValidRangeGroupOrNumber("1.1", 0, 79));
-console.log(isAValidRangeGroupOrNumber("111", 0, 79));
-console.log(isAValidRangeGroupOrNumber("11-12/1-10", 0, 79));
-console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
-
-
-
-
-
-
-
-
-
+// console.log(isAValidRangeGroupOrNumber("*", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("*/2", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("*/2,*/3", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("1-5,6-8", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("6-5,6-8", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("*/11", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("1-32/11/2", 0, 10));
+// console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
+// console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("1", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("+1", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("1.1", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("111", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("11-12/1-10", 0, 79));
+// console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
+// console.log('--------------------------------------');
+// console.log(small_time_interval('*'));
+// console.log(small_time_interval('*/15'));
+// console.log(small_time_interval('*/14'));
+// console.log(small_time_interval('1-31/2'));
+// console.log(small_time_interval('1-31/10'));
+// console.log(small_time_interval('1-60/15'));
+// console.log(small_time_interval('1'));
+// console.log(small_time_interval('-1'));
+// console.log(small_time_interval('+1'));
+// console.log(small_time_interval('1,2,3,4,5-10'));
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
