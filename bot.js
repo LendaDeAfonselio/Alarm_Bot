@@ -31,7 +31,8 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
-    client.commands.set(command.name, command);
+    let nameLowerCase = command.name.toString().toLowerCase();
+    client.commands.set(nameLowerCase, command);
 }
 
 
@@ -56,6 +57,9 @@ client.on('message', async message => {
     else {
         var args = message.content.slice(auth.prefix.length).split(/ +/);
         var command = args.shift();
+        if(command !== undefined){
+            command = command.toLowerCase();
+        }
         if (!client.commands.has(command)) return;
         else {
             try {

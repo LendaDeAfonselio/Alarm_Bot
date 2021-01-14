@@ -70,7 +70,7 @@ module.exports = {
                 }
             } else {
                 msg.channel.send('Not enough parameters were passed.\n' +
-                    'Usage: ' + auth.prefix + 'alarm <timezone/city/UTC> <m> <h> <month> <weekday> <message>'
+                    'Usage: ' + this.usage
                 );
             }
         }
