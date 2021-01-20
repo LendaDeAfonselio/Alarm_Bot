@@ -1,4 +1,3 @@
-const Discord = require('discord.js');
 const auth = require('./../auth.json');
 const utility = require('./../Utils/utility_functions');
 const Alarm_model = require('../models/alarm_model');

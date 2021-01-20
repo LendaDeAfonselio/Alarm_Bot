@@ -1,6 +1,5 @@
 const fs = require("fs");
 const auth = require('./../auth.json');
-const Discord = require('discord.js');
 const logging = require('../Utils/logging');
 
 module.exports = {
