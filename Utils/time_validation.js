@@ -313,7 +313,6 @@ function generateDateGivenOffset(originalDate, offset) {
 // console.log(small_time_interval('-1'));
 // console.log(small_time_interval('+1'));
 // console.log(small_time_interval('1,2,3,4,5-10'));
-
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
     get_timezone_offset: get_timezone_offset,

@@ -2,8 +2,6 @@ const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 
 const auth = require('./../auth.json');
-const private_flag = auth.private_prefix;
-const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 
 module.exports = {
