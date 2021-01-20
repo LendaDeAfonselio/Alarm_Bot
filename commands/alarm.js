@@ -5,6 +5,8 @@ const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
 const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
+const channel_regex = /<#\d+>/;
+
 
 module.exports = {
     name: 'alarm',
@@ -23,17 +25,14 @@ module.exports = {
                 }
                 else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
                     var channel = args.pop();
-                    var regex = /<#\d+>/;
-                    var hasSpecifiedChannel = regex.test(channel);
+                    var hasSpecifiedChannel = channel_regex.test(channel);
                     let channel_discord = msg.channel;
                     if (hasSpecifiedChannel) {
-                        console.log(channel.replace(/[<>#]/g, ''));
                         channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
                         message_stg = args.slice(6, args.length).join(' ');
                     }
                     crono = time_utils.updateParams(difference, crono);
-                    var guild = msg.guild.id;
-                    console.log(channel_discord);
+
                     try {
                         let scheduledMessage = new cron(crono, () => {
                             channel_discord.send(`${message_stg}`);
@@ -41,6 +40,8 @@ module.exports = {
                             scheduled: true
                         });
                         scheduledMessage.start();
+
+                        // generate the id to save in the db
                         let alarm_user = msg.author.id;
                         let this_alarm_id = Math.random().toString(36).substring(4);
                         let alarm_id = `${this_alarm_id}_${alarm_user}`;
@@ -53,7 +54,7 @@ module.exports = {
                             alarm_id: alarm_id,
                             alarm_args: crono,
                             message: message_stg,
-                            guild: guild,
+                            guild: msg.guild.id,
                             channel: channel_discord.id,
                             isActive: true,
                             timestamp: Date.now(),
