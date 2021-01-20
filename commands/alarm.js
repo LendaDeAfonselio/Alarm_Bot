@@ -32,51 +32,55 @@ module.exports = {
                         message_stg = args.slice(6, args.length).join(' ');
                     }
                     crono = time_utils.updateParams(difference, crono);
-
-                    try {
-                        let scheduledMessage = new cron(crono, () => {
-                            channel_discord.send(`${message_stg}`);
-                        }, {
-                            scheduled: true
-                        });
-                        scheduledMessage.start();
-
-                        // generate the id to save in the db
-                        let alarm_user = msg.author.id;
-                        let this_alarm_id = Math.random().toString(36).substring(4);
-                        let alarm_id = `${this_alarm_id}_${alarm_user}`;
-                        // save locally
-                        cron_list[alarm_id] = scheduledMessage;
-
-                        // save to DB
-                        const newAlarm = new Alarm_model({
-                            _id: mongoose.Types.ObjectId(),
-                            alarm_id: alarm_id,
-                            alarm_args: crono,
-                            message: message_stg,
-                            guild: msg.guild.id,
-                            channel: channel_discord.id,
-                            isActive: true,
-                            timestamp: Date.now(),
-                        });
-                        newAlarm.save()
-                            .then((result) => {
-                                logging.logger.info(`${result} added to database`);
-                                msg.channel.send({
-                                    embed: {
-                                        fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${crono} (server time) and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
-                                        timestamp: new Date()
-                                    }
-                                });
-                            })
-                            .catch((err) => {
-                                logging.logger.info(`An error while trying to add ${result} to the database. Message: ${newAlarm}`);
-                                logging.logger.error(err);
+                    if (channel_discord !== undefined) {
+                        try {
+                            let scheduledMessage = new cron(crono, () => {
+                                channel_discord.send(`${message_stg}`);
+                            }, {
+                                scheduled: true
                             });
-                    } catch (err) {
-                        logging.logger.info(`An error while trying to add alarm with params: ${msg.content}`);
-                        logging.logger.error(err);
-                        msg.channel.send(`Error adding the alarm with params: ${crono}, with message ${message_stg}`);
+                            scheduledMessage.start();
+
+                            // generate the id to save in the db
+                            let alarm_user = msg.author.id;
+                            let this_alarm_id = Math.random().toString(36).substring(4);
+                            let alarm_id = `${this_alarm_id}_${alarm_user}`;
+                            // save locally
+                            cron_list[alarm_id] = scheduledMessage;
+
+                            // save to DB
+                            const newAlarm = new Alarm_model({
+                                _id: mongoose.Types.ObjectId(),
+                                alarm_id: alarm_id,
+                                alarm_args: crono,
+                                message: message_stg,
+                                guild: msg.guild.id,
+                                channel: channel_discord.id,
+                                isActive: true,
+                                timestamp: Date.now(),
+                            });
+                            newAlarm.save()
+                                .then((result) => {
+                                    logging.logger.info(`${result} added to database`);
+                                    msg.channel.send({
+                                        embed: {
+                                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${crono} (server time) and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                                            timestamp: new Date()
+                                        }
+                                    });
+                                })
+                                .catch((err) => {
+                                    logging.logger.info(`An error while trying to add ${result} to the database. Message: ${newAlarm}`);
+                                    logging.logger.error(err);
+                                });
+                        } catch (err) {
+                            logging.logger.info(`An error while trying to add alarm with params: ${msg.content}`);
+                            logging.logger.error(err);
+                            msg.channel.send(`Error adding the alarm with params: ${crono}, with message ${message_stg}`);
+                        }
+                    } else {
+                        msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
+
                     }
                 }
             } else {
