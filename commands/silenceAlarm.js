@@ -53,8 +53,8 @@ async function silenceAlarmWithID(alarm_to_silence, activate) {
 
 module.exports = {
     name: 'silenceAlarm',
-    description: 'Silences the alarm with a given id. To turn it back on use activateAlarm <id>',
-    usage: auth.prefix + 'silenceAlarm <id>',
+    description: 'Silences the alarm with a given id. If you also pass a date it will activate automatically once that day arrives otherwise it will be silenced until you turn it back on using activateAlarm <id>',
+    usage: auth.prefix + 'silenceAlarm <id> <date_to_active_again>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
 
