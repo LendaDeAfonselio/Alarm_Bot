@@ -53,9 +53,11 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
         return isDigit != null && a && b >= min && b <= max;
     } else if (stg.includes('-')) {
         let tokens = stg.split('-');
+        let isDigit1 = tokens[0].match(/^[0-9]+$/);
+        let isDigit2 = tokens[1].match(/^[0-9]+$/);
         let a = parseInt(tokens[0]);
         let b = parseInt(tokens[1]);
-        return a < b && a >= min && b <= max;
+        return isDigit1 != null && isDigit2 != null && a < b && a >= min && b <= max;
     }
     let isDigit = stg.match(/^[0-9]+$/);
     let num = parseInt(stg);
@@ -195,24 +197,55 @@ function updateParams(difference, crono) {
     let hour_diff = Math.trunc(difference);
     let min_diff = (difference % 1) * 60;
     let cron_params = crono.split(" ");
-    cron_params[0] = updateParamsAux(cron_params[0], 60, min_diff);
-    cron_params[1] = updateParamsAux(cron_params[1], 24, hour_diff);
+    cron_params[0] = updateParamsAux(cron_params[0], 0, 60, min_diff);
+    cron_params[1] = updateParamsAux(cron_params[1], 0, 24, hour_diff);
     let r1 = r;
-    cron_params[2] = updateParamsAux(cron_params[2], 31, 0);
-    cron_params[3] = updateParamsAux(cron_params[3], 11, 0);
+    cron_params[2] = updateParamsAux(cron_params[2], 1, 31, 0);
+    cron_params[3] = updateParamsAux(cron_params[3], 0, 12, 0);
     r = r1;
-    cron_params[4] = updateParamsAux(cron_params[4], 7, 0);
+    cron_params[4] = updateParamsAux(cron_params[4], 0, 6, 0);
 
     crono = cron_params.slice().join(' ');
+    r = 0;
     return crono;
 }
 
-function updateParamsAux(stg, max_value, diff) {
+function updateParamsAux(stg, min_value, max_value, diff) {
     if (diff === 0 && r === 0) {
         return stg;
     }
     if (stg == '*') {
         return stg;
+    } else if (stg.includes(',')) {
+        let tokens = stg.split(',');
+        let dec = false;
+        let inc = false;
+        let generated_stgs = new Array();
+        for (let t of tokens) {
+            let r1 = r;
+            generated_stgs.push(updateParamsAux(t, min_value, max_value, diff));
+            if (r < 0) {
+                dec = true;
+            } else if (r > 0) {
+                inc = true;
+            }
+            r = r1;
+        }
+        inc ? r = 1 : r = 0;
+        dec ? r = -1 : r = 0;
+        return generated_stgs.join();
+    } else if (stg.includes('/')) {
+        var tokens = stg.split('/');
+
+        var left_arg = tokens[0];
+        var right_arg = tokens[1];
+        if (left_arg === '*') {
+            left_arg = `${min_value}-${max_value}`;
+        }
+
+        let values = get_numbers_for_pattern(left_arg, right_arg);
+
+        return updateParamsAux(values.join(), min_value, max_value, diff);
     } else if (stg.includes('-')) {
         let tokens = stg.split('-');
         let a = parseInt(tokens[0]);
@@ -226,56 +259,42 @@ function updateParamsAux(stg, max_value, diff) {
             b %= max_value;
             r++;
         } else if (b >= max_value && a < max_value) {
-            return `${a}-23,0-${b % max_value}`;
+            return `${a}-${max_value - 1},0-${b % max_value}`;
         } else if (b < 0 && a < 0) {
             a += max_value;
             b += max_value;
             r--;
         } else if (a < 0 && b >= 0) {
             r--;
-            return `${a + max_value}-23,0-${b}`;
+            return `${a + max_value}-${max_value - 1},0-${b}`;
         }
         return `${a}-${b}`;
 
-    } else if (stg.includes('*/')) {
-        let num = stg.replace('*/', '');
-        let n = parseInt(num);
-        // idk if this works tbh 
-        //TODO:  Work this out
-        return stg;
-    } else if (stg.includes(',')) {
-        let tokens = stg.split(',');
-        let updateValues = new Array();
-        let dec = false;
-        let inc = false;
-        for (let t of tokens) {
-            let tot_sum = parseInt(t) - diff + r;
-            let new_t = tot_sum % max_value;
-            if (tot_sum < 0) {
-                new_t = tot_sum + max_value;
-                dec = true;
-            }
-            if (tot_sum > max_value) {
-                inc = true;
-            }
-            updateValues.push(new_t);
-        }
-        inc ? r = 1 : r = 0;
-        dec ? r = -1 : r = 0;
-        return updateValues.join();
-    } else {
-        let update_stg = parseInt(stg) - diff + r;
-        r = 0;
-        if (update_stg < 0) {
-            update_stg = update_stg + max_value;
-            r--;
-        }
-        if (update_stg > max_value) {
-            update_stg = update_stg % max_value;
-            r++;
-        }
-        return update_stg;
     }
+    let update_stg = parseInt(stg) - diff + r;
+    r = 0;
+    if (update_stg < min_value) {
+        update_stg = update_stg + max_value;
+        r--;
+    }
+    if (update_stg >= max_value) {
+        update_stg = update_stg % max_value;
+        r++;
+    }
+    return update_stg;
+
+}
+
+function get_numbers_for_pattern(left_arg, right_arg) {
+    var bounds = left_arg.split('-');
+    var min_bound = parseInt(bounds[0]);
+    var max_bound = parseInt(bounds[1]);
+    var right_arg_num = parseInt(right_arg);
+    var numbers_in_interval = new Array();
+    for (let i = min_bound; i <= max_bound; i += right_arg_num) {
+        numbers_in_interval.push(i);
+    }
+    return numbers_in_interval;
 }
 
 function generateDateGivenOffset(originalDate, offset) {
@@ -286,33 +305,7 @@ function generateDateGivenOffset(originalDate, offset) {
     // using supplied offset
     return new Date(original - (3600000 * offset));
 }
-// console.log(isAValidRangeGroupOrNumber("*", 0, 10));
-// console.log(isAValidRangeGroupOrNumber("*/2", 0, 10));
-// console.log(isAValidRangeGroupOrNumber("*/2,*/3", 0, 10));
-// console.log(isAValidRangeGroupOrNumber("1-5,6-8", 0, 10));
-// console.log(isAValidRangeGroupOrNumber("6-5,6-8", 0, 10));
-// console.log(isAValidRangeGroupOrNumber("*/11", 0, 10));
-// console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 10));
-// console.log(isAValidRangeGroupOrNumber("1-32/11/2", 0, 10));
-// console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
-// console.log(isAValidRangeGroupOrNumber("1-32/11", 0, 79));
-// console.log(isAValidRangeGroupOrNumber("1", 0, 79));
-// console.log(isAValidRangeGroupOrNumber("+1", 0, 79));
-// console.log(isAValidRangeGroupOrNumber("1.1", 0, 79));
-// console.log(isAValidRangeGroupOrNumber("111", 0, 79));
-// console.log(isAValidRangeGroupOrNumber("11-12/1-10", 0, 79));
-// console.log(isAValidRangeGroupOrNumber("32/11/2", 0, 66));
-// console.log('--------------------------------------');
-// console.log(small_time_interval('*'));
-// console.log(small_time_interval('*/15'));
-// console.log(small_time_interval('*/14'));
-// console.log(small_time_interval('1-31/2'));
-// console.log(small_time_interval('1-31/10'));
-// console.log(small_time_interval('1-60/15'));
-// console.log(small_time_interval('1'));
-// console.log(small_time_interval('-1'));
-// console.log(small_time_interval('+1'));
-// console.log(small_time_interval('1,2,3,4,5-10'));
+
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
     get_timezone_offset: get_timezone_offset,

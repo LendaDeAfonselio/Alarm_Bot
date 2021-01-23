@@ -8,3 +8,5 @@ npm i file-system
 clear
 npm i timezones.json
 clear
+npm i winston
+clear
