@@ -197,15 +197,16 @@ function updateParams(difference, crono) {
     let hour_diff = Math.trunc(difference);
     let min_diff = (difference % 1) * 60;
     let cron_params = crono.split(" ");
-    cron_params[0] = updateParamsAux(cron_params[0], 0, 59, min_diff);
-    cron_params[1] = updateParamsAux(cron_params[1], 0, 23, hour_diff);
+    cron_params[0] = updateParamsAux(cron_params[0], 0, 60, min_diff);
+    cron_params[1] = updateParamsAux(cron_params[1], 0, 24, hour_diff);
     let r1 = r;
     cron_params[2] = updateParamsAux(cron_params[2], 1, 31, 0);
-    cron_params[3] = updateParamsAux(cron_params[3], 0, 11, 0);
+    cron_params[3] = updateParamsAux(cron_params[3], 0, 12, 0);
     r = r1;
     cron_params[4] = updateParamsAux(cron_params[4], 0, 6, 0);
 
     crono = cron_params.slice().join(' ');
+    r = 0;
     return crono;
 }
 
@@ -219,27 +220,32 @@ function updateParamsAux(stg, min_value, max_value, diff) {
         let tokens = stg.split(',');
         let dec = false;
         let inc = false;
-        let generated_stg = '';
+        let generated_stgs = new Array();
         for (let t of tokens) {
-            generated_stg += updateParamsAux(t, max_value, diff);
+            let r1 = r;
+            generated_stgs.push(updateParamsAux(t, min_value, max_value, diff));
             if (r < 0) {
                 dec = true;
             } else if (r > 0) {
                 inc = true;
             }
+            r = r1;
         }
-        inc ? r = 1 : r = 0; // TODO: Is this really necessary?
+        inc ? r = 1 : r = 0;
         dec ? r = -1 : r = 0;
-        return generated_stg;
+        return generated_stgs.join();
     } else if (stg.includes('/')) {
         var tokens = stg.split('/');
+
         var left_arg = tokens[0];
         var right_arg = tokens[1];
         if (left_arg === '*') {
             left_arg = `${min_value}-${max_value}`;
         }
-        var a = updateParamsAux(left_arg, min_value, max_value, diff);
-        return `${a}/${right_arg}`;
+
+        let values = get_numbers_for_pattern(left_arg, right_arg);
+
+        return updateParamsAux(values.join(), min_value, max_value, diff);
     } else if (stg.includes('-')) {
         let tokens = stg.split('-');
         let a = parseInt(tokens[0]);
@@ -253,30 +259,42 @@ function updateParamsAux(stg, min_value, max_value, diff) {
             b %= max_value;
             r++;
         } else if (b >= max_value && a < max_value) {
-            return `${a}-${max_value},0-${b % max_value}`;
+            return `${a}-${max_value - 1},0-${b % max_value}`;
         } else if (b < 0 && a < 0) {
             a += max_value;
             b += max_value;
             r--;
         } else if (a < 0 && b >= 0) {
             r--;
-            return `${a + max_value}-${max_value},0-${b}`;
+            return `${a + max_value}-${max_value - 1},0-${b}`;
         }
         return `${a}-${b}`;
 
     }
     let update_stg = parseInt(stg) - diff + r;
     r = 0;
-    if (update_stg < 0) {
+    if (update_stg < min_value) {
         update_stg = update_stg + max_value;
         r--;
     }
-    if (update_stg > max_value) {
+    if (update_stg >= max_value) {
         update_stg = update_stg % max_value;
         r++;
     }
     return update_stg;
 
+}
+
+function get_numbers_for_pattern(left_arg, right_arg) {
+    var bounds = left_arg.split('-');
+    var min_bound = parseInt(bounds[0]);
+    var max_bound = parseInt(bounds[1]);
+    var right_arg_num = parseInt(right_arg);
+    var numbers_in_interval = new Array();
+    for (let i = min_bound; i <= max_bound; i += right_arg_num) {
+        numbers_in_interval.push(i);
+    }
+    return numbers_in_interval;
 }
 
 function generateDateGivenOffset(originalDate, offset) {
