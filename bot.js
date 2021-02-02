@@ -53,21 +53,26 @@ client.once('ready', async x => {
 /*************************** Execute Commands ************************/
 client.on('message', async message => {
     const channelPrefix = auth.prefix;
-    if (!message.content.startsWith(channelPrefix)) return;
+    if (!message.content.startsWith(channelPrefix) || message.author.bot) return;
     else {
         var args = message.content.slice(auth.prefix.length).split(/ +/);
         var command = args.shift();
-        if(command !== undefined){
+        if (command !== undefined) {
             command = command.toLowerCase();
         }
         if (!client.commands.has(command)) return;
         else {
-            try {
-                await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
-            } catch (error) {
-                logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
-                logging.logger.error(error);
-                message.reply('There was an error trying to execute that command!');
+            if (message.channel.type === 'dm') {
+                console.log(message);
+
+            } else {
+                try {
+                    await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
+                } catch (error) {
+                    logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
+                    logging.logger.error(error);
+                    message.reply('There was an error trying to execute that command!');
+                }
             }
         }
     }

@@ -7,7 +7,9 @@ const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const channel_regex = /<#\d+>/;
 
-
+function bot_has_access_to_channel(channel_discord, client) {
+    return channel_discord.members.get(client.user.id) !== undefined;
+}
 module.exports = {
     name: 'alarm',
     description: 'Sets up an alarm that will be repeated\n' +
@@ -32,19 +34,26 @@ module.exports = {
                         message_stg = args.slice(6, args.length).join(' ');
                     }
                     crono = time_utils.updateParams(difference, crono);
-                    if (channel_discord !== undefined) {
+                    if (channel_discord !== undefined && bot_has_access_to_channel(channel_discord, client)) {
+                        // generate the id to save in the db
+                        let alarm_user = msg.author.id;
+                        let this_alarm_id = Math.random().toString(36).substring(4);
+                        let alarm_id = `${this_alarm_id}_${alarm_user}`;
                         try {
                             let scheduledMessage = new cron(crono, () => {
-                                channel_discord.send(`${message_stg}`);
+                                try {
+                                    channel_discord.send(`${message_stg}`);
+                                }
+                                catch (e) {
+                                    logging.logger.info(`An error has occured when sending the message: ${msg.content}`);
+                                    logging.logger.error(err);
+                                    msg.channel.send(`An error has occured when trying send the alarm with id ${alarm_id} check if the bot has enough permissions to send messages to the channel ${channel_discord.name}.\nIf this was not what you have intended please delete the alarm`);
+                                }
                             }, {
                                 scheduled: true
                             });
                             scheduledMessage.start();
 
-                            // generate the id to save in the db
-                            let alarm_user = msg.author.id;
-                            let this_alarm_id = Math.random().toString(36).substring(4);
-                            let alarm_id = `${this_alarm_id}_${alarm_user}`;
                             // save locally
                             cron_list[alarm_id] = scheduledMessage;
 
@@ -79,8 +88,7 @@ module.exports = {
                             msg.channel.send(`Error adding the alarm with params: ${crono}, with message ${message_stg}`);
                         }
                     } else {
-                        msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
-
+                        msg.channel.send(`It was not possible to send the message to the channel ${channel_discord.name}... Please check if the bot has access to that channel!`);
                     }
                 }
             } else {
