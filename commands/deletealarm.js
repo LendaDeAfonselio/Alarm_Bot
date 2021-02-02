@@ -7,7 +7,7 @@ const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 
 function can_delete_alarm(message, alarm_id) {
-    return (message.member.hasPermission("ADMINISTRATOR") || alarm_id.includes(message.author.id));
+    return (message.channel.type === 'dm' && alarm_id.includes(message.author.id)) || (alarm_id.includes(message.author.id) || message.member.hasPermission("ADMINISTRATOR"));
 }
 
 module.exports = {
