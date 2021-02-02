@@ -1,7 +1,9 @@
+"use strict";
 const auth = require('./../auth.json');
 const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const time_utils = require('../Utils/time_validation');
+const channel_regex = /<#\d+>/;
 
 function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
@@ -23,8 +25,6 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
             let date_stg = `${year}-${month}-${day} ${hour_min_args}`;
             let d = new Date(date_stg);
             return d;
-        } else {
-            msg.channel.send(`The format for the date _${date_args}_ is invalid, it should be <DD/MM/YYYY>! Please correct any errors and try again!`);
         }
     }
     return undefined;
@@ -53,6 +53,32 @@ function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone) {
     logging.logger.info(`One time alarm: ${alarm_id} has been setup for ${ota.cronTime.source}`);
 }
 
+
+
+function createOneTimeCron(args, msg, cron, d, message) {
+    var channel = args.pop();
+    var hasSpecifiedChannel = channel_regex.test(channel);
+    let channel_discord = msg.channel;
+    if (hasSpecifiedChannel) {
+        channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
+        var lastIndex = message.lastIndexOf(" ");
+        message = message.substring(0, lastIndex);
+    }
+    let ota = new cron(d, () => {
+        channel_discord.send(`${message}`);
+    });
+    return ota;
+}
+
+
+function createPrivateOneTimeCron(msg, cron, d, message) {
+    let ota = new cron(d, () => {
+        msg.author.send(`${message}`);
+    });
+    return ota;
+}
+
+
 module.exports = {
     name: 'oneTimeAlarm',
     description: 'Sets up an alarm that will play one time\n'
@@ -61,7 +87,7 @@ module.exports = {
         + 'P.S - These alarms are not persistent - they are not saved on a DB, therefore if the bot goes down you will have to set them up again.',
     usage: auth.prefix + 'oneTimeAlarm <-p> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n',
     async execute(msg, args, client, cron, cron_list, mongoose) {
-        if (utils.isAdministrator(msg) || utils.hasAlarmRole(msg, auth.alarm_role_name)) {
+        if (msg.channel.type === 'dm' || utils.isAdministrator(msg) || utils.hasAlarmRole(msg, auth.alarm_role_name)) {
             if (args.length > 1) {
                 let isPrivate = args[0].toLowerCase() === '-p';
                 if (isPrivate && args.length < 4 || !isPrivate && args.length < 3) {
@@ -90,15 +116,14 @@ module.exports = {
                                     var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     var now = new Date();
                                     if (d > now) {
-                                        let ota = new cron(d, () => {
-                                            msg.channel.send(`${message}`);
-                                        });
+                                        var ota = createOneTimeCron(args, msg, cron, d, message);
                                         setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
                                     } else {
-                                        msg.channel.send(`The date you entered: **${params_stg}** already happened, please verify the parameters and try again!`);
+                                        msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                        + 'Try `$help` for more information!');
                                 }
                             } else {
                                 message = args.slice(2, args.length).join(' ');
@@ -113,15 +138,14 @@ module.exports = {
                                     var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     var now = new Date();
                                     if (d > now) {
-                                        let ota = new cron(d, () => {
-                                            msg.channel.send(`${message}`);
-                                        });
+                                        var ota = createOneTimeCron(args, msg, cron, d, message);
                                         setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send(`The time _${hour_min_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                        + 'Try `$help` for more information!');
                                 }
                             }
                         }
@@ -143,15 +167,14 @@ module.exports = {
                                     var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     var now = new Date();
                                     if (d > now) {
-                                        let ota = new cron(d, () => {
-                                            msg.author.send(`${message}`);
-                                        });
+                                        var ota = createPrivateOneTimeCron(msg, cron, d, message);
                                         setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                        + 'Try `$help` for more information!');
                                 }
                             } else {
                                 message = args.slice(3, args.length).join(' ');
@@ -166,15 +189,14 @@ module.exports = {
                                     var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     var now = new Date();
                                     if (d > now) {
-                                        let ota = new cron(d, () => {
-                                            msg.author.send(`${message}`);
-                                        });
+                                        var ota = createPrivateOneTimeCron(msg, cron, d, message);
                                         setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send(`The time _${hour_min_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                        + 'Try `$help` for more information!');
                                 }
                             }
                         }
@@ -190,5 +212,4 @@ module.exports = {
         }
     }
 }
-
 

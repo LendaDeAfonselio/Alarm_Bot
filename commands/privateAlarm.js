@@ -46,7 +46,6 @@ module.exports = {
                         alarm_args: crono,
                         message: message_stg,
                         user_id: alarm_user,
-                        guild: msg.guild.id,
                         isActive: true,
                         timestamp: Date.now(),
                     });
