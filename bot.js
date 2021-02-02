@@ -5,6 +5,7 @@ const appsettings = require('./appsettings.json');
 const load_alarms = require('./load_alarms');
 const delete_alarms_when_kicked = require('./delete_alarms_for_guilds');
 const logging = require('./Utils/logging');
+const privateAlarmList = ['onetimealarm', 'privatealarm', 'help', 'myalarms', 'ping'];
 
 // Mongo setup
 const mongoose = require("mongoose");
@@ -57,17 +58,26 @@ client.on('message', async message => {
     else {
         var args = message.content.slice(auth.prefix.length).split(/ +/);
         var command = args.shift();
-        if(command !== undefined){
+        if (command !== undefined) {
             command = command.toLowerCase();
         }
         if (!client.commands.has(command)) return;
         else {
-            try {
-                await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
-            } catch (error) {
-                logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
-                logging.logger.error(error);
-                message.reply('There was an error trying to execute that command!');
+            if (message.channel.type === 'dm') {
+                if (privateAlarmList.includes(command)) {
+                    await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
+                } else {
+                    message.channel.send('Cannot perform that command in direct message.');
+                }
+            }
+            else {
+                try {
+                    await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
+                } catch (error) {
+                    logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
+                    logging.logger.error(error);
+                    message.reply('There was an error trying to execute that command!');
+                }
             }
         }
     }

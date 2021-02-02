@@ -61,7 +61,7 @@ module.exports = {
         + 'P.S - These alarms are not persistent - they are not saved on a DB, therefore if the bot goes down you will have to set them up again.',
     usage: auth.prefix + 'oneTimeAlarm <-p> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n',
     async execute(msg, args, client, cron, cron_list, mongoose) {
-        if (utils.isAdministrator(msg) || utils.hasAlarmRole(msg, auth.alarm_role_name)) {
+        if (msg.channel.type === 'dm' || utils.isAdministrator(msg) || utils.hasAlarmRole(msg, auth.alarm_role_name)) {
             if (args.length > 1) {
                 let isPrivate = args[0].toLowerCase() === '-p';
                 if (isPrivate && args.length < 4 || !isPrivate && args.length < 3) {
@@ -95,10 +95,12 @@ module.exports = {
                                         });
                                         setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
                                     } else {
-                                        msg.channel.send(`The date you entered: **${params_stg}** already happened, please verify the parameters and try again!`);
+                                        msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                            + 'Try `$help` for more information!');
                                     }
                                 } else {
-                                    msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                        + 'Try `$help` for more information!');
                                 }
                             } else {
                                 message = args.slice(2, args.length).join(' ');
@@ -121,7 +123,8 @@ module.exports = {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send(`The time _${hour_min_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                        + 'Try `$help` for more information!');
                                 }
                             }
                         }
@@ -151,7 +154,8 @@ module.exports = {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send(`The date _${date_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                        + 'Try `$help` for more information!');
                                 }
                             } else {
                                 message = args.slice(3, args.length).join(' ');
@@ -174,7 +178,8 @@ module.exports = {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send(`The time _${hour_min_args}_ that you have provided is invalid, it should be <Day/Month/Year>! Please correct any errors and try again!`);
+                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                        + 'Try `$help` for more information!');
                                 }
                             }
                         }
