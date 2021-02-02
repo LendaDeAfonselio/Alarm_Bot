@@ -23,8 +23,6 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
             let date_stg = `${year}-${month}-${day} ${hour_min_args}`;
             let d = new Date(date_stg);
             return d;
-        } else {
-            msg.channel.send(`The format for the date _${date_args}_ is invalid, it should be <DD/MM/YYYY>! Please correct any errors and try again!`);
         }
     }
     return undefined;
@@ -95,8 +93,7 @@ module.exports = {
                                         });
                                         setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
                                     } else {
-                                        msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
-                                            + 'Try `$help` for more information!');
+                                        msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
                                     msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'

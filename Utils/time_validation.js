@@ -298,6 +298,9 @@ function get_numbers_for_pattern(left_arg, right_arg) {
 }
 
 function generateDateGivenOffset(originalDate, offset) {
+    if (originalDate === undefined) {
+        return undefined;
+    }
     // get UTC time in msec
     var original = originalDate.getTime();
 
