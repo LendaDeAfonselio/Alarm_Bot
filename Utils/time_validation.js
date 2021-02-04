@@ -1,6 +1,8 @@
 "use strict";
 
-const timezones = require('timezones.json');
+const timezones_remote_library = require('timezones.json');
+const custom_timezones = require('../timezones.json');
+
 var r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
@@ -133,13 +135,13 @@ Date.prototype.isDstObserved = function () {
 
 
 function get_timezone_by_abreviation(abr) {
-    return timezones.filter(
-        function (data) { return data.abbr == abr }
+    return custom_timezones.filter(
+        function (data) { return data.timezone_abbreviation.toUpperCase() == abr.toUpperCase() }
     )[0];
 }
 
 function get_timezone_by_city(city) {
-    return timezones.filter(
+    return timezones_remote_library.filter(
         function (data) {
             return data.utc.find(a => a.includes(city))
         }
@@ -147,35 +149,28 @@ function get_timezone_by_city(city) {
 }
 
 function get_timezone_offset(stg) {
-    if (stg.includes('UTC')) {
-        let hour_diff = stg.replace('UTC', '');
-        if (hour_diff === '') {
-            // simply UTC
-            return 0;
-        }
-        let signal = hour_diff[0];
-        hour_diff = hour_diff.replace(signal, '');
-        if (!(signal === '-' || signal === '+')) {
-            return undefined;
-        }
-        let tokens = hour_diff.split(':');
-        if (tokens.length >= 1) {
-            let hours = parseInt(signal.concat(tokens[0]));
-            let offset = hours;
-            if (tokens.length >= 2) {
-                let minutes = parseInt(signal.concat(tokens[1]));
-                offset = offset + (minutes / 60);
-            }
-            return offset;
-        }
-        return undefined;
+
+    // check if the timezone is in format UTC+X
+    var offset_utc = get_offset_from_stg('UTC', stg);
+    if (offset_utc) {
+        return offset_utc;
     }
+
+    // check if timezone is in format GMT+X
+    var offset_gmt = get_offset_from_stg('GMT', stg);
+    if (offset_gmt) {
+        return offset_gmt;
+    }
+
+
     var timezone = get_timezone_by_abreviation(stg);
     if (!timezone) {
         timezone = get_timezone_by_city(stg);
+        return timezone !== undefined ? timezone.offset : undefined;
     }
 
-    return timezone !== undefined ? timezone.offset : undefined;
+    return timezone !== undefined ? get_offset_from_stg('UTC', timezone.utc_offset)
+        : undefined;
 }
 
 function get_offset_difference(stg) {
@@ -309,10 +304,37 @@ function generateDateGivenOffset(originalDate, offset) {
     return new Date(original - (3600000 * offset));
 }
 
+function get_offset_from_stg(ref, stg) {
+    if (stg.includes(ref)) {
+        let hour_diff = stg.replace(ref, '');
+        if (hour_diff === '') {
+            // simply UTC
+            return 0;
+        }
+        let signal = hour_diff[0];
+        hour_diff = hour_diff.replace(signal, '');
+        if (!(signal === '-' || signal === '+')) {
+            return undefined;
+        }
+        let tokens = hour_diff.split(':');
+        if (tokens.length >= 1) {
+            let hours = parseInt(signal.concat(tokens[0]));
+            let offset = hours;
+            if (tokens.length >= 2) {
+                let minutes = parseInt(signal.concat(tokens[1]));
+                offset = offset + (minutes / 60);
+            }
+            return offset;
+        }
+        return undefined;
+    }
+}
+
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
     get_timezone_offset: get_timezone_offset,
     get_offset_difference: get_offset_difference,
     updateParams: updateParams,
-    generateDateGivenOffset: generateDateGivenOffset
+    generateDateGivenOffset: generateDateGivenOffset,
+    get_timezone_by_abreviation: get_timezone_by_abreviation
 }

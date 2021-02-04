@@ -1,0 +1,230 @@
+[
+    {
+        "utc_offset": "UTC+14",
+        "locations": "Samoa and Christmas Island/Kiribati",
+        "timezone_abbreviation": "LINT",
+        "example_location": "Kiritimati"
+    },
+    {
+        "utc_offset": "UTC+13:45",
+        "locations": "Chatham Islands/New Zealand",
+        "timezone_abbreviation": "CHADT",
+        "example_location": "Chatham Islands"
+    },
+    {
+        "utc_offset": "UTC+13",
+        "locations": "New Zealand with exceptions and 4 more",
+        "timezone_abbreviation": "NZDT",
+        "example_location": "Auckland"
+    },
+    {
+        "utc_offset": "UTC+12",
+        "locations": "Fiji small region of Russia and 7 more",
+        "timezone_abbreviation": "ANAT",
+        "example_location": "Anadyr"
+    },
+    {
+        "utc_offset": "UTC+11",
+        "locations": "Much of Australia and 7 more",
+        "timezone_abbreviation": "AEDT",
+        "example_location": "Melbourne"
+    },
+    {
+        "utc_offset": "UTC+10:30",
+        "locations": "Small region of Australia",
+        "timezone_abbreviation": "ACDT",
+        "example_location": "Adelaide"
+    },
+    {
+        "utc_offset": "UTC+10",
+        "locations": "Queensland/Australia and 6 more",
+        "timezone_abbreviation": "AEST",
+        "example_location": "Brisbane"
+    },
+    {
+        "utc_offset": "UTC+9:30",
+        "locations": "Northern Territory/Australia",
+        "timezone_abbreviation": "ACST",
+        "example_location": "Darwin"
+    },
+    {
+        "utc_offset": "UTC+9",
+        "locations": "Japan, South Korea and 5 more",
+        "timezone_abbreviation": "JSY",
+        "example_location": "Tokyo"
+    },
+    {
+        "utc_offset": "UTC+8:45",
+        "locations": "Western Australia/Australia",
+        "timezone_abbreviation": "ACWST",
+        "example_location": "Eucla"
+    },
+    {
+        "utc_offset": "UTC+8",
+        "locations": "China, Philippines and 10 more",
+        "timezone_abbreviation": "ChST",
+        "example_location": "Beijing"
+    },
+    {
+        "utc_offset": "UTC+7",
+        "locations": "Much of Indonesia, Thailand and 7 more",
+        "timezone_abbreviation": "WIB",
+        "example_location": "Jakarta"
+    },
+    {
+        "utc_offset": "UTC+6:30",
+        "locations": "Myanmar and Cocos Islands",
+        "timezone_abbreviation": "MMT",
+        "example_location": "Yangon"
+    },
+    {
+        "utc_offset": "UTC+6",
+        "locations": "Bangladesh and 6 more",
+        "timezone_abbreviation": "BST",
+        "example_location": "Dhaka"
+    },
+    {
+        "utc_offset": "UTC+5:45",
+        "locations": "Nepal",
+        "timezone_abbreviation": "NPT",
+        "example_location": "Kathmandu"
+    },
+    {
+        "utc_offset": "UTC+5:30",
+        "locations": "India and Sri Lanka",
+        "timezone_abbreviation": "IST",
+        "example_location": "New Delhi"
+    },
+    {
+        "utc_offset": "UTC+5",
+        "locations": "Pakistan and 8 more",
+        "timezone_abbreviation": "UZT",
+        "example_location": "Tashkent"
+    },
+    {
+        "utc_offset": "UTC+4:30",
+        "locations": "Afghanistan",
+        "timezone_abbreviation": "AFT",
+        "example_location": "Kabul"
+    },
+    {
+        "utc_offset": "UTC+4",
+        "locations": "Azerbaijan and 8 more",
+        "timezone_abbreviation": "GST",
+        "example_location": "Dubai"
+    },
+    {
+        "utc_offset": "UTC+3:30",
+        "locations": "Iran",
+        "timezone_abbreviation": "IRST",
+        "example_location": "Tehran"
+    },
+    {
+        "utc_offset": "UTC+3",
+        "locations": "Moscow/Russia, Turkey and 20 more",
+        "timezone_abbreviation": "MSK",
+        "example_location": "Moscow"
+    },
+    {
+        "utc_offset": "UTC+2",
+        "locations": "Greece and 32 more",
+        "timezone_abbreviation": "EET",
+        "example_location": "Cairo"
+    },
+    {
+        "utc_offset": "UTC+1",
+        "locations": "Germany and 45 more",
+        "timezone_abbreviation": "CET",
+        "example_location": "Brussels"
+    },
+    {
+        "utc_offset": "UTC+0",
+        "locations": "United Kingdom and 24 more",
+        "timezone_abbreviation": "GMT",
+        "example_location": "London"
+    },
+    {
+        "utc_offset": "UTC-1",
+        "locations": "Cabo Verde and 2 more",
+        "timezone_abbreviation": "CVT",
+        "example_location": "Praia"
+    },
+    {
+        "utc_offset": "UTC-2",
+        "locations": "Pernambuco/Brazil and South Georgia/Sandwich Is.",
+        "timezone_abbreviation": "GeorgiaST",
+        "example_location": "King Edward Point"
+    },
+    {
+        "utc_offset": "UTC-3",
+        "locations": "Argentina, most of Brazil and 9 other",
+        "timezone_abbreviation": "ART",
+        "example_location": "Buenos Aires"
+    },
+    {
+        "utc_offset": "UTC-3:30",
+        "locations": "Newfoundland and Labrador/Canada",
+        "timezone_abbreviation": "NST",
+        "example_location": "St. John's"
+    },
+    {
+        "utc_offset": "UTC-4",
+        "locations": "some regions of Canada and 28 more",
+        "timezone_abbreviation": "VET",
+        "example_location": "Caracas"
+    },
+    {
+        "utc_offset": "UTC-5",
+        "locations": "regions of USA and 14 more",
+        "timezone_abbreviation": "EST",
+        "example_location": "New York"
+    },
+    {
+        "utc_offset": "UTC-6",
+        "locations": "regions of USA and 9 more",
+        "timezone_abbreviation": "CST",
+        "example_location": "Mexico City"
+    },
+    {
+        "utc_offset": "UTC-7",
+        "locations": "some regions of USA and 2 more",
+        "timezone_abbreviation": "MST",
+        "example_location": "Calgary"
+    },
+    {
+        "utc_offset": "UTC-8",
+        "locations": "regions of USA and 4 more",
+        "timezone_abbreviation": "PST",
+        "example_location": "Los Angeles"
+    },
+    {
+        "utc_offset": "UTC-9",
+        "locations": "Alaska/USA and regions of French Polynesia",
+        "timezone_abbreviation": "AKST",
+        "example_location": "Anchorage"
+    },
+    {
+        "utc_offset": "UTC-9:30",
+        "locations": "Marquesas Islands/French Polynesia",
+        "timezone_abbreviation": "MART",
+        "example_location": "Taiohae"
+    },
+    {
+        "utc_offset": "UTC-10",
+        "locations": "Small region of USA and 2 more",
+        "timezone_abbreviation": "HST",
+        "example_location": "Honolulu"
+    },
+    {
+        "utc_offset": "UTC-11",
+        "locations": "American Samoa and 2 more",
+        "timezone_abbreviation": "NUT",
+        "example_location": "Alofi"
+    },
+    {
+        "utc_offset": "UTC-12",
+        "locations": "Much of US Minor Outlying Islands",
+        "timezone_abbreviation": "AoE",
+        "example_location": "Baker Island"
+    }
+]

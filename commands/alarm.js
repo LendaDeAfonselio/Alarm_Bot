@@ -21,7 +21,7 @@ module.exports = {
                 var message_stg = args.slice(6, args.length).join(' ');
                 var difference = time_utils.get_offset_difference(timezone);
                 if (difference === undefined) {
-                    msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
+                    msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
                 }
                 else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
                     var channel = args.pop();
