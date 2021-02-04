@@ -1,6 +1,8 @@
 "use strict";
 
-const timezones = require('timezones.json');
+const timezones_remote_library = require('timezones.json');
+const custom_timezones = require('../timezones.json');
+
 var r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
@@ -133,13 +135,13 @@ Date.prototype.isDstObserved = function () {
 
 
 function get_timezone_by_abreviation(abr) {
-    return timezones.filter(
-        function (data) { return data.abbr == abr }
+    return custom_timezones.filter(
+        function (data) { return data.timezone_abbreviation.toUpperCase() == abr.toUpperCase() }
     )[0];
 }
 
 function get_timezone_by_city(city) {
-    return timezones.filter(
+    return timezones_remote_library.filter(
         function (data) {
             return data.utc.find(a => a.includes(city))
         }
@@ -164,9 +166,11 @@ function get_timezone_offset(stg) {
     var timezone = get_timezone_by_abreviation(stg);
     if (!timezone) {
         timezone = get_timezone_by_city(stg);
+        return timezone !== undefined ? timezone.offset : undefined;
     }
 
-    return timezone !== undefined ? timezone.offset : undefined;
+    return timezone !== undefined ? get_offset_from_stg('UTC', timezone.utc_offset)
+        : undefined;
 }
 
 function get_offset_difference(stg) {
@@ -325,7 +329,6 @@ function get_offset_from_stg(ref, stg) {
         return undefined;
     }
 }
-
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
