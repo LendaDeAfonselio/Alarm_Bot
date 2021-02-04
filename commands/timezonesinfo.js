@@ -18,7 +18,7 @@ module.exports = {
             custom_timezones.forEach((timezone) => {
                 let moreexamples = {
                     name: 'Abbreviation: ' + timezone.timezone_abbreviation,
-                    value: 'Time diference: ' + timezone.utc_offset.replace('UTC', '')
+                    value: 'Time diference to UTC: ' + timezone.utc_offset.replace('UTC', '')
                 };
                 list_timezones.push(moreexamples);
             });
