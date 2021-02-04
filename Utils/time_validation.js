@@ -335,5 +335,6 @@ module.exports = {
     get_timezone_offset: get_timezone_offset,
     get_offset_difference: get_offset_difference,
     updateParams: updateParams,
-    generateDateGivenOffset: generateDateGivenOffset
+    generateDateGivenOffset: generateDateGivenOffset,
+    get_timezone_by_abreviation: get_timezone_by_abreviation
 }
