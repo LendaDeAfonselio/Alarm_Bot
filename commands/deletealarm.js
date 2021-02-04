@@ -7,7 +7,7 @@ const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 
 function can_delete_alarm(message, alarm_id) {
-    return (message.channel.type === 'dm' && alarm_id.includes(message.author.id)) || (alarm_id.includes(message.author.id) || message.member.hasPermission("ADMINISTRATOR"));
+    return (message.channel.type === 'dm' && alarm_id.includes(message.author.id)) || (alarm_id.includes(message.author.id) || (message.member && message.member.hasPermission("ADMINISTRATOR")));
 }
 
 module.exports = {
@@ -18,7 +18,7 @@ module.exports = {
         if (args.length >= 1) {
             var alarm_to_delete = args[0];
             if (!can_delete_alarm(msg, alarm_to_delete)) {
-                msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!`)
+                msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
             }
             else {
                 if (cron_list[alarm_to_delete] !== undefined) {
