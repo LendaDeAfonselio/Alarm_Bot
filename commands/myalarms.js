@@ -12,8 +12,6 @@ module.exports = {
         var results_pub = await Alarm_model.find({ "alarm_id": { $regex: `.*${msg.author.id}.*` } });
         var results_priv = await Private_alarm_model.find({ "user_id": msg.author.id });
 
-        console.log(oneTimeAlarm.oneTimeAlarmList);
-
         let general_alarms = createMessageWithEntries(results_pub);
         let private_alarms = createMessageWithEntries(results_priv);
 
