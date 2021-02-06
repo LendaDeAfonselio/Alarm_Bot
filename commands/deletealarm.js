@@ -6,6 +6,8 @@ const private_flag = auth.private_prefix;
 const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 
+let oneTimeAlarm = require('./oneTimeAlarm');
+
 function can_delete_alarm(message, alarm_id) {
     return (message.channel.type === 'dm' && alarm_id.includes(message.author.id)) || (alarm_id.includes(message.author.id) || (message.member && message.member.hasPermission("ADMINISTRATOR")));
 }
@@ -31,6 +33,8 @@ module.exports = {
                             await Alarm_model.deleteOne(
                                 { alarm_id: alarm_to_delete }
                             )
+                        } else {
+                            delete oneTimeAlarm.oneTimeAlarmList[alarm_to_delete];
                         }
                         cron_list[alarm_to_delete].stop();
                         delete cron_list[alarm_to_delete];

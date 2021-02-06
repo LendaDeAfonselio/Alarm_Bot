@@ -4,6 +4,7 @@ const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const time_utils = require('../Utils/time_validation');
 const channel_regex = /<#\d+>/;
+let oneTimeAlarmList = {};
 
 function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
@@ -30,7 +31,7 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
     return undefined;
 }
 
-function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone) {
+function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone, isPrivate, message) {
     ota.start();
     msg.channel.send(`Alarm for ${data_stg} (${timezone}) has been setup`);
     let alarm_user = msg.author.id;
@@ -39,11 +40,17 @@ function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone) {
 
     // save locally
     cron_list[alarm_id] = ota;
+    oneTimeAlarmList[alarm_id] = {
+        date: data_stg,
+        isPrivate: isPrivate,
+        message: message
+    };
     var dif = d.getTime() - now.getTime();
     setTimeout(() => {
         try {
             ota.stop();
             delete cron_list[alarm_id];
+            delete oneTimeAlarmList[alarm_id];
         }
         catch (e) {
             logging.logger.info(`Error stopping or deleting the cron for OneTimeAlarm.`);
@@ -80,12 +87,13 @@ function createPrivateOneTimeCron(msg, cron, d, message) {
 
 
 module.exports = {
+    oneTimeAlarmList: oneTimeAlarmList,
     name: 'oneTimeAlarm',
     description: 'Sets up an alarm that will play one time\n'
         + 'For a private alarm use the -p flag as the second argument otherwise it will send the message to the channel you typed the command at\n'
         + 'If no Date is specified then it will default to today\n'
         + 'P.S - These alarms are not persistent - they are not saved on a DB, therefore if the bot goes down you will have to set them up again.',
-    usage: auth.prefix + 'oneTimeAlarm <-p> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n',
+    usage: auth.prefix + 'oneTimeAlarm <-p?> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (msg.channel.type === 'dm' || utils.isAdministrator(msg) || utils.hasAlarmRole(msg, auth.alarm_role_name)) {
             if (args.length > 1) {
@@ -117,7 +125,7 @@ module.exports = {
                                     var now = new Date();
                                     if (d > now) {
                                         var ota = createOneTimeCron(args, msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
+                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
@@ -139,7 +147,7 @@ module.exports = {
                                     var now = new Date();
                                     if (d > now) {
                                         var ota = createOneTimeCron(args, msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
+                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
@@ -168,7 +176,7 @@ module.exports = {
                                     var now = new Date();
                                     if (d > now) {
                                         var ota = createPrivateOneTimeCron(msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
+                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
@@ -190,7 +198,7 @@ module.exports = {
                                     var now = new Date();
                                     if (d > now) {
                                         var ota = createPrivateOneTimeCron(msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone);
+                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
