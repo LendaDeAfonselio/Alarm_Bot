@@ -79,12 +79,12 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
     }
 
     if (cron_params.length < 5) {
-        msg.channel.send('Not enough parameters were passed, try `#alarmHelp` for more information!');
+        msg.channel.send('Not enough parameters were passed, try `$alarmHelp` for more information!');
         return false;
     }
     let mins = cron_params[0];
     if (!isAValidRangeGroupOrNumber(mins, 0, 59)) {
-        msg.channel.send("The minute parameter is invalid. Try `#alarmHelp` for more information!");
+        msg.channel.send("The minute parameter is invalid. This value must be between 0 and 59.\nTry `$alarmHelp` for more information!");
         return false;
     }
     if (small_time_interval(mins)) {
@@ -94,25 +94,25 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
 
     let hours = cron_params[1];
     if (!isAValidRangeGroupOrNumber(hours, 0, 23)) {
-        msg.channel.send("The hour parameter is invalid! Try `#alarmHelp` for more information!");
+        msg.channel.send("The hour parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!");
         return false;
     }
 
     let month_day = cron_params[2];
     if (!isAValidRangeGroupOrNumber(month_day, 1, 31)) {
-        msg.channel.send("The day of the month parameter is invalid! Try `#alarmHelp` for more information!");
+        msg.channel.send("The day of the month parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!");
         return false;
     }
 
     let month = cron_params[3];
     if (!isAValidRangeGroupOrNumber(month, 0, 11)) {
-        msg.channel.send("The month parameter is invalid! Try `#alarmHelp` for more information!");
+        msg.channel.send("The month parameter is invalid! This value must be between 0 and 11.\nTry `$alarmHelp` for more information!");
         return false;
     }
 
     let weekday = cron_params[4];
     if (!isAValidRangeGroupOrNumber(weekday, 0, 6)) {
-        msg.channel.send("The weekday parameter is invalid! Try `#alarmHelp` for more information!");
+        msg.channel.send("The weekday parameter is invalid! This value must be between 0 (Sunday) and 6 (Saturday).\nTry `$alarmHelp` for more information!");
         return false;
     }
 
