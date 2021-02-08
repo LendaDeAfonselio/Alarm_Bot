@@ -37,6 +37,10 @@ module.exports = {
                 }
             }
             else if (flag.toLowerCase() === '-a') {
+                if (msg.channel.type === 'dm') {
+                    msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
+                    return;
+                }
                 try {
                     var to_be_removed = await Alarm_model.find({
                         $and: [

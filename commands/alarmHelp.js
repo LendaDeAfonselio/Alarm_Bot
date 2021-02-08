@@ -35,7 +35,7 @@ module.exports = {
 
         let example2 = {
             name: 'Sending `Goodbye` every Monday, Wednesday and Friday at 19:00',
-            value: '`$alarm UTC+0 00 19 * * 1,3,5`'
+            value: '`$alarm UTC+0 0 19 * * 1,3,5`'
         };
         msg_fields.push(example2);
 
@@ -46,6 +46,13 @@ module.exports = {
 
         msg_fields.push(example4);
 
+        let channel_example = {
+            name: 'Sending `I am here` everyday at 19:35 in #general channel',
+            value: '`$alarm UTC+0 35 9-18 * * * aaa #general`'
+        };
+
+        msg_fields.push(channel_example);
+
 
         let moreexamples = {
             name: 'More examples available in the project readme on github!',
@@ -55,7 +62,7 @@ module.exports = {
 
         // sends the message
         try {
-            message.channel.send({
+            message.author.send({
                 embed: {
                     color: 0xff80d5,
                     title: 'Examples of usage',

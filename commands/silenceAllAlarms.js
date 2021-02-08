@@ -35,6 +35,10 @@ module.exports = {
                     msg.channel.send(`Sucesfully silenced ${x.length} private alarms.`);
 
                 } else if (flag === '-a') {
+                    if (msg.channel.type === 'dm') {
+                        msg.channel.send('Can only silence public alarms in a server, otherwise the bot does not know which alarms to silence.');
+                        return;
+                    }
                     var x = await Alarm_model.find(
                         { isActive: true, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } });
 

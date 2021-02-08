@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "cron": "^1.8.2",
+    "discord.js": "^12.3.1",
+    "file-system": "^2.2.2",
+    "mongoose": "^5.11.13",
+    "timezones.json": "^1.5.2",
+    "winston": "^3.3.3"
+  }
+}

@@ -41,11 +41,11 @@ client.once('ready', async x => {
     client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
         try {
             await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
-            await load_alarms.fetchPrivateAlarms(cron_list, cron, guild, guild.id);
         } catch (e) {
             logging.logger.error(e);
         }
     });
+    await load_alarms.fetchPrivateAlarms(cron_list, cron, client);
     client.user.setActivity("$help to get started!");
     logging.logger.info("Running in " + client.guilds.cache.size + " guilds");
 });
@@ -63,9 +63,19 @@ client.on('message', async message => {
         if (!client.commands.has(command)) return;
         else {
             if (message.channel.type === 'dm') {
-                console.log(message);
-
-            } else {
+                if (command === 'alarm') {
+                    message.channel.send('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `privateAlarm`');
+                } else {
+                    try {
+                        await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
+                    } catch (error) {
+                        logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
+                        logging.logger.error(error);
+                        message.reply('There was an error trying to execute that command!');
+                    }
+                }
+            }
+            else {
                 try {
                     await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
                 } catch (error) {

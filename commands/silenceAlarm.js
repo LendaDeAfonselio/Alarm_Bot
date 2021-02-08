@@ -9,7 +9,7 @@ const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 
 function can_silence_alarm(message, alarm_id) {
-    return message.member.hasPermission("ADMINISTRATOR") || alarm_id.includes(message.author.id);
+    return alarm_id.includes(message.author.id) || (message.member && message.member.hasPermission("ADMINISTRATOR"));
 }
 function isValidDate(d) {
     return d instanceof Date && !isNaN(d);

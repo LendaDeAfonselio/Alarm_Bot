@@ -31,6 +31,11 @@ module.exports = {
                     msg.channel.send(`Sucesfully re-activated ${x.length} private alarms.`);
 
                 } else if (flag === '-a') {
+                    if (msg.channel.type === 'dm') {
+                        msg.channel.send('Can only activate public alarms in a server, otherwise the bot does not know which alarms to activate.');
+                        return;
+                    }
+
                     var x = await Alarm_model.find(
                         { isActive: false, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } });
 

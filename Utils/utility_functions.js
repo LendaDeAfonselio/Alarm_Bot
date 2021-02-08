@@ -1,10 +1,13 @@
 function isAdministrator(message) {
-    return message.member.hasPermission("ADMINISTRATOR");
+    return message.member && message.member.hasPermission("ADMINISTRATOR");
 }
 
 function hasAlarmRole(message, alarm_role) {
-    let x = message.member.roles.cache.find(r => r.name.toLowerCase() === alarm_role.toLowerCase());
-    return x !== undefined;
+    if (message.member) {
+        let x = message.member.roles.cache.find(r => r.name.toLowerCase() === alarm_role.toLowerCase());
+        return x !== undefined;
+    }
+    return false;
 }
 
 function getAbsoluteDiff(a, b) {
