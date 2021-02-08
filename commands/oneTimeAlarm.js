@@ -71,10 +71,15 @@ function createOneTimeCron(args, msg, cron, d, message) {
         var lastIndex = message.lastIndexOf(" ");
         message = message.substring(0, lastIndex);
     }
-    let ota = new cron(d, () => {
-        channel_discord.send(`${message}`);
-    });
-    return ota;
+    if(channel_discord !== undefined){
+        let ota = new cron(d, () => {
+            channel_discord.send(`${message}`);
+        });
+        return ota;
+    } else {
+        
+    }
+    
 }
 
 

@@ -152,13 +152,13 @@ function get_timezone_offset(stg) {
 
     // check if the timezone is in format UTC+X
     var offset_utc = get_offset_from_stg('UTC', stg);
-    if (offset_utc) {
+    if (offset_utc !== undefined) {
         return offset_utc;
     }
 
     // check if timezone is in format GMT+X
     var offset_gmt = get_offset_from_stg('GMT', stg);
-    if (offset_gmt) {
+    if (offset_gmt !== undefined) {
         return offset_gmt;
     }
 
@@ -254,7 +254,7 @@ function updateParamsAux(stg, min_value, max_value, diff) {
             b %= max_value;
             r++;
         } else if (b >= max_value && a < max_value) {
-            return `${a}-${max_value - 1},0-${b % max_value}`;
+            return `${a}-${max_value - 1},${min_value}-${b % max_value}`;
         } else if (b < 0 && a < 0) {
             a += max_value;
             b += max_value;
@@ -329,6 +329,10 @@ function get_offset_from_stg(ref, stg) {
         return undefined;
     }
 }
+
+console.log(get_timezone_offset('UTC+0'));
+console.log(get_timezone_offset('UTC+3:30'));
+
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,

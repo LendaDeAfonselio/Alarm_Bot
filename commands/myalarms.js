@@ -37,7 +37,7 @@ module.exports = {
         var public_chunks = utility.chunkArray(general_alarms, 20);
         var private_chunks = utility.chunkArray(private_alarms, 20);
 
-        if (general_alarms.length <= 0 && oneTimeAlarms_list.length <= 0) {
+        if (general_alarms.length <= 0) {
             msg.channel.send('You do not have alarms in any server!');
         }
 
