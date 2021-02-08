@@ -71,15 +71,13 @@ function createOneTimeCron(args, msg, cron, d, message) {
         var lastIndex = message.lastIndexOf(" ");
         message = message.substring(0, lastIndex);
     }
-    if(channel_discord !== undefined){
+    if (channel_discord !== undefined) {
         let ota = new cron(d, () => {
             channel_discord.send(`${message}`);
         });
         return ota;
-    } else {
-        
     }
-    
+    return undefined;
 }
 
 
@@ -130,7 +128,11 @@ module.exports = {
                                     var now = new Date();
                                     if (d > now) {
                                         var ota = createOneTimeCron(args, msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
+                                        if (ota !== undefined) {
+                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
+                                        } else {
+                                            msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
+                                        }
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
@@ -152,7 +154,11 @@ module.exports = {
                                     var now = new Date();
                                     if (d > now) {
                                         var ota = createOneTimeCron(args, msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
+                                        if (ota !== undefined) {
+                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
+                                        } else {
+                                            msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
+                                        }
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }

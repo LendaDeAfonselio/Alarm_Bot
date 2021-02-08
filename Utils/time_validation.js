@@ -330,9 +330,6 @@ function get_offset_from_stg(ref, stg) {
     }
 }
 
-console.log(get_timezone_offset('UTC+0'));
-console.log(get_timezone_offset('UTC+3:30'));
-
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
