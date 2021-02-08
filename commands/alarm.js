@@ -14,6 +14,10 @@ module.exports = {
         'This alarm will send a message to the _channel_ of the _server_ in which it is activated. Insert channel as the last parameter if you wish to send the message to a specific channel, otherwise it will send it to the channel you are typing the message on\n',
     usage: auth.prefix + 'alarm <timezone/city/UTC> <m> <h> <day_of_the_month> <month> <weekday> <message> <channel>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
+        if (message.channel.type === 'dm') {
+            message.channel.send('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `' + auth.prefix + 'privateAlarm` command');
+            return;
+        }
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
             if (args.length > 6) {
                 var timezone = args[0];
