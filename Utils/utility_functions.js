@@ -10,6 +10,10 @@ function hasAlarmRole(message, alarm_role) {
     return false;
 }
 
+function can_change_alarm(message, alarm_id) {
+    return (message.channel.type === 'dm' && alarm_id.includes(message.author.id)) || (alarm_id.includes(message.author.id) || isAdministrator(message));
+}
+
 function getAbsoluteDiff(a, b) {
     return a > b ? a - b : b - a;
 }
@@ -37,6 +41,7 @@ function chunkArray(myArray, chunk_size) {
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
+    can_change_alarm: can_change_alarm,
     getAbsoluteDiff: getAbsoluteDiff,
     chunkArray: chunkArray
 }

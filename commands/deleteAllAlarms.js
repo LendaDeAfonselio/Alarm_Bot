@@ -4,6 +4,7 @@ const Private_alarm_model = require('../models/private_alarm_model');
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
 
+const oneTimeAlarm = require('./oneTimeAlarm');
 
 module.exports = {
     name: 'deleteAllAlarms',
@@ -27,6 +28,7 @@ module.exports = {
                             cron_list[i.alarm_id].stop();
                             delete cron_list[i.alarm_id];
                         });
+                        oneTimeAlarm.deleteAllOneTimeAlarms(true);
                         msg.channel.send(`Sucessfully deleted ${x.deletedCount} alarms.`);
                     } else {
                         msg.channel.send('No private alarm found for your user. Try `myAlarms` to check your alarms');
@@ -60,6 +62,7 @@ module.exports = {
                             cron_list[i.alarm_id].stop();
                             delete cron_list[i.alarm_id];
                         });
+                        oneTimeAlarm.deleteAllOneTimeAlarms(false);
                         msg.channel.send(`Sucessfully deleted ${y.deletedCount} alarms.`);
                     } else {
                         msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
