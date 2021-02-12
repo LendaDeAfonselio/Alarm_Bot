@@ -52,9 +52,6 @@ async function fetchPrivateAlarms(cron_list, cron, client) {
             }
             cron_list[alarm_id] = scheduledMessage;
         } else {
-            // await Private_alarm_model.deleteOne(
-            //     { alarm_id: alarm_id }
-            // );
             logging.logger.info(`${alarm_id} from the DB is not usable because the user was not found`);
         }
     }

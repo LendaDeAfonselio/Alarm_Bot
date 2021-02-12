@@ -5,15 +5,23 @@ const Private_alarm_model = require('../models/private_alarm_model');
 
 const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
-const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 
 const utility_functions = require('../Utils/utility_functions');
-const channel_regex = /<#\d+>/;
+
+function getAlarmById(alarm_id) {
+    if (alarm_id_to_change.includes(auth.private_prefix)) {
+        return await Private_alarm_model.findOne({ "alarm_id": alarm_id });
+    } else if (!alarm_id_to_change.includes(auth.one_time_prefix)) {
+        return await Alarm_model.findOne({ "alarm_id": alarm_id });
+    }
+    return undefined;
+}
 
 function editCronForAlarm(cron, cron_list, newMsg, alarm_id_regex, channel_discord, msg) {
     for (let k of Object.keys(cron_list)) {
-        if (k.includes(alarm_id_regex)) {
+        // let's ignore one time alarms for now
+        if (k.includes(alarm_id_regex) && !k.includes(auth.one_time_prefix)) {
             let alarm_id = k;
             let value = cron_list[alarm_id];
             let cron_old = value.cronTime.source;
@@ -42,15 +50,55 @@ function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, cha
 }
 
 async function editAlarmMessageOnDatabase(newMsg, newChannel, alarm_id_regex, guild) {
-    await Alarm_model.updateMany(
-        { "$and": [{ alarm_id: { "$regex": `.*${alarm_id_regex}.*` } }, { guild: guild }] },
-        { message: newMsg, channel: newChannel }
-    );
+    try {
+        var publicUpdate = await Alarm_model.updateMany(
+            { "$and": [{ alarm_id: { "$regex": `.*${alarm_id_regex}.*` } }, { guild: guild }] },
+            { message: newMsg, channel: newChannel }
+        );
 
-    await Private_alarm_model.updateMany(
-        { alarm_id: { "$regex": `.*${alarm_id_regex}.*` } },
-        { message: newMsg }
-    );
+        var privateUpdate = await Private_alarm_model.updateMany(
+            { alarm_id: { "$regex": `.*${alarm_id_regex}.*` } },
+            { message: newMsg }
+        );
+        logging.logger.info(`Updated the message for ${publicUpdate.matchedCount} public alarms and ${privateUpdate.matchedCount} private alarms with regex ${alarm_id_regex}`);
+        return privateUpdate.matchedCount + publicUpdate.matchedCount;
+    } catch (err) {
+        logging.logger.info(`An error while trying to update the alarms with regex ${alarm_id_regex}.`);
+        logging.logger.error(err);
+    }
+    return 0;
+}
+
+async function editAlarmCronArgsOnDatabase(new_cron, alarm_id_to_change) {
+    try {
+        if (alarm_id_to_change.includes(auth.private_prefix)) {
+            var privateUpdate = await Private_alarm_model.updateOne(
+                { alarm_id: alarm_id_to_change },
+                { alarm_args: new_cron }
+            );
+            return checkIfUpdated(privateUpdate, alarm_id_to_change, new_cron)
+        } else if (!alarm_id_to_change.includes(auth.one_time_prefix)) {
+            var publicUpdate = await Alarm_model.updateOne(
+                { alarm_id: alarm_id_to_change },
+                { alarm_args: new_cron }
+            );
+            return checkIfUpdated(publicUpdate, alarm_id_to_change, new_cron);
+        }
+    } catch (err) {
+        logging.logger.info(`An error while trying to update the alarms with regex ${alarm_id_regex}.`);
+        logging.logger.error(err);
+    }
+    return 0;
+}
+
+function checkIfUpdated(updateObject, alarm_id_to_change, new_cron) {
+    if (updateObject.modifiedCount > 0) {
+        logging.logger.info(`Updated the cron for ${alarm_id_to_change} to ${new_cron}`);
+        return 1;
+    } else {
+        logging.logger.info(`No alarms were updated... Maybe id ${alarm_id_to_change} was incorrect?`);
+    }
+    return 0;
 }
 
 module.exports = {
@@ -60,12 +108,12 @@ module.exports = {
         '`-c` - Allows the user to alter the cron parameters.\n' +
         'You can combine both flags to change the parameter and message at the same time',
     usage: auth.prefix + this.name + ' -m <alarm_id_regex> <message> <channel?>\n' +
-        auth.prefix + this.name + ' -c <alarm_id_regex> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday>\n' +
-        auth.prefix + this.name + ' -c -m <alarm_id_regex> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>\n',
+        auth.prefix + this.name + ' -c <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday>\n' +
+        auth.prefix + this.name + ' -c -m <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>\n',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         let guild = msg.guild.id;
         if (args.length >= 3 && utility_functions.compareIgnoringCase(args[0], "-m")) {
-            var alarm_id_regex = args[1];
+            var alarm_id = args[1];
             var message_stg = args.slice(2, args.length).join(' ');
             var channel = args.pop();
             var hasSpecifiedChannel = utility_functions.isAChannel(channel);
@@ -75,12 +123,40 @@ module.exports = {
                 message_stg = args.slice(2, args.length).join(' ');
             }
             if (channel_discord !== undefined) {
-                await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id_regex, guild);
-                editCronForAlarm(cron, cron_list, message_stg, alarm_id_regex);
+                await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id, guild);
+                editCronForAlarm(cron, cron_list, message_stg, alarm_id, channel_discord, msg);
             } else {
                 msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
             }
         } else if (args.length >= 8 && utility_functions.compareIgnoringCase(args[0], "-c")) {
+            var alarm_id = args[1];
+            var timezone = args[2];
+            var crono = args.slice(3, 8).join(' ');
+            var difference = time_utils.get_offset_difference(timezone);
+            console.log(crono);
+            if (difference === undefined) {
+                msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
+                return;
+            }
+            else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
+                crono = time_utils.updateParams(difference, crono);
+                await editAlarmCronArgsOnDatabase(crono, alarm_id);
+                var alarm = await getAlarmById(alarm_id);
+                let guild = msg.guild;
+                let channel_id = alarm.channel;
+                let channel = await guild.channels.cache.get(channel_id);
+                if (channel !== undefined) {
+                    editCronForAlarm(cron, cron_list, alarm.message, alarm_id, channel, msg);
+                }
+            }
+        } else if (args.length >= 10 &&
+            utility_functions.compareIgnoringCase(args[0], "-c") &&
+            utility_functions.compareIgnoringCase(args[1], "-m")) {
+            var alarm_id = args[1];
+            var timezone = args[2];
+            var crono = args.slice(3, 8).join(' ');
+            var message_stg = args.slice(8, args.length).join(' ');
+
 
         }
     }

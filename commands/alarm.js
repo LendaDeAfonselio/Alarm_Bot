@@ -73,7 +73,7 @@ module.exports = {
                                     });
                                 })
                                 .catch((err) => {
-                                    logging.logger.info(`An error while trying to add ${result} to the database. Message: ${newAlarm}`);
+                                    logging.logger.info(`An error while trying to add ${result} to the database.`);
                                     logging.logger.error(err);
                                 });
                         } catch (err) {
