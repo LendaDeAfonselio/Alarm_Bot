@@ -11,17 +11,45 @@ const logging = require('../Utils/logging');
 const utility_functions = require('../Utils/utility_functions');
 const channel_regex = /<#\d+>/;
 
-function editCronForAlarm()
+function editCronForAlarm(cron, cron_list, newMsg, alarm_id_regex, channel_discord, msg) {
+    for (let k of Object.keys(cron_list)) {
+        if (k.includes(alarm_id_regex)) {
+            let alarm_id = k;
+            let value = cron_list[alarm_id];
+            let cron_old = value.cronTime.source;
+            // stop and delete the alarm...
+            if (k.includes(auth.private_prefix)) {
+                updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, msg.author, newMsg);
+            } else {
+                updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, channel_discord, newMsg);
+            }
+        }
+    }
+}
 
-async function editAlarmMessageOnDatabase(newMsg, newChannel, cron, alarm_id_regex, guild) {
+function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, channel_discord, newMsg) {
+    cron_list[alarm_id].stop();
+    delete cron_list[alarm_id];
+
+    // create the cron event to send the message...
+    let scheduledMessage = new cron(cron_old, () => {
+        channel_discord.send(`${newMsg}`);
+    }, {
+        scheduled: true
+    });
+    scheduledMessage.start();
+    cron_list[alarm_id] = scheduledMessage;
+}
+
+async function editAlarmMessageOnDatabase(newMsg, newChannel, alarm_id_regex, guild) {
     await Alarm_model.updateMany(
         { "$and": [{ alarm_id: { "$regex": `.*${alarm_id_regex}.*` } }, { guild: guild }] },
-        { message: newMsg, alarm_args: cron, channel: newChannel }
+        { message: newMsg, channel: newChannel }
     );
 
     await Private_alarm_model.updateMany(
         { alarm_id: { "$regex": `.*${alarm_id_regex}.*` } },
-        { message: newMsg, alarm_args: cron }
+        { message: newMsg }
     );
 }
 
@@ -47,9 +75,8 @@ module.exports = {
                 message_stg = args.slice(2, args.length).join(' ');
             }
             if (channel_discord !== undefined) {
-                //let 
-                editCronForAlarm(message_stg, alarm_id_regex);
-                await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_cron, alarm_id_regex, guild);
+                await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id_regex, guild);
+                editCronForAlarm(cron, cron_list, message_stg, alarm_id_regex);
             } else {
                 msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
             }
