@@ -18,21 +18,15 @@ async function getAlarmById(alarm_id) {
     return undefined;
 }
 
-function editCronForAlarm(cron, cron_list, newMsg, alarm_id_regex, channel_discord, msg) {
-    for (let k of Object.keys(cron_list)) {
-        // let's ignore one time alarms for now
-        if (k.includes(alarm_id_regex) && !k.includes(auth.one_time_prefix)) {
-            let alarm_id = k;
-            let value = cron_list[alarm_id];
-            let cron_old = value.cronTime.source;
-            // stop and delete the alarm...
-            if (k.includes(auth.private_prefix)) {
-                updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, msg.author, newMsg);
-            } else if (!k.includes(auth.one_time_prefix)) {
-                updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, channel_discord, newMsg);
-            }
+function editCronForAlarm(cron, cron_list, newMsg, channel_discord, msg, alarm_list) {
+    for (let alarm of alarm_list) {
+        var k = alarm.alarm_id;
+        if (k.includes(auth.private_prefix)) {
+            updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, msg.author, newMsg);
+        } else if (!k.includes(auth.one_time_prefix)) {
+            updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, channel_discord, newMsg);
         }
-    }
+    };
 }
 
 function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, channel_discord, newMsg) {
@@ -60,8 +54,8 @@ async function editAlarmMessageOnDatabase(newMsg, newChannel, alarm_id_regex, gu
             { alarm_id: { "$regex": `.*${alarm_id_regex}.*` } },
             { message: newMsg }
         );
-        logging.logger.info(`Updated the message for ${publicUpdate.matchedCount} public alarms and ${privateUpdate.matchedCount} private alarms with regex ${alarm_id_regex}`);
-        return privateUpdate.matchedCount + publicUpdate.matchedCount;
+        logging.logger.info(`Updated the message for ${publicUpdate.nModified} public alarms and ${privateUpdate.nModified} private alarms with regex ${alarm_id_regex}`);
+        return privateUpdate.nModified + publicUpdate.nModified;
     } catch (err) {
         logging.logger.info(`An error while trying to update the alarms with regex ${alarm_id_regex}.`);
         logging.logger.error(err);
@@ -143,16 +137,34 @@ module.exports = {
         auth.prefix + this.name + ' -c <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday>\n' +
         auth.prefix + this.name + ' -c -m <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>\n',
     async execute(msg, args, client, cron, cron_list, mongoose) {
-        let guild = msg.guild.id;
+        let is_dm = msg.channel.type === 'dm';
         if (args.length >= 3 && utility_functions.compareIgnoringCase(args[0], "-m")) {
+            let guildId = undefined;
+            if (!is_dm) {
+                guildId = msg.guild.id;
+            }
             var alarm_id = args[1];
             var message_stg = args.slice(2, args.length).join(' ');
             var channel = args.pop();
             let channel_discord;
             ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 2));
+
             if (channel_discord !== undefined) {
-                await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id, guild);
-                editCronForAlarm(cron, cron_list, message_stg, alarm_id, channel_discord, msg);
+                var public_alarms = new Array();
+                if (!is_dm) {
+                    public_alarms = await Alarm_model.find(
+                        { "$and": [{ alarm_id: { "$regex": `.*${alarm_id}.*` } }, { guild: guildId }] }
+                    );
+                }
+                var private_alarms = await Private_alarm_model.find(
+                    { alarm_id: { "$regex": `.*${alarm_id}.*` } }
+                );
+
+                let combination = public_alarms.concat(private_alarms);
+
+                await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id, guildId);
+                editCronForAlarm(cron, cron_list, message_stg, channel_discord, msg, combination);
+                msg.channel.send(`Updated the message for ${combination.length} alarms that contain \`${alarm_id}\` in the id`);
             } else {
                 msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
             }
@@ -214,6 +226,8 @@ module.exports = {
                 await editAlarmCronAndMessageOnDatabase(message_stg, crono, alarm_id, channel_discord, guild.id);
                 updateCronWithParamsAndMessage(cron, cron_list, alarm_id, crono, channel, message_stg);
             }
+        } else {
+            msg.channel.send('Incorrect usage of the command\n' + 'Usage: ' + this.usage)
         }
     }
 }
