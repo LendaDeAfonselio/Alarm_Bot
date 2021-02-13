@@ -10,9 +10,9 @@ const logging = require('../Utils/logging');
 const utility_functions = require('../Utils/utility_functions');
 
 async function getAlarmById(alarm_id) {
-    if (alarm_id_to_change.includes(auth.private_prefix)) {
+    if (alarm_id.includes(auth.private_prefix)) {
         return await Private_alarm_model.findOne({ "alarm_id": alarm_id });
-    } else if (!alarm_id_to_change.includes(auth.one_time_prefix)) {
+    } else if (!alarm_id.includes(auth.one_time_prefix)) {
         return await Alarm_model.findOne({ "alarm_id": alarm_id });
     }
     return undefined;
@@ -108,7 +108,8 @@ async function editAlarmCronAndMessageOnDatabase(new_msg, new_cron, alarm_id_to_
 }
 
 function checkIfUpdated(updateObject, alarm_id_to_change, new_cron, new_message) {
-    if (updateObject.modifiedCount > 0) {
+    console.log(updateObject);
+    if (updateObject.nModified > 0) {
         logging.logger.info(`Updated the cron for ${alarm_id_to_change} to ${new_cron} and ${new_message}`);
         return 1;
     } else {
@@ -186,11 +187,18 @@ module.exports = {
             else if (time_utils.validate_alarm_parameters(msg, crono, alarm.message)) {
                 crono = time_utils.updateParams(difference, crono);
                 let guild = msg.guild;
-                let channel_id = alarm.channel;
-                let channel = await guild.channels.cache.get(channel_id);
+                let channel;
+
+                if ((alarm.alarm_id).includes(auth.private_prefix)) {
+                    channel = await client.users.fetch(msg.author.id);
+                } else {
+                    let channel_id = alarm.channel;
+                    channel = await guild.channels.cache.get(channel_id);
+                }
                 if (channel !== undefined) {
                     await editAlarmCronArgsOnDatabase(crono, alarm_id);
-                    updateCronWithParamsAndMessage(cron, cron_list, alarm_id, crono, channel, message_stg);
+                    updateCronWithParamsAndMessage(cron, cron_list, alarm_id, crono, channel, alarm.message);
+                    msg.channel.send(`Sucessfully update the alarm with id \`${alarm_id}\` with the following parameters: \`${crono}\` `);
                 } else {
                     msg.channel.send('Error setting up the alarm, please check the settings on this channel.');
                     return;
