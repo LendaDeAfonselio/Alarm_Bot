@@ -7,13 +7,16 @@ const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const channel_regex = /<#\d+>/;
 
-
 module.exports = {
     name: 'alarm',
     description: 'Sets up an alarm that will be repeated\n' +
         'This alarm will send a message to the _channel_ of the _server_ in which it is activated. Insert channel as the last parameter if you wish to send the message to a specific channel, otherwise it will send it to the channel you are typing the message on\n',
-    usage: auth.prefix + 'alarm <timezone/city/UTC> <m> <h> <day_of_the_month> <month> <weekday> <message> <channel>',
+    usage: auth.prefix + 'alarm <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
+        if (msg.channel.type === 'dm') {
+            msg.channel.send('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `' + auth.prefix + 'privateAlarm` command');
+            return;
+        }
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
             if (args.length > 6) {
                 var timezone = args[0];
@@ -31,8 +34,8 @@ module.exports = {
                         channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
                         message_stg = args.slice(6, args.length).join(' ');
                     }
-                    crono = time_utils.updateParams(difference, crono);
                     if (channel_discord !== undefined) {
+                        crono = time_utils.updateParams(difference, crono);
                         try {
                             let scheduledMessage = new cron(crono, () => {
                                 channel_discord.send(`${message_stg}`);
@@ -70,7 +73,7 @@ module.exports = {
                                     });
                                 })
                                 .catch((err) => {
-                                    logging.logger.info(`An error while trying to add ${result} to the database. Message: ${newAlarm}`);
+                                    logging.logger.info(`An error while trying to add ${result} to the database.`);
                                     logging.logger.error(err);
                                 });
                         } catch (err) {
@@ -80,7 +83,6 @@ module.exports = {
                         }
                     } else {
                         msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
-
                     }
                 }
             } else {

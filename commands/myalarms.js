@@ -3,18 +3,52 @@ const utility = require('./../Utils/utility_functions');
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const oneTimeAlarm = require('./oneTimeAlarm');
+const utility_functions = require('./../Utils/utility_functions');
 module.exports = {
     name: 'myAlarms',
-    description: 'Fetches all of your alarms.',
+    description: 'Fetches all of your alarms.\n`myAlarms -id` sends a non embed message with the ids for easier copy/pasting on phone.',
     usage: auth.prefix + 'myAlarms',
     async execute(msg, args, client, cron, cron_list, mongoose) {
 
         var results_pub = await Alarm_model.find({ "alarm_id": { $regex: `.*${msg.author.id}.*` } });
         var results_priv = await Private_alarm_model.find({ "user_id": msg.author.id });
 
+        if (args.length >= 1 && utility_functions.compareIgnoringCase(args[0], '-id')) {
+            var id_stg = '**Public Alarms**:\n';
+            results_pub.forEach(alarm => {
+                id_stg += `${alarm.alarm_id}\n`;
+            });
+            var chunks = utility_functions.chunkArray(id_stg, 2000);
+
+            for (let chunk of chunks) {
+                msg.channel.send(chunk);
+            }
+
+            id_stg = '**Private Alarms**:\n';
+            results_priv.forEach(p_alarm => {
+                id_stg += `${p_alarm.alarm_id}\n`;
+            });
+
+            id_stg += '**One Time Alarms:**\n';
+            for (let k of Object.keys(oneTimeAlarm.oneTimeAlarmList)) {
+                let v = oneTimeAlarm.oneTimeAlarmList[k];
+
+                if (k.includes(msg.author.id)) {
+                    id_stg += `${k} -> ${v.isPrivate ? "Private" : "Public"}\n`;
+                }
+            }
+
+            chunks = utility_functions.chunkArray(id_stg, 2000);
+
+            for (let chunk of chunks) {
+                msg.author.send(chunk);
+            }
+            return;
+        }
+
+
         let general_alarms = createMessageWithEntries(results_pub);
         let private_alarms = createMessageWithEntries(results_priv);
-
         for (let k of Object.keys(oneTimeAlarm.oneTimeAlarmList)) {
             if (k.includes(msg.author.id)) {
                 let alarm_id = k;

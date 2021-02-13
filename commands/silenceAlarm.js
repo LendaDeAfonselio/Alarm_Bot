@@ -8,9 +8,8 @@ const private_flag = auth.private_prefix;
 const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 
-function can_silence_alarm(message, alarm_id) {
-    return alarm_id.includes(message.author.id) || (message.member && message.member.hasPermission("ADMINISTRATOR"));
-}
+const utility_functions = require('../Utils/utility_functions');
+
 function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
 }
@@ -59,12 +58,15 @@ module.exports = {
         if (args.length >= 1) {
 
             var alarm_to_silence = args[0];
-
+            if(alarm_to_silence.includes(auth.one_time_prefix)){
+                msg.channel.send('Silence feature is not available for oneTimeAlarms, if you wish to silence a oneTimeAlarm just delete it with `$deleteAlarm ' + alarm_to_silence + '`');
+                return;
+            }
             let timeout = undefined;
             if (args.length >= 2) {
                 timeout = args[1];
             }
-            if (!can_silence_alarm(msg, alarm_to_silence)) {
+            if (!utility_functions.can_change_alarm(msg, alarm_to_silence)) {
                 msg.channel.send(`The alarm you selected isn't yours or you aren't administrator on this server therefore you cannot silence it!`)
             }
             else {

@@ -62,21 +62,12 @@ client.on('message', async message => {
         }
         if (!client.commands.has(command)) return;
         else {
-            if (message.channel.type === 'dm') {
-                if (command === 'alarm') {
-                    message.channel.send('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `privateAlarm`');
-                } else {
-                    await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
-                }
-            }
-            else {
-                try {
-                    await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
-                } catch (error) {
-                    logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
-                    logging.logger.error(error);
-                    message.reply('There was an error trying to execute that command!');
-                }
+            try {
+                await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
+            } catch (error) {
+                logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
+                logging.logger.error(error);
+                message.reply('There was an error trying to execute that command!');
             }
         }
     }
