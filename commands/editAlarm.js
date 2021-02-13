@@ -140,16 +140,12 @@ module.exports = {
     async execute(msg, args, client, cron, cron_list, mongoose) {
         let is_dm = msg.channel.type === 'dm';
         if (args.length >= 3 && utility_functions.compareIgnoringCase(args[0], "-m")) {
-            let guildId = undefined;
-            if (!is_dm) {
-                guildId = msg.guild.id;
-            }
+            let guildId = msg.guild?.id;
             var alarm_id = args[1];
             var message_stg = args.slice(2, args.length).join(' ');
             var channel = args.pop();
             let channel_discord;
             ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 2));
-
             if (channel_discord !== undefined) {
                 var public_alarms = new Array();
                 if (!is_dm) {
@@ -179,19 +175,18 @@ module.exports = {
                 return;
             }
             var difference = time_utils.get_offset_difference(timezone);
-            console.log(crono);
             if (difference === undefined) {
                 msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
                 return;
             }
             else if (time_utils.validate_alarm_parameters(msg, crono, alarm.message)) {
                 crono = time_utils.updateParams(difference, crono);
-                let guild = msg.guild;
                 let channel;
 
                 if ((alarm.alarm_id).includes(auth.private_prefix)) {
                     channel = await client.users.fetch(msg.author.id);
                 } else {
+                    let guild = msg.guild;
                     let channel_id = alarm.channel;
                     channel = await guild.channels.cache.get(channel_id);
                 }
@@ -208,15 +203,16 @@ module.exports = {
             utility_functions.compareIgnoringCase(args[0], "-c") &&
             utility_functions.compareIgnoringCase(args[1], "-m")) {
             var alarm_id = args[2];
+            var alarm = await getAlarmById(alarm_id);
+            if (alarm === undefined) {
+                msg.channel.send('No alarm found with that id');
+                return;
+            }
             var timezone = args[3];
             var crono = args.slice(4, 9).join(' ');
             var message_stg = args.slice(9, args.length).join(' ');
-            var channel = args.pop();
-            ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 9));
-            if (channel_discord === undefined) {
-                msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
-                return;
-            }
+
+
             var difference = time_utils.get_offset_difference(timezone);
             console.log(crono);
             if (difference === undefined) {
@@ -224,14 +220,14 @@ module.exports = {
                 return;
             }
             else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
-                crono = time_utils.updateParams(difference, crono);
-                var alarm = await getAlarmById(alarm_id);
-                if (alarm === undefined) {
-                    msg.channel.send('No alarm found with that id');
+                var channel = args.pop();
+                ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 9));
+                if (channel_discord === undefined) {
+                    msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
                     return;
                 }
-                let guild = msg.guild;
-                await editAlarmCronAndMessageOnDatabase(message_stg, crono, alarm_id, channel_discord, guild.id);
+                crono = time_utils.updateParams(difference, crono);
+                await editAlarmCronAndMessageOnDatabase(message_stg, crono, alarm_id, channel_discord, msg.guild?.id);
                 updateCronWithParamsAndMessage(cron, cron_list, alarm_id, crono, channel, message_stg);
             }
         } else {
