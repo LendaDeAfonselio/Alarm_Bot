@@ -9,7 +9,7 @@ const logging = require('../Utils/logging');
 
 const utility_functions = require('../Utils/utility_functions');
 
-function getAlarmById(alarm_id) {
+async function getAlarmById(alarm_id) {
     if (alarm_id_to_change.includes(auth.private_prefix)) {
         return await Private_alarm_model.findOne({ "alarm_id": alarm_id });
     } else if (!alarm_id_to_change.includes(auth.one_time_prefix)) {

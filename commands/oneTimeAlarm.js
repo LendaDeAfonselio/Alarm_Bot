@@ -88,15 +88,15 @@ function createPrivateOneTimeCron(msg, cron, d, message) {
     return ota;
 }
 
-function deleteAllOneTimeAlarms(deletePrivate){
-    for (let k of Object.keys(oneTimeAlarm.oneTimeAlarmList)) {
+function deleteAllOneTimeAlarms(deletePrivate, msg) {
+    for (let k of Object.keys(oneTimeAlarmList)) {
         if (k.includes(msg.author.id)) {
             let alarm_id = k;
-            let v = oneTimeAlarm.oneTimeAlarmList[k];
+            let v = oneTimeAlarmList[k];
 
             if (v.isPrivate == deletePrivate) {
                 delete oneTimeAlarmList[alarm_id];
-            } 
+            }
         }
     }
 }

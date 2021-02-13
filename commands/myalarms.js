@@ -13,7 +13,7 @@ module.exports = {
         var results_pub = await Alarm_model.find({ "alarm_id": { $regex: `.*${msg.author.id}.*` } });
         var results_priv = await Private_alarm_model.find({ "user_id": msg.author.id });
 
-        if (args.length >= 2 && args[1].toLowerCase() == '-id') {
+        if (args.length >= 1 && utility_functions.compareIgnoringCase(args[0], '-id')) {
             var id_stg = '**Public Alarms**:\n';
             results_pub.forEach(alarm => {
                 id_stg += `${alarm.alarm_id}\n`;
@@ -28,6 +28,18 @@ module.exports = {
             results_priv.forEach(p_alarm => {
                 id_stg += `${p_alarm.alarm_id}\n`;
             });
+
+            id_stg += '**One Time Alarms:**\n';
+            for (let k of Object.keys(oneTimeAlarm.oneTimeAlarmList)) {
+                let v = oneTimeAlarm.oneTimeAlarmList[k];
+
+                if (k.includes(msg.author.id)) {
+                    id_stg += `${k} -> ${v.isPrivate ? "Private" : "Public"}\n`;
+                }
+            }
+
+            chunks = utility_functions.chunkArray(id_stg, 2000);
+
             for (let chunk of chunks) {
                 msg.author.send(chunk);
             }
@@ -37,7 +49,6 @@ module.exports = {
 
         let general_alarms = createMessageWithEntries(results_pub);
         let private_alarms = createMessageWithEntries(results_priv);
-
         for (let k of Object.keys(oneTimeAlarm.oneTimeAlarmList)) {
             if (k.includes(msg.author.id)) {
                 let alarm_id = k;

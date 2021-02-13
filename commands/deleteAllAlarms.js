@@ -28,11 +28,11 @@ module.exports = {
                             cron_list[i.alarm_id].stop();
                             delete cron_list[i.alarm_id];
                         });
-                        oneTimeAlarm.deleteAllOneTimeAlarms(true);
                         msg.channel.send(`Sucessfully deleted ${x.deletedCount} alarms.`);
                     } else {
-                        msg.channel.send('No private alarm found for your user. Try `myAlarms` to check your alarms');
+                        msg.channel.send('No private alarm found for your user, only private `oneTimeAlarm`s will be deleted. Try `myAlarms` to check your alarms.');
                     }
+                    oneTimeAlarm.deleteAllOneTimeAlarms(true, msg);
                 } catch (e) {
                     logging.logger.error(e);
                     msg.channel.send(`Error deleting your private alarms...`);
@@ -62,11 +62,11 @@ module.exports = {
                             cron_list[i.alarm_id].stop();
                             delete cron_list[i.alarm_id];
                         });
-                        oneTimeAlarm.deleteAllOneTimeAlarms(false);
                         msg.channel.send(`Sucessfully deleted ${y.deletedCount} alarms.`);
                     } else {
                         msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
                     }
+                    oneTimeAlarm.deleteAllOneTimeAlarms(false, msg);
                 } catch (e) {
                     logging.logger.info(`Error deleting alarms for user:${alarm_user} with params ${flag}`);
                     logging.logger.error(e);
