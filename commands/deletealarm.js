@@ -29,7 +29,13 @@ module.exports = {
                             )
                         } else if (!alarm_to_delete.includes(temp_flag)) {
                             await Alarm_model.deleteOne(
-                                { alarm_id: alarm_to_delete }
+                                {
+                                    $and: [
+                                        { alarm_id: alarm_to_delete },
+                                        { guild: msg.guild.id },
+                                    ]
+                                }
+
                             )
                         } else {
                             delete oneTimeAlarm.oneTimeAlarmList[alarm_to_delete];

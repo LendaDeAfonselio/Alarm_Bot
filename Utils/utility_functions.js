@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const auth = require('./../auth.json');
 
 /**
  * Checks if an user is a Administrator on a Guild
@@ -27,7 +28,7 @@ function hasAlarmRole(message, alarm_role) {
  * @param {String} alarm_id - The string with the id of the alarm
  */
 function can_change_alarm(message, alarm_id) {
-    return (message.channel.type === 'dm' && alarm_id.includes(message.author.id)) || (alarm_id.includes(message.author.id) || isAdministrator(message));
+    return (message.channel.type === 'dm' && alarm_id.includes(message.author.id)) || (alarm_id.includes(message.author.id) || (!alarm_id.includes(auth.private_prefix) && isAdministrator(message)));
 }
 
 /**
