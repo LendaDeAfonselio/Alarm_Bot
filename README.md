@@ -84,6 +84,8 @@ Currently the bot has the following commands:
     - Usage example: `$deleteAlarm id123`
 - `deleteAllAlarms` - Deletes **all** private alarms or alarms that **YOU** have set in a server.
     - Usage example: `$deleteAllAlarms -a` or `$deleteAllAlarms -p` 
+- `editAlarm` - Edits the message of an alarm using `-m` flag. Edits the periodicity of an alarm using the `-c` flag. Edits the message and periodicity of the alarm using `-c -m` flags.
+    - Usage examples: `$editAlarm -m id123 Brand new message` / `$editAlarm -c id123 GMT 36 23 * * *` / `$editAlarm -c -m id123 GMT 28 23 * * * 🤔 Think Tank 🤔`
 - `myAlarms` - Shows you a list of your public and private alarms.
     - Usage example: `$myAlarms`
 - `oneTimeAlarm` - Sets up an one time alarm, use -p for a private alarm.
