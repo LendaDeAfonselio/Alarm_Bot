@@ -1,5 +1,5 @@
 # AlarmBot
-A Simple Discord Bot that allows people/roles to set up alarms and receive them via DM or in a certain channel.
+A Discord Bot that allows users to set up alarms periodic or one time alarms and receive them via DM or in a certain channel.
 
 ## Module installs:
 - `npm install discord.js`
@@ -11,7 +11,12 @@ A Simple Discord Bot that allows people/roles to set up alarms and receive them 
 
 ## Running the bot
 
-After installing all the modules, simply do `node bot.js` in the project's folder.
+**Steps to run the bot**:
+
+1. Install `Node.Js` on your machine (I use `v12.18.3` but the latest stable version should also work).
+2. Install all of the necessary node modules (you can install them individually or use `nodeInstall.sh`).
+3. Go to `appsettings.json` and insert a discord bot token in the `token` field and a url to a mongodb database in `mongo_db_url`. Instructions to [get a token for a discord bot](https://www.writebots.com/discord-bot-token/). Instructions to [setup a mongo database](https://docs.atlas.mongodb.com/connect-to-cluster/).
+4. Use the command `$node bot.js` in the project's folder.
 
 ## Usage and examples
 
@@ -60,11 +65,11 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 **Sending `Hello` via DM, today at 19:00 for GMT timezone** => `$oneTimeAlarm -p GMT 19:00 Hello`
 
-**Sending 25 de Abril sempre! in the 25th of April of the current year at 8:00 for GMT timezone**=> `$oneTimeAlarm GMT 8:00 25/04 25 de Abril sempre!`
+**Sending `Hello world` in the 25th of April of the current year at 8:00 for GMT timezone**=> `$oneTimeAlarm GMT 8:00 25/04 Hello World`
 
-**Sending `50 years of 25 de Abril!` in the 25th of April of 2024 at 8:00 for GMT timezone** => `$oneTimeAlarm GMT 8:00 25/04/2024 50 years of 25 de Abril!`
+**Sending `Alarm bot do something!` in the 25th of April of 2024 at 8:00 for GMT timezone** => `$oneTimeAlarm GMT 8:00 25/04/2024 Alarm bot do something!`
 
-**Note:** -p flag is used to receive a DM instead of a message in the channel.
+**Note:** `-p` flag is used to receive a DM instead of a message in the channel.
 
 ### Available Commands:
 
