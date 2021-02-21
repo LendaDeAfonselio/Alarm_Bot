@@ -28,6 +28,10 @@ module.exports = {
                                 { alarm_id: alarm_to_delete }
                             )
                         } else if (!alarm_to_delete.includes(temp_flag)) {
+                            if (msg.channel.type === 'dm') {
+                                msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
+                                return;
+                            }
                             await Alarm_model.deleteOne(
                                 {
                                     $and: [
