@@ -38,7 +38,7 @@ async function fetchPrivateAlarms(cron_list, cron, client) {
         let crono = alarm.alarm_args;
         let alarm_id = alarm.alarm_id;
         let user_id = alarm.user_id;
-        var member = await client.users.fetch(user_id);
+        let member = await client.users.fetch(user_id);
         if (member !== undefined) {
             let scheduledMessage = new cron(crono, () => {
                 member.send(message_stg);
