@@ -28,7 +28,7 @@ module.exports = {
                 crono = time_utils.updateParams(difference, crono);
                 try {
                     let scheduledMessage = new cron(crono, () => {
-                        msg.author.send(`${message_stg}!`);
+                        msg.author.send(`${message_stg}`);
                     }, {
                         scheduled: true
                     });

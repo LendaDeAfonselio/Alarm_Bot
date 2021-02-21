@@ -45,7 +45,7 @@ client.once('ready', async x => {
             logging.logger.error(e);
         }
     });
-    //await load_alarms.fetchPrivateAlarms(cron_list, cron, client);
+    await load_alarms.fetchPrivateAlarms(cron_list, cron, client);
     client.user.setActivity("$help to get started!");
     logging.logger.info("Running in " + client.guilds.cache.size + " guilds");
 });
