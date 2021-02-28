@@ -13,7 +13,8 @@ const mongoose = require('mongoose');
  * @param {String} channel - The id of the channel if is applicable
  * @param {String} user_id - The id of the user that sets it up if it is applicable
  */
-async function add_oneTimeAlarm(alarm_id, alarm_date, message, isPrivate, guild, channel, user_id) {
+async function add_oneTimeAlarm(alarm_id, alarm_date, message,
+                                isPrivate, guild, channel, user_id) {
     const newOneTimeAlarm = new One_Time_Alarm_model({
         _id: mongoose.Types.ObjectId(),
         alarm_id: alarm_id,
@@ -88,7 +89,7 @@ async function delete_all_public_oneTimeAlarm_from_user(author_id, guild_id) {
  * @param {*} author_id - The id of the user that sets it up if it is applicable
  * @param {*} isPrivate  - If it is a private one time alarm or not, true for a private alarm, false otherwise
  */
-async function get_all_oneTimeAlarm_from_user(author_id, isPrivate) {
+async function get_all_oneTimeAlarm_from_user(author_id, isPrivate, guild) {
     if (isPrivate) {
         return await One_Time_Alarm_model.find({
             $and: [
@@ -107,10 +108,18 @@ async function get_all_oneTimeAlarm_from_user(author_id, isPrivate) {
     }
 }
 
+async function delete_all_expired_one_time_alarms() {
+    let current_date = new Date();
+    return await One_Time_Alarm_model.deleteMany({
+        "$lte": { alarm_date: current_date }
+    });
+}
+
 module.exports = {
     get_all_oneTimeAlarm_from_user: get_all_oneTimeAlarm_from_user,
     delete_all_public_oneTimeAlarm_from_user: delete_all_public_oneTimeAlarm_from_user,
     delete_all_private_oneTimeAlarm_from_user: delete_all_private_oneTimeAlarm_from_user,
     delete_oneTimeAlarm_with_id: delete_oneTimeAlarm_with_id,
-    add_oneTimeAlarm: add_oneTimeAlarm
+    add_oneTimeAlarm: add_oneTimeAlarm,
+    delete_all_expired_one_time_alarms: delete_all_expired_one_time_alarms
 }

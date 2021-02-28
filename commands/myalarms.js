@@ -4,21 +4,28 @@ const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const oneTimeAlarm = require('./oneTimeAlarm');
 const utility_functions = require('./../Utils/utility_functions');
+const db_alarms = require('../data_access/alarm_index');
 module.exports = {
     name: 'myAlarms',
     description: 'Fetches all of your alarms.\n`myAlarms -id` sends a non embed message with the ids for easier copy/pasting on phone.',
     usage: auth.prefix + 'myAlarms',
     async execute(msg, args, client, cron, cron_list, mongoose) {
 
-        var results_pub = await Alarm_model.find({ "alarm_id": { $regex: `.*${msg.author.id}.*` } });
-        var results_priv = await Private_alarm_model.find({ "user_id": msg.author.id });
+        let results_pub = await Alarm_model.find({ "alarm_id": { $regex: `.*${msg.author.id}.*` } });
+        let results_priv = await Private_alarm_model.find({ "user_id": msg.author.id });
+        let results_ota_pub = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, false, msg.guild?.id);
+        let results_ota_priv = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, true, msg.guild?.id);
 
         if (args.length >= 1 && utility_functions.compareIgnoringCase(args[0], '-id')) {
-            var id_stg = '**Public Alarms**:\n';
+            let id_stg = '**Public Alarms**:\n';
             results_pub.forEach(alarm => {
                 id_stg += `${alarm.alarm_id}\n`;
             });
-            var chunks = utility_functions.chunkArray(id_stg, 2000);
+            results_ota_pub.forEach(ota => {
+                id_stg += `${ota.alarm_id}\n`
+            })
+            let chunks = utility_functions.chunkArray(id_stg, 2000);
+
 
             for (let chunk of chunks) {
                 msg.channel.send(chunk);
@@ -29,14 +36,11 @@ module.exports = {
                 id_stg += `${p_alarm.alarm_id}\n`;
             });
 
-            id_stg += '**One Time Alarms:**\n';
-            for (let k of Object.keys(oneTimeAlarm.oneTimeAlarmList)) {
-                let v = oneTimeAlarm.oneTimeAlarmList[k];
+            id_stg += '**Private One Time Alarms:**\n';
 
-                if (k.includes(msg.author.id)) {
-                    id_stg += `${k} -> ${v.isPrivate ? "Private" : "Public"}\n`;
-                }
-            }
+            results_ota_priv.forEach(ota => {
+                id_stg += `${ota.alarm_id}\n`
+            })
 
             chunks = utility_functions.chunkArray(id_stg, 2000);
 

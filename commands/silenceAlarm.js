@@ -71,6 +71,7 @@ module.exports = {
             }
             else {
                 if (cron_list[alarm_to_silence] !== undefined) {
+                    // add verification for DMs and guild id
                     if (cron_list[alarm_to_silence].running) {
                         if (timeout !== undefined) {
                             let timeout_date = parseDate(timeout);
