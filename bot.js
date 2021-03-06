@@ -41,11 +41,13 @@ client.once('ready', async x => {
     client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
         try {
             await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
+            await load_alarms.fetchOTAsforGuild(cron_list, cron, guild, guild.id)
         } catch (e) {
             logging.logger.error(e);
         }
     });
     await load_alarms.fetchPrivateAlarms(cron_list, cron, client);
+    await load_alarms.fetchPrivateOTAs(cron_list, cron, client)
     client.user.setActivity("$help to get started!");
     logging.logger.info("Running in " + client.guilds.cache.size + " guilds");
 });
