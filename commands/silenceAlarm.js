@@ -50,6 +50,12 @@ async function silenceAlarmWithID(alarm_to_silence, activate) {
     }
 }
 
+async function can_be_silenced(alarm_id, msg) {
+    let guild_id = msg.guild?.id;
+    let alarm = await Alarm_model.findOne({ alarm_id: alarm_id });
+    return alarm.guild == guild_id;
+}
+
 module.exports = {
     name: 'silenceAlarm',
     description: 'Silences the alarm with a given id. If you also pass a date it will activate automatically once that day arrives otherwise it will be silenced until you turn it back on using activateAlarm <id>',
@@ -58,7 +64,7 @@ module.exports = {
         if (args.length >= 1) {
 
             var alarm_to_silence = args[0];
-            if(alarm_to_silence.includes(auth.one_time_prefix)){
+            if (alarm_to_silence.includes(auth.one_time_prefix)) {
                 msg.channel.send('Silence feature is not available for oneTimeAlarms, if you wish to silence a oneTimeAlarm just delete it with `$deleteAlarm ' + alarm_to_silence + '`');
                 return;
             }
@@ -67,11 +73,23 @@ module.exports = {
                 timeout = args[1];
             }
             if (!utility_functions.can_change_alarm(msg, alarm_to_silence)) {
-                msg.channel.send(`The alarm you selected isn't yours or you aren't administrator on this server therefore you cannot silence it!`)
+                msg.channel.send(`The alarm you selected isn't yours or you aren't administrator on this server therefore you cannot silence it!`);
+                return;
+            }
+
+            if (!alarm_to_silence.includes(auth.private_prefix) && msg.channel.type === 'dm') {
+                msg.channel.send('Impossible to silence a public alarm in DMs');
+                return;
             }
             else {
                 if (cron_list[alarm_to_silence] !== undefined) {
-                    // add verification for DMs and guild id
+                    if (!alarm_to_silence.includes(auth.private_prefix)) {
+                        let b = await can_be_silenced(alarm_to_silence, msg);
+                        if (!b) {
+                            msg.channel.send('Alarm cannot be silenced. Check if it is setup in this server...');
+                            return;
+                        }
+                    }
                     if (cron_list[alarm_to_silence].running) {
                         if (timeout !== undefined) {
                             let timeout_date = parseDate(timeout);

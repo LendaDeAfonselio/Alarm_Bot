@@ -2,6 +2,7 @@ const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const One_Time_Alarm_model = require('../models/one_time_alarm_model');
 const mongoose = require('mongoose');
+const logging = require('../Utils/logging');
 
 /**
  * Adds a new one time one time alarm entry to the database
@@ -14,7 +15,7 @@ const mongoose = require('mongoose');
  * @param {String} user_id - The id of the user that sets it up if it is applicable
  */
 async function add_oneTimeAlarm(alarm_id, alarm_date, message,
-                                isPrivate, guild, channel, user_id) {
+    isPrivate, guild, channel, user_id) {
     const newOneTimeAlarm = new One_Time_Alarm_model({
         _id: mongoose.Types.ObjectId(),
         alarm_id: alarm_id,

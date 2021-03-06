@@ -87,7 +87,6 @@ function createPrivateOneTimeCron(msg, cron, d, message) {
 
 
 module.exports = {
-    deleteAllOneTimeAlarms: deleteAllOneTimeAlarms,
     name: 'oneTimeAlarm',
     description: 'Sets up an alarm that will play one time\n'
         + 'For a private alarm use the -p flag as the second argument otherwise it will send the message to the channel you typed the command at\n'

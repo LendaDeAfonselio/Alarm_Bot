@@ -1,4 +1,4 @@
-userconst mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const oneTimeAlarm = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     alarm_id: String,

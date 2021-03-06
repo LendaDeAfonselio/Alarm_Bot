@@ -27,6 +27,7 @@ module.exports = {
             else {
                 if (cron_list[alarm_to_activate] !== undefined) {
                     if (!cron_list[alarm_to_activate].running) {
+                        // add verification for DMs and guild id
                         try {
                             if (alarm_to_activate.includes(private_flag)) {
                                 await Private_alarm_model.updateOne(
