@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ps cax | grep node > /dev/null
 if [ $? -eq 0 ]; then
   echo "Process is running." >/dev/null 2>&1
@@ -6,3 +8,6 @@ else
   PATH=$PATH:/usr/local/bin
   pm2 start bot.js
 fi
+
+# crontab -e
+# */30 * * * * ./path/rebootBot.sh
