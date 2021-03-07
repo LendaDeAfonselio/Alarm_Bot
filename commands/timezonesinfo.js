@@ -9,7 +9,7 @@ const utility_functions = require('../Utils/utility_functions');
 module.exports = {
     name: 'timezonesinfo',
     description: 'Gets information about all timezones, or about a specific timezone if an argument is passed',
-    usage: auth.prefix + 'timezonesinfo',
+    usage: auth.prefix + 'timezonesinfo\n' + auth.prefix + 'timezonesinfo <timezones_name>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length == 0) {
 
@@ -43,6 +43,10 @@ module.exports = {
         } else {
             let timezone_name = args[0];
             let timezone_data = time_utils.get_timezone_by_abreviation(timezone_name);
+            if (timezone_data == undefined) {
+                msg.author.send(`No data was found for ${timezone_name}. Check all timezones with ${auth.prefix + 'timezonesinfo'} for more information.`);
+                return;
+            }
             let x = new Array();
             let text_for_embed = {
                 name: '\nLocations: ' + timezone_data.locations,

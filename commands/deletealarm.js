@@ -7,6 +7,7 @@ const auth = require('./../auth.json');
 const private_flag = auth.private_prefix;
 const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
+const db_alarms = require('../data_access/alarm_index');
 
 let oneTimeAlarm = require('./oneTimeAlarm');
 
@@ -28,6 +29,10 @@ module.exports = {
                                 { alarm_id: alarm_to_delete }
                             )
                         } else if (!alarm_to_delete.includes(temp_flag)) {
+                            if (msg.channel.type === 'dm') {
+                                msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
+                                return;
+                            }
                             await Alarm_model.deleteOne(
                                 {
                                     $and: [
@@ -38,7 +43,7 @@ module.exports = {
 
                             )
                         } else {
-                            delete oneTimeAlarm.oneTimeAlarmList[alarm_to_delete];
+                            db_alarms.delete_oneTimeAlarm_with_id(alarm_to_delete);
                         }
                         cron_list[alarm_to_delete].stop();
                         delete cron_list[alarm_to_delete];

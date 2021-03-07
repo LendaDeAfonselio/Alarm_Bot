@@ -4,7 +4,7 @@ const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const time_utils = require('../Utils/time_validation');
 const channel_regex = /<#\d+>/;
-let oneTimeAlarmList = {};
+const alarm_db = require('../data_access/alarm_index');
 
 function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
@@ -31,26 +31,23 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
     return undefined;
 }
 
-function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone, isPrivate, message) {
+async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone, isPrivate, message) {
     ota.start();
     msg.channel.send(`Alarm for ${data_stg} (${timezone}) has been setup`);
     let alarm_user = msg.author.id;
     let this_alarm_id = Math.random().toString(36).substring(4);
     let alarm_id = `${auth.one_time_prefix}_${this_alarm_id}_${alarm_user}`;
 
+    await alarm_db.add_oneTimeAlarm(alarm_id, d, message, isPrivate, msg.guild?.id, msg.channel?.id, alarm_user);
+
     // save locally
     cron_list[alarm_id] = ota;
-    oneTimeAlarmList[alarm_id] = {
-        date: data_stg,
-        isPrivate: isPrivate,
-        message: message
-    };
+
     var dif = d.getTime() - now.getTime();
     setTimeout(() => {
         try {
             ota.stop();
             delete cron_list[alarm_id];
-            delete oneTimeAlarmList[alarm_id];
         }
         catch (e) {
             logging.logger.info(`Error stopping or deleting the cron for OneTimeAlarm.`);
@@ -59,8 +56,6 @@ function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone, is
     }, dif + 5000);
     logging.logger.info(`One time alarm: ${alarm_id} has been setup for ${ota.cronTime.source}`);
 }
-
-
 
 function createOneTimeCron(args, msg, cron, d, message) {
     var channel = args.pop();
@@ -88,23 +83,10 @@ function createPrivateOneTimeCron(msg, cron, d, message) {
     return ota;
 }
 
-function deleteAllOneTimeAlarms(deletePrivate, msg) {
-    for (let k of Object.keys(oneTimeAlarmList)) {
-        if (k.includes(msg.author.id)) {
-            let alarm_id = k;
-            let v = oneTimeAlarmList[k];
 
-            if (v.isPrivate == deletePrivate) {
-                delete oneTimeAlarmList[alarm_id];
-            }
-        }
-    }
-}
 
 
 module.exports = {
-    oneTimeAlarmList: oneTimeAlarmList,
-    deleteAllOneTimeAlarms: deleteAllOneTimeAlarms,
     name: 'oneTimeAlarm',
     description: 'Sets up an alarm that will play one time\n'
         + 'For a private alarm use the -p flag as the second argument otherwise it will send the message to the channel you typed the command at\n'

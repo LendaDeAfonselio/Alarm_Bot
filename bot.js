@@ -5,7 +5,7 @@ const appsettings = require('./appsettings.json');
 const load_alarms = require('./load_alarms');
 const delete_alarms_when_kicked = require('./delete_alarms_for_guilds');
 const logging = require('./Utils/logging');
-
+const alarm_db = require('./data_access/alarm_index');
 // Mongo setup
 const mongoose = require("mongoose");
 mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
@@ -38,14 +38,19 @@ for (const file of commandFiles) {
 
 /****** Setup the bot for life upon startup ******/
 client.once('ready', async x => {
+    let deletedentries = await alarm_db.delete_all_expired_one_time_alarms();
+    logging.logger.info("Deleted " + deletedentries.deletedCount + " one time alarms");
+
     client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
         try {
             await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
+            await load_alarms.fetchOTAsforGuild(cron_list, cron, guild, guild.id);
         } catch (e) {
             logging.logger.error(e);
         }
     });
     await load_alarms.fetchPrivateAlarms(cron_list, cron, client);
+    await load_alarms.fetchPrivateOTAs(cron_list, cron, client);
     client.user.setActivity("$help to get started!");
     logging.logger.info("Running in " + client.guilds.cache.size + " guilds");
 });

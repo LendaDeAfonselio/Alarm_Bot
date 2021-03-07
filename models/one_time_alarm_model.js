@@ -4,9 +4,10 @@ const oneTimeAlarm = mongoose.Schema({
     alarm_id: String,
     alarm_date: Date,
     message: String,
-    private: Boolean,
+    isPrivate: Boolean,
     guild: String,
     channel: String,
+    user_id: String,
     timestamp: Date
 });
 

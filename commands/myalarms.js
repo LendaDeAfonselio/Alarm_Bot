@@ -4,21 +4,30 @@ const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const oneTimeAlarm = require('./oneTimeAlarm');
 const utility_functions = require('./../Utils/utility_functions');
+const db_alarms = require('../data_access/alarm_index');
 module.exports = {
     name: 'myAlarms',
     description: 'Fetches all of your alarms.\n`myAlarms -id` sends a non embed message with the ids for easier copy/pasting on phone.',
     usage: auth.prefix + 'myAlarms',
     async execute(msg, args, client, cron, cron_list, mongoose) {
 
-        var results_pub = await Alarm_model.find({ "alarm_id": { $regex: `.*${msg.author.id}.*` } });
-        var results_priv = await Private_alarm_model.find({ "user_id": msg.author.id });
+        let guild_id = msg.channel.type === 'dm' ? "" : msg.guild?.id;
+
+        let results_pub = await Alarm_model.find({ "alarm_id": { $regex: `.*${msg.author.id}.*` }, "guild": { $regex: `.*${guild_id}.*` } });
+        let results_priv = await Private_alarm_model.find({ "user_id": msg.author.id });
+        let results_ota_pub = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, false, msg.guild?.id);
+        let results_ota_priv = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, true, msg.guild?.id);
 
         if (args.length >= 1 && utility_functions.compareIgnoringCase(args[0], '-id')) {
-            var id_stg = '**Public Alarms**:\n';
+            let id_stg = '**Public Alarms**:\n';
             results_pub.forEach(alarm => {
                 id_stg += `${alarm.alarm_id}\n`;
             });
-            var chunks = utility_functions.chunkArray(id_stg, 2000);
+            results_ota_pub.forEach(ota => {
+                id_stg += `${ota.alarm_id}\n`
+            })
+            let chunks = utility_functions.chunkArray(id_stg, 2000);
+
 
             for (let chunk of chunks) {
                 msg.channel.send(chunk);
@@ -29,14 +38,11 @@ module.exports = {
                 id_stg += `${p_alarm.alarm_id}\n`;
             });
 
-            id_stg += '**One Time Alarms:**\n';
-            for (let k of Object.keys(oneTimeAlarm.oneTimeAlarmList)) {
-                let v = oneTimeAlarm.oneTimeAlarmList[k];
+            id_stg += '**Private One Time Alarms:**\n';
 
-                if (k.includes(msg.author.id)) {
-                    id_stg += `${k} -> ${v.isPrivate ? "Private" : "Public"}\n`;
-                }
-            }
+            results_ota_priv.forEach(ota => {
+                id_stg += `${ota.alarm_id}\n`
+            })
 
             chunks = utility_functions.chunkArray(id_stg, 2000);
 
@@ -46,39 +52,31 @@ module.exports = {
             return;
         }
 
-
+        // create alarm messages
         let general_alarms = createMessageWithEntries(results_pub);
         let private_alarms = createMessageWithEntries(results_priv);
-        for (let k of Object.keys(oneTimeAlarm.oneTimeAlarmList)) {
-            if (k.includes(msg.author.id)) {
-                let alarm_id = k;
-                let v = oneTimeAlarm.oneTimeAlarmList[k];
-                let alarm_params = v.date;
-                let alarm_preview = v.message.substring(0, 50);
 
-                let field = {
-                    name: `ID: ${alarm_id}`,
-                    value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n**One time alarm**!`
-                };
-                if (v.isPrivate) {
-                    private_alarms.push(field);
-                } else {
-                    general_alarms.push(field);
-                }
-            }
-        }
+        // ota message
+        let general_otas = createMessageWithOTAEntries(results_ota_pub);
+        let priv_otas = createMessageWithOTAEntries(results_ota_priv);
+
+
         // chunk it because of the max size for discord messages
         var public_chunks = utility.chunkArray(general_alarms, 20);
         var private_chunks = utility.chunkArray(private_alarms, 20);
+
+        var public_chunks2 = utility.chunkArray(general_otas, 20);
+        var private_chunks2 = utility.chunkArray(priv_otas, 20);
 
         if (general_alarms.length <= 0) {
             msg.channel.send('You do not have alarms in any server!');
         }
 
-        const title_message = "Your public alarms are:";
+        const title_message = "Your public alarms in this server are:";
 
         // send public alarms
         sendChunksAsPublicMsg(public_chunks, msg, title_message);
+        sendChunksAsPublicMsg(public_chunks2, msg, title_message);
 
 
         // send private alarms
@@ -86,6 +84,17 @@ module.exports = {
             msg.author.send({
                 embed: {
                     color: 0xcc0000,
+                    title: "Your private alarms are:",
+                    fields: chunk,
+                    timestamp: new Date()
+                }
+            });
+        }
+
+        for (let chunk of private_chunks2) {
+            msg.author.send({
+                embed: {
+                    color: 0xcc1100,
                     title: "Your private alarms are:",
                     fields: chunk,
                     timestamp: new Date()
@@ -119,6 +128,21 @@ function createMessageWithEntries(results_pub) {
         let field = {
             name: `ID: ${alarm_id}`,
             value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}`
+        };
+        general_alarms.push(field);
+    }
+    return general_alarms;
+}
+
+function createMessageWithOTAEntries(results) {
+    let general_alarms = [];
+    for (let alarm of results) {
+        let alarm_id = alarm.alarm_id;
+        let alarm_params = alarm.alarm_date;
+        let alarm_preview = alarm.message.substring(0, 50);
+        let field = {
+            name: `ID: ${alarm_id}`,
+            value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\n`
         };
         general_alarms.push(field);
     }
