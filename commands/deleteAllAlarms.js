@@ -4,7 +4,6 @@ const Private_alarm_model = require('../models/private_alarm_model');
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
 
-const oneTimeAlarm = require('./oneTimeAlarm');
 
 module.exports = {
     name: 'deleteAllAlarms',
@@ -28,11 +27,12 @@ module.exports = {
                             cron_list[i.alarm_id].stop();
                             delete cron_list[i.alarm_id];
                         });
+                        //TODO: delete otas
+
                         msg.channel.send(`Sucessfully deleted ${x.deletedCount} alarms.`);
                     } else {
                         msg.channel.send('No private alarm found for your user, only private `oneTimeAlarm`s will be deleted. Try `myAlarms` to check your alarms.');
                     }
-                    oneTimeAlarm.deleteAllOneTimeAlarms(true, msg);
                 } catch (e) {
                     logging.logger.error(e);
                     msg.channel.send(`Error deleting your private alarms...`);
@@ -51,7 +51,7 @@ module.exports = {
                         ]
                     });
                     if (to_be_removed.length > 0) {
-
+                        //delete regular alarms
                         var y = await Alarm_model.deleteMany({
                             $and: [
                                 { alarm_id: { $regex: `.*${alarm_user}.*` } },
@@ -62,11 +62,12 @@ module.exports = {
                             cron_list[i.alarm_id].stop();
                             delete cron_list[i.alarm_id];
                         });
+                        //TODO: delete otas
+
                         msg.channel.send(`Sucessfully deleted ${y.deletedCount} alarms.`);
                     } else {
                         msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
                     }
-                    oneTimeAlarm.deleteAllOneTimeAlarms(false, msg);
                 } catch (e) {
                     logging.logger.info(`Error deleting alarms for user:${alarm_user} with params ${flag}`);
                     logging.logger.error(e);

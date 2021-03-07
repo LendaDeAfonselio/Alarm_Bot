@@ -112,7 +112,7 @@ async function get_all_oneTimeAlarm_from_user(author_id, isPrivate, guild) {
 async function delete_all_expired_one_time_alarms() {
     let current_date = new Date();
     return await One_Time_Alarm_model.deleteMany({
-        "$lte": { alarm_date: current_date }
+        alarm_date: { "$lt": current_date }
     });
 }
 
@@ -122,5 +122,5 @@ module.exports = {
     delete_all_private_oneTimeAlarm_from_user: delete_all_private_oneTimeAlarm_from_user,
     delete_oneTimeAlarm_with_id: delete_oneTimeAlarm_with_id,
     add_oneTimeAlarm: add_oneTimeAlarm,
-    delete_all_expired_one_time_alarms: delete_all_expired_one_time_alarms
+    delete_all_expired_one_time_alarms: delete_all_expired_one_time_alarms,
 }
