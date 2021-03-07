@@ -8,15 +8,16 @@ A Discord Bot that allows users to set up alarms periodic or one time alarms and
 - `npm i file-system`
 - `npm i timezones.json`
 - `npm i winston`
+- `npm install pm2`
 
 ## Running the bot
 
 **Steps to run the bot**:
 
-1. Install `Node.Js` on your machine (I use `v12.18.3` but the latest stable version should also work).
+1. Install `Node.Js` on your machine (I use `v14.16.0` but the latest stable version should also work, previous versions can have problems).
 2. Install all of the necessary node modules (you can install them individually or use `nodeInstall.sh`).
 3. Go to `appsettings.json` and insert a discord bot token in the `token` field and a url to a mongodb database in `mongo_db_url`. Instructions to [get a token for a discord bot](https://www.writebots.com/discord-bot-token/). Instructions to [setup a mongo database](https://docs.atlas.mongodb.com/connect-to-cluster/).
-4. Use the command `$node bot.js` in the project's folder.
+4. Use the command `$pm2 start bot.js` in the project's folder.
 
 ## Usage and examples
 
