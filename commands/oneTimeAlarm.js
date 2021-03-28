@@ -57,25 +57,29 @@ async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezo
     logging.logger.info(`One time alarm: ${alarm_id} has been setup for ${ota.cronTime.source}`);
 }
 
-function createOneTimeCron(args, msg, cron, d, message) {
-    var channel = args.pop();
-    var hasSpecifiedChannel = channel_regex.test(channel);
-    // need to put this outside to keep it in memory then use it when saving to the database
-    let channel_discord = msg.channel;
-    if (hasSpecifiedChannel) {
-        channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
-        var lastIndex = message.lastIndexOf(" ");
-        message = message.substring(0, lastIndex);
-    }
+function createOneTimeCron(cron, d, message, channel_discord) {
     if (channel_discord !== undefined) {
         let ota = new cron(d, () => {
             channel_discord.send(`${message}`);
         });
-        return { ota, channel_discord };
+        return ota;
     }
     return undefined;
 }
 
+
+function extract_discord_channel(args, msg, message) {
+    var channel = args.pop();
+    var hasSpecifiedChannel = utils.isAChannel(channel);
+    // need to put this outside to keep it in memory then use it when saving to the database
+    let channel_discord = msg.channel;
+    if (hasSpecifiedChannel) {
+        channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
+        let lastIndex = message.lastIndexOf(" ");
+        message = message.substring(0, lastIndex);
+    }
+    return { channel_discord, message };
+}
 
 function createPrivateOneTimeCron(msg, cron, d, message) {
     let ota = new cron(d, () => {
@@ -124,9 +128,11 @@ module.exports = {
                                     var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     var now = new Date();
                                     if (d > now) {
-                                        var { ota, discord_ch } = createOneTimeCron(args, msg, cron, d, message);
+                                        let channel_discord;
+                                        ({ channel_discord, message } = extract_discord_channel(args, msg, message));
+                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
                                         if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, discord_ch);
+                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
                                         } else {
                                             msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
                                         }
@@ -150,9 +156,12 @@ module.exports = {
                                     var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     var now = new Date();
                                     if (d > now) {
-                                        var { ota, discord_ch } = createOneTimeCron(args, msg, cron, d, message);
+                                        let channel_discord;
+                                        ({ channel_discord, message } = extract_discord_channel(args, msg, message));
+                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
+
                                         if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, discord_ch);
+                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
                                         } else {
                                             msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
                                         }
