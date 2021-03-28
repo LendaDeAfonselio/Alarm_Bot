@@ -9,8 +9,6 @@ const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 const db_alarms = require('../data_access/alarm_index');
 
-let oneTimeAlarm = require('./oneTimeAlarm');
-
 module.exports = {
     name: 'deleteAlarm',
     description: 'Deletes the alarm with a given id - **THIS ACTION CANNOT BE REVERTED**',

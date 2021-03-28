@@ -31,14 +31,14 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
     return undefined;
 }
 
-async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone, isPrivate, message) {
+async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone, isPrivate, message, discord_channel) {
     ota.start();
     msg.channel.send(`Alarm for ${data_stg} (${timezone}) has been setup`);
     let alarm_user = msg.author.id;
     let this_alarm_id = Math.random().toString(36).substring(4);
     let alarm_id = `${auth.one_time_prefix}_${this_alarm_id}_${alarm_user}`;
 
-    await alarm_db.add_oneTimeAlarm(alarm_id, d, message, isPrivate, msg.guild?.id, msg.channel?.id, alarm_user);
+    await alarm_db.add_oneTimeAlarm(alarm_id, d, message, isPrivate, msg.guild?.id, discord_channel?.id, alarm_user);
 
     // save locally
     cron_list[alarm_id] = ota;
@@ -57,15 +57,7 @@ async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezo
     logging.logger.info(`One time alarm: ${alarm_id} has been setup for ${ota.cronTime.source}`);
 }
 
-function createOneTimeCron(args, msg, cron, d, message) {
-    var channel = args.pop();
-    var hasSpecifiedChannel = channel_regex.test(channel);
-    let channel_discord = msg.channel;
-    if (hasSpecifiedChannel) {
-        channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
-        var lastIndex = message.lastIndexOf(" ");
-        message = message.substring(0, lastIndex);
-    }
+function createOneTimeCron(cron, d, message, channel_discord) {
     if (channel_discord !== undefined) {
         let ota = new cron(d, () => {
             channel_discord.send(`${message}`);
@@ -75,6 +67,19 @@ function createOneTimeCron(args, msg, cron, d, message) {
     return undefined;
 }
 
+
+function extract_discord_channel(args, msg, message) {
+    var channel = args.pop();
+    var hasSpecifiedChannel = utils.isAChannel(channel);
+    // need to put this outside to keep it in memory then use it when saving to the database
+    let channel_discord = msg.channel;
+    if (hasSpecifiedChannel) {
+        channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
+        let lastIndex = message.lastIndexOf(" ");
+        message = message.substring(0, lastIndex);
+    }
+    return { channel_discord, message };
+}
 
 function createPrivateOneTimeCron(msg, cron, d, message) {
     let ota = new cron(d, () => {
@@ -123,9 +128,11 @@ module.exports = {
                                     var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     var now = new Date();
                                     if (d > now) {
-                                        var ota = createOneTimeCron(args, msg, cron, d, message);
+                                        let channel_discord;
+                                        ({ channel_discord, message } = extract_discord_channel(args, msg, message));
+                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
                                         if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
+                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
                                         } else {
                                             msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
                                         }
@@ -149,9 +156,12 @@ module.exports = {
                                     var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     var now = new Date();
                                     if (d > now) {
-                                        var ota = createOneTimeCron(args, msg, cron, d, message);
+                                        let channel_discord;
+                                        ({ channel_discord, message } = extract_discord_channel(args, msg, message));
+                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
+
                                         if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
+                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
                                         } else {
                                             msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
                                         }
@@ -183,7 +193,7 @@ module.exports = {
                                     var now = new Date();
                                     if (d > now) {
                                         var ota = createPrivateOneTimeCron(msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
+                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
@@ -205,7 +215,7 @@ module.exports = {
                                     var now = new Date();
                                     if (d > now) {
                                         var ota = createPrivateOneTimeCron(msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message);
+                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
