@@ -59,8 +59,10 @@ module.exports = {
                             ]
                         });
                         to_be_removed.find(function (i) {
-                            cron_list[i.alarm_id].stop();
-                            delete cron_list[i.alarm_id];
+                            if (cron_list[i.alarm_id] !== undefined) {
+                                cron_list[i.alarm_id].stop();
+                                delete cron_list[i.alarm_id];
+                            }
                         });
                         //TODO: delete otas
 
