@@ -1,5 +1,40 @@
 const Discord = require('discord.js');
 const auth = require('./../auth.json');
+const alarm_db = require('./data_access/alarm_index');
+
+/**
+ * Checks if an user can create a public alarm
+ * @param {String} user_id  - the id of user
+ * @param {String} guild_id - the id of the guild
+ */
+async function can_create_public_alarm(user_id, guild_id) {
+    let alarmsUser = await alarm_db.get_all_alarms_from_user(user_id);
+    let alarmsGuild = await alarm_db.get_all_alarms_from_guild(guild_id);
+    return alarmsUser.length < auth.max_alarms_user
+        && alarmsGuild < auth.max_alarms_server;
+}
+
+/**
+ * Check if users can create a private alarms
+ * @param {String} user_id - the id of the user
+ */
+async function can_create_private_alarm(user_id) {
+    let alarmsUser = await alarm_db.get_all_privAlarms_from_user(user_id);
+    return alarmsUser.length < auth.max_alarms_user;
+}
+
+/**
+ * Checks if users can create one time alarms, pass undefined for private alarms
+ * @param {String} user_id - the id of the users
+ * @param {String} guild_id - the id of the guild
+ */
+async function can_create_ota_alarm(user_id, guild_id) {
+    let alarmsUser = await alarm_db.get_all_otas_from_user(user_id);
+    let alarmsGuild = guild_id !== undefined ? await alarm_db.get_all_otas_from_guild(guild_id) : 0;
+    return alarmsUser.length < auth.max_alarms_user
+        && alarmsGuild < auth.max_alarms_server;
+}
+
 
 /**
  * Checks if an user is a Administrator on a Guild
@@ -86,5 +121,8 @@ module.exports = {
     getAbsoluteDiff: getAbsoluteDiff,
     chunkArray: chunkArray,
     isAChannel: isAChannel,
-    compareIgnoringCase: compareIgnoringCase
+    compareIgnoringCase: compareIgnoringCase,
+    can_create_public_alarm: can_create_public_alarm,
+    can_create_private_alarm: can_create_private_alarm,
+    can_create_ota_alarm: can_create_ota_alarm
 }
