@@ -3,7 +3,6 @@ const Private_alarm_model = require('./models/private_alarm_model');
 const One_Time_Alarm_model = require('./models/one_time_alarm_model');
 
 const logging = require('./Utils/logging');
-const alarm_db = require('./data_access/alarm_index');
 
 async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
     var alarms = await Alarm_model.find({ guild: guild_id });
@@ -27,6 +26,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
             cron_list[alarm_id] = scheduledMessage;
         } else {
             logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
+            return undefined;
         }
     }
 }
@@ -81,6 +81,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id) {
             cron_list[alarm_id] = scheduledMessage;
         } else {
             logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
+            return false;
         }
     }
 }

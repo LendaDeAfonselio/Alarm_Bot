@@ -116,6 +116,31 @@ async function delete_all_expired_one_time_alarms() {
     });
 }
 
+async function get_all_alarms_from_user(author_id) {
+    return await Alarm_model.find({ user_id: author_id });
+}
+
+async function get_all_otas_from_user(author_id) {
+    return await One_Time_Alarm_model.find({ user_id: author_id });
+}
+
+async function get_all_privAlarms_from_user(author_id) {
+    return await Private_alarm_model.find({ user_id: author_id });
+}
+
+async function delete_all_private_alarms_for_id(author_id) {
+    return await Private_alarm_model.deleteMany({ user_id: author_id });
+}
+
+async function delete_all_alarms_for_guild(guild_id) {
+    return await Alarm_model.deleteMany({ guild: guild_id });
+}
+
+async function delete_all_pubota_alarms_for_guild(guildid) {
+    return await One_Time_Alarm_model.deleteMany({ guild: guildid });
+
+}
+
 module.exports = {
     get_all_oneTimeAlarm_from_user: get_all_oneTimeAlarm_from_user,
     delete_all_public_oneTimeAlarm_from_user: delete_all_public_oneTimeAlarm_from_user,
@@ -123,4 +148,10 @@ module.exports = {
     delete_oneTimeAlarm_with_id: delete_oneTimeAlarm_with_id,
     add_oneTimeAlarm: add_oneTimeAlarm,
     delete_all_expired_one_time_alarms: delete_all_expired_one_time_alarms,
+    get_all_alarms_from_user: get_all_alarms_from_user,
+    get_all_otas_from_user: get_all_otas_from_user,
+    get_all_privAlarms_from_user: get_all_privAlarms_from_user,
+    delete_all_private_alarms_for_id: delete_all_private_alarms_for_id,
+    delete_all_alarms_for_guild: delete_all_alarms_for_guild,
+    delete_all_pubota_alarms_for_guild: delete_all_pubota_alarms_for_guild
 }

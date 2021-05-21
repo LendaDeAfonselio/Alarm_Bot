@@ -47,7 +47,7 @@ module.exports = {
                             // generate the id to save in the db
                             let alarm_user = msg.author.id;
                             let this_alarm_id = Math.random().toString(36).substring(4);
-                            let alarm_id = `${this_alarm_id}_${alarm_user}`;
+                            let alarm_id = `${auth.public_alarm_prefix}_${this_alarm_id}`;
                             // save locally
                             cron_list[alarm_id] = scheduledMessage;
 
@@ -56,6 +56,7 @@ module.exports = {
                                 _id: mongoose.Types.ObjectId(),
                                 alarm_id: alarm_id,
                                 alarm_args: crono,
+                                user_id: alarm_user,
                                 message: message_stg,
                                 guild: msg.guild.id,
                                 channel: channel_discord.id,
