@@ -8,7 +8,7 @@ var r = 0;
 function small_time_interval(mins) {
     if (mins.includes(',')) {
         var tokens = mins.split(',');
-        return (tokens.length < 6) && tokens.some(v => small_time_interval(v));
+        return (tokens.length < 4) && tokens.some(v => small_time_interval(v));
     }
     if (mins.includes('/')) {
         var tokens = mins.split('/');
@@ -19,7 +19,7 @@ function small_time_interval(mins) {
         var n = parseInt(num_minutes);
         var isDigit = num_minutes.match(/^[0-9]+$/);
 
-        return isDigit == null || isNaN(n) || n < 15;
+        return isDigit == null || isNaN(n) || n < 30;
     }
     if (mins === '*') {
         return true;
