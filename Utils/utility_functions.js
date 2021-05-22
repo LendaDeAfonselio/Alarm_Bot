@@ -30,7 +30,7 @@ async function can_create_private_alarm(user_id) {
  */
 async function can_create_ota_alarm(user_id, guild_id) {
     let alarmsUser = await alarm_db.get_all_otas_from_user(user_id);
-    let alarmsGuild = guild_id !== undefined ? await alarm_db.get_all_otas_from_guild(guild_id) : 0;
+    let alarmsGuild = guild_id !== undefined ? (await alarm_db.get_all_otas_from_guild(guild_id)) : 0;
     return alarmsUser.length < auth.max_alarms_user
         && alarmsGuild < auth.max_alarms_server;
 }

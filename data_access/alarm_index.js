@@ -17,7 +17,6 @@ const logging = require('../Utils/logging');
 async function add_oneTimeAlarm(alarm_id, alarm_date, message,
     isPrivate, guild, channel, user_id) {
     const newOneTimeAlarm = new One_Time_Alarm_model({
-        _id: mongoose.Types.ObjectId(),
         alarm_id: alarm_id,
         alarm_date: alarm_date,
         message: message,

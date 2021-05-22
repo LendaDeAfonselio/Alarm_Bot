@@ -15,6 +15,10 @@ module.exports = {
         + '**The bot has to have a server in common with you to send a private message!**',
     usage: auth.prefix + 'privateAlarm <timezone> <m> <h> <day_of_month> <month> <year> <weekday> <message>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
+        if(!utils.can_create_private_alarm(msg.user.id)){
+            msg.channel.send('You have reached the maximum ammount of private alarms!');
+            return;
+        }
         if (args.length > 6) {
 
             var timezone = args[0];
@@ -41,7 +45,6 @@ module.exports = {
 
                     // save to DB
                     const newAlarm = new Private_alarm_model({
-                        _id: mongoose.Types.ObjectId(),
                         alarm_id: alarm_id,
                         alarm_args: crono,
                         message: message_stg,

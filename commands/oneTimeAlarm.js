@@ -112,6 +112,10 @@ module.exports = {
                     let date_args = '';
                     let message = '';
                     if (!isPrivate) {
+                        if (!utils.can_create_ota_alarm(msg.author.id, msg.guild.id)) {
+                            msg.channel.send('You or this server have reached the maximum ammount of one time alarms!');
+                            return;
+                        }
                         let timezone = args[0];
                         let difference = time_utils.get_offset_difference(timezone);
                         if (difference === undefined) {
@@ -144,6 +148,10 @@ module.exports = {
                                         + 'Try `$help` for more information!');
                                 }
                             } else {
+                                if (!utils.can_create_ota_alarm(msg.author.id, undefined)) {
+                                    msg.channel.send('You or this server have reached the maximum ammount of private one time alarms!');
+                                    return;
+                                }
                                 message = args.slice(2, args.length).join(' ');
 
                                 let today = new Date();

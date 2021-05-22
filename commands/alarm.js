@@ -17,6 +17,10 @@ module.exports = {
             msg.channel.send('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `' + auth.prefix + 'privateAlarm` command');
             return;
         }
+        if(!utils.can_create_public_alarm(msg.author.id, msg.guild.id)){
+            msg.channel.send('You have reached the maximum alarms for you or this guild');
+            return;
+        }
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
             if (args.length > 6) {
                 var timezone = args[0];
@@ -53,7 +57,6 @@ module.exports = {
 
                             // save to DB
                             const newAlarm = new Alarm_model({
-                                _id: mongoose.Types.ObjectId(),
                                 alarm_id: alarm_id,
                                 alarm_args: crono,
                                 user_id: alarm_user,
