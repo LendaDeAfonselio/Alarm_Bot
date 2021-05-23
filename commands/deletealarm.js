@@ -16,17 +16,17 @@ module.exports = {
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
             var alarm_to_delete = args[0];
-            if (!utility_functions.can_change_alarm(msg, alarm_to_delete)) {
+            if (!(await utility_functions.can_change_alarm(msg, alarm_to_delete))) {
                 msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
             }
             else {
                 if (cron_list[alarm_to_delete] !== undefined) {
                     try {
-                        if (alarm_to_delete.includes(private_flag)) {
+                        if (utility_functions.isPrivateAlarm(alarm_to_delete)) {
                             await Private_alarm_model.deleteOne(
                                 { alarm_id: alarm_to_delete }
                             )
-                        } else if (!alarm_to_delete.includes(temp_flag)) {
+                        } else if (utility_functions.isPublicAlarm(alarm_to_delete)) {
                             if (msg.channel.type === 'dm') {
                                 msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
                                 return;
@@ -40,7 +40,7 @@ module.exports = {
                                 }
 
                             )
-                        } else {
+                        } else if (utility_functions.isOtaAlarm(alarm_to_delete)) {
                             db_alarms.delete_oneTimeAlarm_with_id(alarm_to_delete);
                         }
                         cron_list[alarm_to_delete].stop();

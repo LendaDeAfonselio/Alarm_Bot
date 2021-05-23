@@ -149,7 +149,7 @@ module.exports = {
                 msg.channel.send(`The id you entered is to short. Please try a larger regex...`);
                 return;
             }
-            if (!utility_functions.can_change_alarm(msg, alarm_id)) {
+            if (!(await utility_functions.can_change_alarm(msg, alarm_id))) {
                 msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
                 return;
             }
@@ -178,7 +178,7 @@ module.exports = {
         } else if (args.length >= 8 && utility_functions.compareIgnoringCase(args[0], "-c") &&
             !utility_functions.compareIgnoringCase(args[1], "-m")) {
             var alarm_id = args[1];
-            if (!utility_functions.can_change_alarm(msg, alarm_id)) {
+            if (!(await utility_functions.can_change_alarm(msg, alarm_id))) {
                 msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
                 return;
             }
@@ -219,7 +219,7 @@ module.exports = {
             utility_functions.compareIgnoringCase(args[0], "-c") &&
             utility_functions.compareIgnoringCase(args[1], "-m")) {
             var alarm_id = args[2];
-            if (!utility_functions.can_change_alarm(msg, alarm_id)) {
+            if (!(await utility_functions.can_change_alarm(msg, alarm_id))) {
                 msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
                 return;
             }

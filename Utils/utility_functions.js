@@ -1,5 +1,56 @@
+"use strict";
+
 const Discord = require('discord.js');
 const auth = require('./../auth.json');
+const alarm_db = require('./../data_access/alarm_index');
+
+function isPrivateAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.private_prefix);
+}
+
+function isOtaAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.one_time_prefix);
+
+}
+
+function isPublicAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.public_alarm_prefix);
+
+}
+
+/**
+ * Checks if an user can create a public alarm
+ * @param {String} user_id  - the id of user
+ * @param {String} guild_id - the id of the guild
+ */
+async function can_create_public_alarm(user_id, guild_id) {
+    let alarmsUser = await alarm_db.get_all_alarms_from_user(user_id);
+    let alarmsGuild = await alarm_db.get_all_alarms_from_guild(guild_id);
+    return alarmsUser.length < auth.max_alarms_user
+        && alarmsGuild.length < auth.max_alarms_server;
+}
+
+/**
+ * Check if users can create a private alarms
+ * @param {String} user_id - the id of the user
+ */
+async function can_create_private_alarm(user_id) {
+    let alarmsUser = await alarm_db.get_all_privAlarms_from_user(user_id);
+    return alarmsUser.length < auth.max_alarms_user;
+}
+
+/**
+ * Checks if users can create one time alarms, pass undefined for private alarms
+ * @param {String} user_id - the id of the users
+ * @param {String} guild_id - the id of the guild
+ */
+async function can_create_ota_alarm(user_id, guild_id) {
+    let alarmsUser = await alarm_db.get_all_otas_from_user(user_id);
+    let alarmsGuild = guild_id !== undefined ? (await alarm_db.get_all_otas_from_guild(guild_id))?.length : 0;
+    return alarmsUser.length < auth.max_alarms_user
+        && alarmsGuild < auth.max_alarms_server;
+}
+
 
 /**
  * Checks if an user is a Administrator on a Guild
@@ -27,8 +78,16 @@ function hasAlarmRole(message, alarm_role) {
  * @param {Discord.Message} message - The Discord Message object
  * @param {String} alarm_id - The string with the id of the alarm
  */
-function can_change_alarm(message, alarm_id) {
-    return (message.channel.type === 'dm' && alarm_id.includes(message.author.id)) || (alarm_id.includes(message.author.id) || (!alarm_id.includes(auth.private_prefix) && isAdministrator(message)));
+async function can_change_alarm(message, alarm_id) {
+    let al = await alarm_db.get_alarm_by_id(alarm_id);
+    if (!al) {
+        return false;
+    }
+    let isOwner = al?.user_id == message.author.id;
+    console.log(al?.user_id);
+    console.log(al?.guild);
+    console.log(al);
+    return (message.channel.type === 'dm' && isOwner) || isOwner || (!isPrivateAlarm && isAdministrator(message) && al?.guild === message.guild.id);
 }
 
 /**
@@ -62,7 +121,7 @@ function chunkArray(myArray, chunk_size) {
     var tempArray = [];
 
     for (index = 0; index < arrayLength; index += chunk_size) {
-        myChunk = myArray.slice(index, index + chunk_size);
+        let myChunk = myArray.slice(index, index + chunk_size);
         // Do something if you want with the group
         tempArray.push(myChunk);
     }
@@ -79,6 +138,7 @@ function compareIgnoringCase(stg1, stg2) {
     return stg1.toUpperCase() === stg2.toUpperCase();
 }
 
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
@@ -86,5 +146,11 @@ module.exports = {
     getAbsoluteDiff: getAbsoluteDiff,
     chunkArray: chunkArray,
     isAChannel: isAChannel,
-    compareIgnoringCase: compareIgnoringCase
+    compareIgnoringCase: compareIgnoringCase,
+    can_create_public_alarm: can_create_public_alarm,
+    can_create_private_alarm: can_create_private_alarm,
+    can_create_ota_alarm: can_create_ota_alarm,
+    isPrivateAlarm: isPrivateAlarm,
+    isOtaAlarm: isOtaAlarm,
+    isPublicAlarm: isPublicAlarm
 }

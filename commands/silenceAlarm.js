@@ -33,14 +33,14 @@ function parseDate(date_args) {
 }
 
 async function silenceAlarmWithID(alarm_to_silence, activate) {
-    if (alarm_to_silence.includes(private_flag)) {
+    if (utility_functions.isPrivateAlarm(alarm_to_silence)) {
         await Private_alarm_model.updateOne(
             { alarm_id: alarm_to_silence },
             {
                 isActive: activate
             }
         );
-    } else if (!alarm_to_silence.includes(temp_flag)) {
+    } else if (utility_functions.isPublicAlarm(alarm_to_silence)) {
         await Alarm_model.updateOne(
             { alarm_id: alarm_to_silence },
             {
@@ -72,7 +72,7 @@ module.exports = {
             if (args.length >= 2) {
                 timeout = args[1];
             }
-            if (!utility_functions.can_change_alarm(msg, alarm_to_silence)) {
+            if (!(await utility_functions.can_change_alarm(msg, alarm_to_silence))) {
                 msg.channel.send(`The alarm you selected isn't yours or you aren't administrator on this server therefore you cannot silence it!`);
                 return;
             }

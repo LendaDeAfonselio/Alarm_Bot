@@ -1,8 +1,10 @@
+"use strict";
+
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const One_Time_Alarm_model = require('../models/one_time_alarm_model');
-const mongoose = require('mongoose');
 const logging = require('../Utils/logging');
+const auth = require('./../auth.json');
 
 /**
  * Adds a new one time one time alarm entry to the database
@@ -17,7 +19,6 @@ const logging = require('../Utils/logging');
 async function add_oneTimeAlarm(alarm_id, alarm_date, message,
     isPrivate, guild, channel, user_id) {
     const newOneTimeAlarm = new One_Time_Alarm_model({
-        _id: mongoose.Types.ObjectId(),
         alarm_id: alarm_id,
         alarm_date: alarm_date,
         message: message,
@@ -116,6 +117,73 @@ async function delete_all_expired_one_time_alarms() {
     });
 }
 
+async function get_all_alarms_from_user(author_id) {
+    return await Alarm_model.find({ user_id: author_id });
+}
+
+async function get_all_alarms_from_guild(guild_id) {
+    return await Alarm_model.find({ guild: guild_id });
+}
+
+async function get_all_alarms_from_user_and_guild(author_id, guild_id) {
+    return await Alarm_model.find({ "guild": { $regex: `.*${guild_id}.*` }, user_id: author_id });
+}
+
+async function get_all_otas_from_user(author_id) {
+    return await One_Time_Alarm_model.find({ user_id: author_id });
+}
+
+async function get_all_otas_from_guild(guild_id) {
+    return await One_Time_Alarm_model.find({ guild: guild_id });
+}
+
+
+async function get_all_privAlarms_from_user(author_id) {
+    return await Private_alarm_model.find({ user_id: author_id });
+}
+
+async function delete_all_private_alarms_for_id(author_id) {
+    return await Private_alarm_model.deleteMany({ user_id: author_id });
+}
+
+async function delete_private_alarm_with_id(a_id) {
+    return await Private_alarm_model.deleteOne({ alarm_id: a_id });
+}
+
+async function delete_all_alarms_for_guild(guild_id) {
+    return await Alarm_model.deleteMany({ guild: guild_id });
+}
+
+async function delete_all_pubota_alarms_for_guild(guildid) {
+    return await One_Time_Alarm_model.deleteMany({ guild: guildid });
+}
+
+async function get_alarm_by_id(id) {
+    if (isPublicAlarm(id)) {
+        return await Alarm_model.findOne({ alarm_id: id });
+
+    } else if (isOtaAlarm) {
+        return await One_Time_Alarm_model.findOne({ alarm_id: id });
+
+    } else if (isPrivateAlarm) {
+        return await Private_alarm_model.findOne({ alarm_id: id });
+    }
+}
+
+function isPrivateAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.private_prefix);
+}
+
+function isOtaAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.one_time_prefix);
+
+}
+
+function isPublicAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.public_alarm_prefix);
+
+}
+
 module.exports = {
     get_all_oneTimeAlarm_from_user: get_all_oneTimeAlarm_from_user,
     delete_all_public_oneTimeAlarm_from_user: delete_all_public_oneTimeAlarm_from_user,
@@ -123,4 +191,15 @@ module.exports = {
     delete_oneTimeAlarm_with_id: delete_oneTimeAlarm_with_id,
     add_oneTimeAlarm: add_oneTimeAlarm,
     delete_all_expired_one_time_alarms: delete_all_expired_one_time_alarms,
+    get_all_alarms_from_user: get_all_alarms_from_user,
+    get_all_otas_from_user: get_all_otas_from_user,
+    get_all_privAlarms_from_user: get_all_privAlarms_from_user,
+    delete_all_private_alarms_for_id: delete_all_private_alarms_for_id,
+    delete_all_alarms_for_guild: delete_all_alarms_for_guild,
+    delete_all_pubota_alarms_for_guild: delete_all_pubota_alarms_for_guild,
+    delete_private_alarm_with_id: delete_private_alarm_with_id,
+    get_all_alarms_from_guild: get_all_alarms_from_guild,
+    get_all_otas_from_guild: get_all_otas_from_guild,
+    get_all_alarms_from_user_and_guild: get_all_alarms_from_user_and_guild,
+    get_alarm_by_id: get_alarm_by_id
 }

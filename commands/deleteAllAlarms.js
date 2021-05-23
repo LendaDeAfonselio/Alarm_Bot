@@ -17,11 +17,11 @@ module.exports = {
             if (flag.toLowerCase() === '-p') {
                 try {
                     var to_be_removed = await Private_alarm_model.find(
-                        { alarm_id: { $regex: `.*${alarm_user}.*` } },
+                        { user_id: alarm_user },
                     );
                     if (to_be_removed.length > 0) {
                         var x = await Private_alarm_model.deleteMany(
-                            { alarm_id: { $regex: `.*${alarm_user}.*` } },
+                            { user_id: alarm_user },
                         );
                         to_be_removed.find(function (i) {
                             cron_list[i.alarm_id].stop();
@@ -46,7 +46,7 @@ module.exports = {
                 try {
                     var to_be_removed = await Alarm_model.find({
                         $and: [
-                            { alarm_id: { $regex: `.*${alarm_user}.*` } },
+                            { user_id: alarm_user },
                             { guild: msg.guild.id },
                         ]
                     });
@@ -54,7 +54,7 @@ module.exports = {
                         //delete regular alarms
                         var y = await Alarm_model.deleteMany({
                             $and: [
-                                { alarm_id: { $regex: `.*${alarm_user}.*` } },
+                                { user_id: alarm_user },
                                 { guild: msg.guild.id },
                             ]
                         });

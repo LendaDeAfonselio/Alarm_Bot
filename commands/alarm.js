@@ -17,6 +17,11 @@ module.exports = {
             msg.channel.send('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `' + auth.prefix + 'privateAlarm` command');
             return;
         }
+        let canCreate = await utils.can_create_public_alarm(msg.author.id, msg.guild.id);
+        if(!canCreate){
+            msg.channel.send('You have reached the maximum alarms for you or this guild');
+            return;
+        }
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {
             if (args.length > 6) {
                 var timezone = args[0];
@@ -35,6 +40,7 @@ module.exports = {
                         message_stg = args.slice(6, args.length).join(' ');
                     }
                     if (channel_discord !== undefined) {
+                        let old_c = crono;
                         crono = time_utils.updateParams(difference, crono);
                         try {
                             let scheduledMessage = new cron(crono, () => {
@@ -47,15 +53,15 @@ module.exports = {
                             // generate the id to save in the db
                             let alarm_user = msg.author.id;
                             let this_alarm_id = Math.random().toString(36).substring(4);
-                            let alarm_id = `${this_alarm_id}_${alarm_user}`;
+                            let alarm_id = `${auth.public_alarm_prefix}_${this_alarm_id}`;
                             // save locally
                             cron_list[alarm_id] = scheduledMessage;
 
                             // save to DB
                             const newAlarm = new Alarm_model({
-                                _id: mongoose.Types.ObjectId(),
                                 alarm_id: alarm_id,
                                 alarm_args: crono,
+                                user_id: alarm_user,
                                 message: message_stg,
                                 guild: msg.guild.id,
                                 channel: channel_discord.id,
@@ -67,7 +73,7 @@ module.exports = {
                                     logging.logger.info(`${result} added to database`);
                                     msg.channel.send({
                                         embed: {
-                                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${crono} (server time) and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
                                             timestamp: new Date()
                                         }
                                     });

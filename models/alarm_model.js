@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const alarmSchema = mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
     alarm_id: String,
     alarm_args: String,
+    user_id: String,
     message: String,
     guild: String,
     channel: String,

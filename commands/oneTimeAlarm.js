@@ -36,7 +36,7 @@ async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezo
     msg.channel.send(`Alarm for ${data_stg} (${timezone}) has been setup`);
     let alarm_user = msg.author.id;
     let this_alarm_id = Math.random().toString(36).substring(4);
-    let alarm_id = `${auth.one_time_prefix}_${this_alarm_id}_${alarm_user}`;
+    let alarm_id = `${auth.one_time_prefix}_${this_alarm_id}`;
 
     await alarm_db.add_oneTimeAlarm(alarm_id, d, message, isPrivate, msg.guild?.id, discord_channel?.id, alarm_user);
 
@@ -112,6 +112,11 @@ module.exports = {
                     let date_args = '';
                     let message = '';
                     if (!isPrivate) {
+                        let canCreate = await utils.can_create_ota_alarm(msg.author.id, msg.guild.id);
+                        if (!canCreate) {
+                            msg.channel.send('You or this server have reached the maximum ammount of one time alarms!');
+                            return;
+                        }
                         let timezone = args[0];
                         let difference = time_utils.get_offset_difference(timezone);
                         if (difference === undefined) {
@@ -144,6 +149,7 @@ module.exports = {
                                         + 'Try `$help` for more information!');
                                 }
                             } else {
+
                                 message = args.slice(2, args.length).join(' ');
 
                                 let today = new Date();
@@ -175,6 +181,11 @@ module.exports = {
                             }
                         }
                     } else {
+                        let create = await utils.can_create_ota_alarm(msg.author.id, undefined);
+                        if (!create) {
+                            msg.channel.send('You or this server have reached the maximum ammount of private one time alarms!');
+                            return;
+                        }
                         let timezone = args[1];
                         let difference = time_utils.get_offset_difference(timezone);
                         if (difference === undefined) {

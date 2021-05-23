@@ -23,8 +23,6 @@ const cron_list = {}; // the in memory crono list
 const cron = require('cron').CronJob;
 const fs = require('fs');
 
-
-
 /****** Gets all available commands ******/
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -43,8 +41,14 @@ client.once('ready', async x => {
 
     client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
         try {
-            await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
-            await load_alarms.fetchOTAsforGuild(cron_list, cron, guild, guild.id);
+            let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
+            if (f == false) {
+                alarm_db.delete_all_alarms_for_guild(guild.id);
+            }
+            let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild, guild.id);
+            if (a == false) {
+                alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
+            }
         } catch (e) {
             logging.logger.error(e);
         }
@@ -59,6 +63,7 @@ client.once('ready', async x => {
 client.on('message', async message => {
     const channelPrefix = auth.prefix;
     if (!message.content.startsWith(channelPrefix)) return;
+    if (message.author.bot) return;
     else {
         var args = message.content.slice(auth.prefix.length).split(/ +/);
         var command = args.shift();
