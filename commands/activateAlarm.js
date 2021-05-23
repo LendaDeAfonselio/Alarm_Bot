@@ -21,7 +21,7 @@ module.exports = {
                 return;
             }
 
-            if (!utility_functions.can_change_alarm(msg, alarm_to_activate)) {
+            if (!(await utility_functions.can_change_alarm(msg, alarm_to_activate))) {
                 msg.channel.send(`The alarm you selected isn't yours or you aren't administrator on this server therefore you cannot silence it!`)
             }
             else {

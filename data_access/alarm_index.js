@@ -3,8 +3,8 @@
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const One_Time_Alarm_model = require('../models/one_time_alarm_model');
-const mongoose = require('mongoose');
 const logging = require('../Utils/logging');
+const auth = require('./../auth.json');
 
 /**
  * Adds a new one time one time alarm entry to the database
@@ -158,6 +158,32 @@ async function delete_all_pubota_alarms_for_guild(guildid) {
     return await One_Time_Alarm_model.deleteMany({ guild: guildid });
 }
 
+async function get_alarm_by_id(id) {
+    if (isPublicAlarm(id)) {
+        return await Alarm_model.findOne({ alarm_id: id });
+
+    } else if (isOtaAlarm) {
+        return await One_Time_Alarm_model.findOne({ alarm_id: id });
+
+    } else if (isPrivateAlarm) {
+        return await Private_alarm_model.findOne({ alarm_id: id });
+    }
+}
+
+function isPrivateAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.private_prefix);
+}
+
+function isOtaAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.one_time_prefix);
+
+}
+
+function isPublicAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.public_alarm_prefix);
+
+}
+
 module.exports = {
     get_all_oneTimeAlarm_from_user: get_all_oneTimeAlarm_from_user,
     delete_all_public_oneTimeAlarm_from_user: delete_all_public_oneTimeAlarm_from_user,
@@ -174,5 +200,6 @@ module.exports = {
     delete_private_alarm_with_id: delete_private_alarm_with_id,
     get_all_alarms_from_guild: get_all_alarms_from_guild,
     get_all_otas_from_guild: get_all_otas_from_guild,
-    get_all_alarms_from_user_and_guild: get_all_alarms_from_user_and_guild
+    get_all_alarms_from_user_and_guild: get_all_alarms_from_user_and_guild,
+    get_alarm_by_id: get_alarm_by_id
 }

@@ -72,7 +72,7 @@ module.exports = {
             if (args.length >= 2) {
                 timeout = args[1];
             }
-            if (!utility_functions.can_change_alarm(msg, alarm_to_silence)) {
+            if (!(await utility_functions.can_change_alarm(msg, alarm_to_silence))) {
                 msg.channel.send(`The alarm you selected isn't yours or you aren't administrator on this server therefore you cannot silence it!`);
                 return;
             }

@@ -16,7 +16,7 @@ module.exports = {
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
             var alarm_to_delete = args[0];
-            if (!utility_functions.can_change_alarm(msg, alarm_to_delete)) {
+            if (!(await utility_functions.can_change_alarm(msg, alarm_to_delete))) {
                 msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
             }
             else {

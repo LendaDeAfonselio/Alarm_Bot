@@ -78,8 +78,16 @@ function hasAlarmRole(message, alarm_role) {
  * @param {Discord.Message} message - The Discord Message object
  * @param {String} alarm_id - The string with the id of the alarm
  */
-function can_change_alarm(message, alarm_id) {
-    return (message.channel.type === 'dm' && alarm_id.includes(message.author.id)) || (alarm_id.includes(message.author.id) || (!alarm_id.includes(auth.private_prefix) && isAdministrator(message)));
+async function can_change_alarm(message, alarm_id) {
+    let al = await alarm_db.get_alarm_by_id(alarm_id);
+    if (!al) {
+        return false;
+    }
+    let isOwner = al?.user_id == message.author.id;
+    console.log(al?.user_id);
+    console.log(al?.guild);
+    console.log(al);
+    return (message.channel.type === 'dm' && isOwner) || isOwner || (!isPrivateAlarm && isAdministrator(message) && al?.guild === message.guild.id);
 }
 
 /**
