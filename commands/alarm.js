@@ -17,7 +17,8 @@ module.exports = {
             msg.channel.send('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `' + auth.prefix + 'privateAlarm` command');
             return;
         }
-        if(!utils.can_create_public_alarm(msg.author.id, msg.guild.id)){
+        let canCreate = await utils.can_create_public_alarm(msg.author.id, msg.guild.id);
+        if(!canCreate){
             msg.channel.send('You have reached the maximum alarms for you or this guild');
             return;
         }
@@ -39,6 +40,7 @@ module.exports = {
                         message_stg = args.slice(6, args.length).join(' ');
                     }
                     if (channel_discord !== undefined) {
+                        let old_c = crono;
                         crono = time_utils.updateParams(difference, crono);
                         try {
                             let scheduledMessage = new cron(crono, () => {
@@ -71,7 +73,7 @@ module.exports = {
                                     logging.logger.info(`${result} added to database`);
                                     msg.channel.send({
                                         embed: {
-                                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${crono} (server time) and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
                                             timestamp: new Date()
                                         }
                                     });

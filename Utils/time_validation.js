@@ -88,7 +88,7 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
         return false;
     }
     if (small_time_interval(mins)) {
-        msg.channel.send("The minute parameter you sent is susceptible to spam. Only time intervals bigger than 15 minutes, groups of 5 members or less and digits are allowed to avoid spam.");
+        msg.channel.send("The minute parameter you sent is susceptible to spam. Only groups of 5 members or less and digits are allowed to avoid spam.");
         return false;
     }
 

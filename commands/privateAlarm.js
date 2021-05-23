@@ -6,6 +6,7 @@ const private_flag = auth.private_prefix;
 const utils = require('../Utils/time_validation');
 const time_utils = require('../Utils/time_validation');
 const logging = require('../Utils/logging');
+const gen_utils = require('../Utils/utility_functions');
 
 
 module.exports = {
@@ -15,7 +16,8 @@ module.exports = {
         + '**The bot has to have a server in common with you to send a private message!**',
     usage: auth.prefix + 'privateAlarm <timezone> <m> <h> <day_of_month> <month> <year> <weekday> <message>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
-        if(!utils.can_create_private_alarm(msg.user.id)){
+        let canCreate = await gen_utils.can_create_private_alarm(msg.author.id);
+        if (!canCreate) {
             msg.channel.send('You have reached the maximum ammount of private alarms!');
             return;
         }
@@ -57,7 +59,7 @@ module.exports = {
                             logging.logger.info(`${result} added to database`);
                             msg.author.send({
                                 embed: {
-                                    title: `Alarm with message: ${message_stg} was sucessfully saved with params: ${crono} and message ${message_stg}`,
+                                    title: `Alarm ${alarm_id} with message: ${message_stg} was sucessfully saved with params: ${crono} and message ${message_stg}`,
                                     color: 2447003,
                                     timestamp: new Date()
                                 }
