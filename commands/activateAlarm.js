@@ -29,14 +29,14 @@ module.exports = {
                     if (!cron_list[alarm_to_activate].running) {
                         // add verification for DMs and guild id
                         try {
-                            if (alarm_to_activate.includes(private_flag)) {
+                            if (utility_functions.isPrivateAlarm(alarm_to_activate)) {
                                 await Private_alarm_model.updateOne(
                                     { alarm_id: alarm_to_activate },
                                     {
                                         isActive: true
                                     }
                                 )
-                            } else if (!alarm_to_activate.includes(temp_flag)) {
+                            } else if (utility_functions.isPublicAlarm(alarm_to_activate)) {
                                 await Alarm_model.updateOne(
                                     { alarm_id: alarm_to_activate },
                                     {

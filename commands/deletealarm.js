@@ -22,11 +22,11 @@ module.exports = {
             else {
                 if (cron_list[alarm_to_delete] !== undefined) {
                     try {
-                        if (alarm_to_delete.includes(private_flag)) {
+                        if (utility_functions.isPrivateAlarm(alarm_to_delete)) {
                             await Private_alarm_model.deleteOne(
                                 { alarm_id: alarm_to_delete }
                             )
-                        } else if (!alarm_to_delete.includes(temp_flag)) {
+                        } else if (utility_functions.isPublicAlarm(alarm_to_delete)) {
                             if (msg.channel.type === 'dm') {
                                 msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
                                 return;
@@ -40,7 +40,7 @@ module.exports = {
                                 }
 
                             )
-                        } else {
+                        } else if (utility_functions.isOtaAlarm(alarm_to_delete)) {
                             db_alarms.delete_oneTimeAlarm_with_id(alarm_to_delete);
                         }
                         cron_list[alarm_to_delete].stop();

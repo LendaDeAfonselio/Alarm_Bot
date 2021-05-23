@@ -1,6 +1,22 @@
+"use strict";
+
 const Discord = require('discord.js');
 const auth = require('./../auth.json');
-const alarm_db = require('./data_access/alarm_index');
+const alarm_db = require('./../data_access/alarm_index');
+
+function isPrivateAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.private_prefix);
+}
+
+function isOtaAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.one_time_prefix);
+
+}
+
+function isPublicAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.public_alarm_prefix);
+
+}
 
 /**
  * Checks if an user can create a public alarm
@@ -114,6 +130,7 @@ function compareIgnoringCase(stg1, stg2) {
     return stg1.toUpperCase() === stg2.toUpperCase();
 }
 
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
@@ -124,5 +141,8 @@ module.exports = {
     compareIgnoringCase: compareIgnoringCase,
     can_create_public_alarm: can_create_public_alarm,
     can_create_private_alarm: can_create_private_alarm,
-    can_create_ota_alarm: can_create_ota_alarm
+    can_create_ota_alarm: can_create_ota_alarm,
+    isPrivateAlarm: isPrivateAlarm,
+    isOtaAlarm: isOtaAlarm,
+    isPublicAlarm: isPublicAlarm
 }

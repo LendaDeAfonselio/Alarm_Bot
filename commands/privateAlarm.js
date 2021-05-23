@@ -39,7 +39,7 @@ module.exports = {
                     scheduledMessage.start();
                     let alarm_user = msg.author.id;
                     let this_alarm_id = Math.random().toString(36).substring(4);
-                    let alarm_id = `${private_flag}_${this_alarm_id}_${alarm_user}`;
+                    let alarm_id = `${private_flag}_${this_alarm_id}`;
                     // save locally
                     cron_list[alarm_id] = scheduledMessage;
 

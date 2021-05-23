@@ -1,3 +1,5 @@
+"use strict";
+
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const One_Time_Alarm_model = require('../models/one_time_alarm_model');
@@ -119,9 +121,12 @@ async function get_all_alarms_from_user(author_id) {
     return await Alarm_model.find({ user_id: author_id });
 }
 
-
 async function get_all_alarms_from_guild(guild_id) {
     return await Alarm_model.find({ guild: guild_id });
+}
+
+async function get_all_alarms_from_user_and_guild(author_id, guild_id) {
+    return await Alarm_model.find({ "guild": { $regex: `.*${guild_id}.*` }, user_id: author_id });
 }
 
 async function get_all_otas_from_user(author_id) {
@@ -168,5 +173,6 @@ module.exports = {
     delete_all_pubota_alarms_for_guild: delete_all_pubota_alarms_for_guild,
     delete_private_alarm_with_id: delete_private_alarm_with_id,
     get_all_alarms_from_guild: get_all_alarms_from_guild,
-    get_all_otas_from_guild:get_all_otas_from_guild
+    get_all_otas_from_guild: get_all_otas_from_guild,
+    get_all_alarms_from_user_and_guild: get_all_alarms_from_user_and_guild
 }

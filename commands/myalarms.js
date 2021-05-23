@@ -1,8 +1,7 @@
+"use strict";
+
 const auth = require('./../auth.json');
 const utility = require('./../Utils/utility_functions');
-const Alarm_model = require('../models/alarm_model');
-const Private_alarm_model = require('../models/private_alarm_model');
-const oneTimeAlarm = require('./oneTimeAlarm');
 const utility_functions = require('./../Utils/utility_functions');
 const db_alarms = require('../data_access/alarm_index');
 module.exports = {
@@ -13,8 +12,8 @@ module.exports = {
 
         let guild_id = msg.channel.type === 'dm' ? "" : msg.guild?.id;
 
-        let results_pub = await Alarm_model.find({ "alarm_id": { $regex: `.*${msg.author.id}.*` }, "guild": { $regex: `.*${guild_id}.*` } });
-        let results_priv = await Private_alarm_model.find({ "user_id": msg.author.id });
+        let results_pub = await db_alarms.get_all_alarms_from_user_and_guild(msg.author.id, guild_id);
+        let results_priv = await db_alarms.get_all_privAlarms_from_user(msg.author.id);
         let results_ota_pub = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, false, msg.guild?.id);
         let results_ota_priv = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, true, msg.guild?.id);
 
