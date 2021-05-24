@@ -1,6 +1,6 @@
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
-
+const alarm_db = require('../data_access/alarm_index');
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
 
@@ -8,7 +8,7 @@ const logging = require('../Utils/logging');
 module.exports = {
     name: 'deleteAllAlarms',
     description: 'Deletes all of YOUR alarms in the server you use it - **THIS ACTION CANNOT BE REVERTED**\n'
-        + '-a for public alarms of that server and -p for private alarms',
+        + '-a for public alarms of that server; -p for private alarms; -oa for public one time alarms; -op for private one time alarms',
     usage: auth.prefix + 'deleteAllAlarms <flag>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         var flag = args[0];
@@ -76,10 +76,38 @@ module.exports = {
                     msg.channel.send(`Error deleting your alarms...`);
                 }
             }
+            else if (flag.toLowerCase() === '-op') {
+                let private_ota = get_all_oneTimeAlarm_from_user(alarm_user, true, "");
+                private_ota.find(function (i) {
+                    if (cron_list[i.alarm_id] !== undefined) {
+                        cron_list[i.alarm_id].stop();
+                        delete cron_list[i.alarm_id];
+                    }
+                });
+                let f = await alarm_db.delete_all_private_oneTimeAlarm_from_user(alarm_user);
+                msg.channel.send(`Sucessfully deleted ${f.deletedCount} alarms.`);
+
+            } else if (flag.toLowerCase() === '-oa') {
+                if (msg.channel.type === 'dm') {
+                    msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
+                    return;
+                }
+                let als = get_all_oneTimeAlarm_from_user(alarm_user, false, msg.guild.id);
+                als.find(function (i) {
+                    if (cron_list[i.alarm_id] !== undefined) {
+                        cron_list[i.alarm_id].stop();
+                        delete cron_list[i.alarm_id];
+                    }
+                });
+                let n = await alarm_db.delete_all_public_oneTimeAlarm_from_user(alarm_user, msg.guild.id);
+                msg.channel.send(`Sucessfully deleted ${n.deletedCount} alarms.`);
+            }
         } else {
             var stg = "You did not specify what alarms you wish to delete.\n"
                 + "`" + auth.prefix + "`:deleteAllAlarms -p` deletes all of your private alarms.\n"
-                + "`" + auth.prefix + ":deleteAllAlarms -a` deletes YOUR alarms for this server.";
+                + "`" + auth.prefix + ":deleteAllAlarms -a` deletes YOUR alarms for this server."
+                + "`" + auth.prefix + ":deleteAllAlarms -oa` deletes YOUR one time alarms in the server you are using."
+                + "`" + auth.prefix + ":deleteAllAlarms -op` deletes your private one time alarms";
             msg.channel.send(stg.replace(/:/g, auth.prefix));
         }
     }
