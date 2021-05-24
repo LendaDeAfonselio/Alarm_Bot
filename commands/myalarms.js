@@ -122,11 +122,12 @@ function createMessageWithEntries(results_pub) {
     for (let alarm of results_pub) {
         let alarm_id = alarm.alarm_id;
         let alarm_params = alarm.alarm_args;
-        let alarm_preview = alarm.message.substring(0, 50);
+        let alarm_preview = alarm.message.substring(0, 30);
         let active_alarm = alarm.isActive ? "Active" : "Silenced";
+        let server = client.guilds.cache.get(z => z.id == alarm.guild);
         let field = {
             name: `ID: ${alarm_id}`,
-            value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}`
+            value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}\nIn server: ${server?.name}`
         };
         general_alarms.push(field);
     }
@@ -138,10 +139,11 @@ function createMessageWithOTAEntries(results) {
     for (let alarm of results) {
         let alarm_id = alarm.alarm_id;
         let alarm_params = alarm.alarm_date;
-        let alarm_preview = alarm.message.substring(0, 50);
+        let alarm_preview = alarm.message.substring(0, 30);
+        let server = client.guilds.cache.get(z => z.id == alarm.guild);
         let field = {
             name: `ID: ${alarm_id}`,
-            value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\n`
+            value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\nIn server: ${server?.name}`
         };
         general_alarms.push(field);
     }
