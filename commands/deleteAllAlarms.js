@@ -77,7 +77,7 @@ module.exports = {
                 }
             }
             else if (flag.toLowerCase() === '-op') {
-                let private_ota = get_all_oneTimeAlarm_from_user(alarm_user, true, "");
+                let private_ota = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, true, "");
                 private_ota.find(function (i) {
                     if (cron_list[i.alarm_id] !== undefined) {
                         cron_list[i.alarm_id].stop();
@@ -92,7 +92,7 @@ module.exports = {
                     msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
                     return;
                 }
-                let als = get_all_oneTimeAlarm_from_user(alarm_user, false, msg.guild.id);
+                let als = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, false, msg.guild.id);
                 als.find(function (i) {
                     if (cron_list[i.alarm_id] !== undefined) {
                         cron_list[i.alarm_id].stop();

@@ -52,8 +52,8 @@ module.exports = {
         }
 
         // create alarm messages
-        let general_alarms = createMessageWithEntries(results_pub);
-        let private_alarms = createMessageWithEntries(results_priv);
+        let general_alarms = createMessageWithEntries(results_pub, client);
+        let private_alarms = createMessageWithEntries(results_priv, client);
 
         // ota message
         let general_otas = createMessageWithOTAEntries(results_ota_pub);
@@ -117,14 +117,14 @@ function sendChunksAsPublicMsg(public_chunks, msg, title_message) {
     }
 }
 
-function createMessageWithEntries(results_pub) {
+function createMessageWithEntries(results_pub, client) {
     let general_alarms = [];
     for (let alarm of results_pub) {
         let alarm_id = alarm.alarm_id;
         let alarm_params = alarm.alarm_args;
         let alarm_preview = alarm.message.substring(0, 30);
         let active_alarm = alarm.isActive ? "Active" : "Silenced";
-        let server = client.guilds.cache.get(z => z.id == alarm.guild);
+        let server = client.guilds.cache.get(z => z.id == alarm.guild.id);
         let field = {
             name: `ID: ${alarm_id}`,
             value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}\nIn server: ${server?.name}`
@@ -134,13 +134,13 @@ function createMessageWithEntries(results_pub) {
     return general_alarms;
 }
 
-function createMessageWithOTAEntries(results) {
+function createMessageWithOTAEntries(results, client) {
     let general_alarms = [];
     for (let alarm of results) {
         let alarm_id = alarm.alarm_id;
         let alarm_params = alarm.alarm_date;
         let alarm_preview = alarm.message.substring(0, 30);
-        let server = client.guilds.cache.get(z => z.id == alarm.guild);
+        let server = client.guilds.cache.get(z => z.id == alarm.guild.id);
         let field = {
             name: `ID: ${alarm_id}`,
             value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\nIn server: ${server?.name}`
