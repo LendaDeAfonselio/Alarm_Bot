@@ -83,7 +83,7 @@ module.exports = {
         for (let chunk of private_chunks) {
             msg.author.send({
                 embed: {
-                    color: 0xcc0000,
+                    color: 0x5CFF5C,
                     title: "Your private alarms are:",
                     fields: chunk,
                     timestamp: new Date()
@@ -141,12 +141,20 @@ async function createMessageWithOTAEntries(results, client) {
         let alarm_id = alarm.alarm_id;
         let alarm_params = alarm.alarm_date;
         let alarm_preview = alarm.message.substring(0, 30);
-        let server = await client.guilds.fetch(alarm.guild);
-        let field = {
-            name: `ID: ${alarm_id}`,
-            value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\nIn server: ${server?.name}`
-        };
-        general_alarms.push(field);
+        if (!alarm.isPrivate) {
+            let server = await client.guilds.fetch(alarm.guild);
+            let field = {
+                name: `ID: ${alarm_id}`,
+                value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\nIn server: ${server?.name}`
+            };
+            general_alarms.push(field);
+        } else {
+            let field = {
+                name: `ID: ${alarm_id} (Private)`,
+                value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}`
+            };
+            general_alarms.push(field);
+        }
     }
     return general_alarms;
 }
