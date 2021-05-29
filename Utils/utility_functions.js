@@ -84,9 +84,6 @@ async function can_change_alarm(message, alarm_id) {
         return false;
     }
     let isOwner = al?.user_id == message.author.id;
-    console.log(al?.user_id);
-    console.log(al?.guild);
-    console.log(al);
     return (message.channel.type === 'dm' && isOwner) || isOwner || (!isPrivateAlarm && isAdministrator(message) && al?.guild === message.guild.id);
 }
 
