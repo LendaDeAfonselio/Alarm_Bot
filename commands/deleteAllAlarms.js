@@ -104,7 +104,7 @@ module.exports = {
             }
         } else {
             var stg = "You did not specify what alarms you wish to delete.\n"
-                + "`" + auth.prefix + "`:deleteAllAlarms -p` deletes all of your private alarms.\n"
+                + "`" + auth.prefix + ":deleteAllAlarms -p` deletes all of your private alarms.\n"
                 + "`" + auth.prefix + ":deleteAllAlarms -a` deletes YOUR alarms for this server."
                 + "`" + auth.prefix + ":deleteAllAlarms -oa` deletes YOUR one time alarms in the server you are using."
                 + "`" + auth.prefix + ":deleteAllAlarms -op` deletes your private one time alarms";

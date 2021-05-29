@@ -69,7 +69,7 @@ module.exports = {
         var private_chunks2 = utility.chunkArray(priv_otas, 20);
 
         if (general_alarms.length <= 0) {
-            msg.channel.send('You do not have alarms in any server!');
+            msg.channel.send('You do not have alarms in this server!');
         }
 
         const title_message = "Your public alarms in this server are:";
