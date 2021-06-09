@@ -38,7 +38,7 @@ function small_time_interval(mins) {
  * @param {Number} max - The max value that a number can have within this group or number
  */
 function isAValidRangeGroupOrNumber(stg, min, max) {
-    // TODO: Rework this function to be recursive
+    // TODO: Rework this function to not be recursive
     if (stg == '*') {
         return true;
     } else if (stg.includes(',')) {
