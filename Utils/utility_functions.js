@@ -3,6 +3,7 @@
 const Discord = require('discord.js');
 const auth = require('./../auth.json');
 const alarm_db = require('./../data_access/alarm_index');
+const premium_db = require('./../data_access/premium_index');
 
 function isPrivateAlarm(alarm_id) {
     return alarm_id.startsWith(auth.private_prefix);
@@ -15,7 +16,6 @@ function isOtaAlarm(alarm_id) {
 
 function isPublicAlarm(alarm_id) {
     return alarm_id.startsWith(auth.public_alarm_prefix);
-
 }
 
 /**
@@ -25,6 +25,9 @@ function isPublicAlarm(alarm_id) {
  */
 async function can_create_public_alarm(user_id, guild_id) {
     let alarmsUser = await alarm_db.get_all_alarms_from_user(user_id);
+    if (await (isPremiumUser(user_id))) {
+        return alarmsUser.length < auth.max_alarms_VIP;
+    }
     let alarmsGuild = await alarm_db.get_all_alarms_from_guild(guild_id);
     return alarmsUser.length < auth.max_alarms_user
         && alarmsGuild.length < auth.max_alarms_server;
@@ -36,6 +39,9 @@ async function can_create_public_alarm(user_id, guild_id) {
  */
 async function can_create_private_alarm(user_id) {
     let alarmsUser = await alarm_db.get_all_privAlarms_from_user(user_id);
+    if (await (isPremiumUser(user_id))) {
+        return alarmsUser.length < auth.max_alarms_VIP;
+    }
     return alarmsUser.length < auth.max_alarms_user;
 }
 
@@ -46,10 +52,20 @@ async function can_create_private_alarm(user_id) {
  */
 async function can_create_ota_alarm(user_id, guild_id) {
     let alarmsUser = await alarm_db.get_all_otas_from_user(user_id);
+    if (await (isPremiumUser(user_id))) {
+        return alarmsUser.length < auth.max_alarms_VIP;
+    }
     let alarmsGuild = guild_id !== undefined ? (await alarm_db.get_all_otas_from_guild(guild_id))?.length : 0;
     return alarmsUser.length < auth.max_alarms_user
         && alarmsGuild < auth.max_alarms_server;
 }
+
+async function isPremiumUser(user_id) {
+    let user = await premium_db.get_premium_user_by_id(user_id);
+    return user !== null;
+}
+
+
 
 
 /**
