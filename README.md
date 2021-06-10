@@ -104,7 +104,11 @@ Currently the bot has the following commands:
     - Usage example: `$silenceAlarm id123 23/01`
 - `silenceAllAlarms` - Silences all alarms until they are activated again.
     - Usage example: `$silenceAllAlarms -a` or `$silenceAllAlarms -p` 
+- `premium` - Get information and the link to get AlarmBot premium (75 alarms)
 
 
-### Support ###
+### Bot Support ###
 Join our discord server for more information: https://discord.gg/zV3xnt8zkA
+
+
+Support the bot and the creator financially [here](https://www.buymeacoffee.com/Afonselio) 
