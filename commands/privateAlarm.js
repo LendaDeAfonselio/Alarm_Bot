@@ -18,7 +18,7 @@ module.exports = {
     async execute(msg, args, client, cron, cron_list, mongoose) {
         let canCreate = await gen_utils.can_create_private_alarm(msg.author.id);
         if (!canCreate) {
-            msg.channel.send('You have reached the maximum ammount of private alarms!');
+            msg.channel.send('You have reached the maximum ammount of private alarms! Use `$premium` to discover how to get more alarms');
             return;
         }
         if (args.length > 6) {
