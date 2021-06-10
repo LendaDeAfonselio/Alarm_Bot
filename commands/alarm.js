@@ -19,7 +19,7 @@ module.exports = {
         }
         let canCreate = await utils.can_create_public_alarm(msg.author.id, msg.guild.id);
         if(!canCreate){
-            msg.channel.send('You have reached the maximum alarms for you or this guild');
+            msg.channel.send(auth.limit_alarm_message);
             return;
         }
         if (utils.hasAlarmRole(msg, auth.alarm_role_name) || utils.isAdministrator(msg)) {

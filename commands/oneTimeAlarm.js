@@ -114,7 +114,7 @@ module.exports = {
                     if (!isPrivate) {
                         let canCreate = await utils.can_create_ota_alarm(msg.author.id, msg.guild.id);
                         if (!canCreate) {
-                            msg.channel.send('You or this server have reached the maximum ammount of one time alarms!');
+                            msg.channel.send(auth.limit_alarm_message);
                             return;
                         }
                         let timezone = args[0];
@@ -183,7 +183,7 @@ module.exports = {
                     } else {
                         let create = await utils.can_create_ota_alarm(msg.author.id, undefined);
                         if (!create) {
-                            msg.channel.send('You or this server have reached the maximum ammount of private one time alarms!');
+                            msg.channel.send('You or this server have reached the maximum ammount of private one time alarms! Use `$premium` to find out how to get more alarms.');
                             return;
                         }
                         let timezone = args[1];

@@ -16,6 +16,7 @@ module.exports = {
                 return;
             }
             let msg_fields = [];
+
             jsfiles.forEach((f) => {
                 let props = require(`./${f}`);
                 var namelist = props.name;
@@ -33,7 +34,10 @@ module.exports = {
                 name: 'Join our discord server for more information!',
                 value: 'https://discord.gg/zV3xnt8zkA'
             });
-
+            msg_fields.push(field = {
+                name: 'Unlock premium and/or support the alarm creator',
+                value: 'https://www.buymeacoffee.com/Afonselio'
+            });
             // sends dm
             try {
                 message.author.send({

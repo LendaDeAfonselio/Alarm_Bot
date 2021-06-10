@@ -1,3 +1,4 @@
+"use strict";
 // Packages and dependencies
 const Discord = require('discord.js');
 const auth = require('./auth.json');
@@ -6,6 +7,7 @@ const load_alarms = require('./load_alarms');
 const delete_alarms_when_kicked = require('./delete_alarms_for_guilds');
 const logging = require('./Utils/logging');
 const alarm_db = require('./data_access/alarm_index');
+const premium_db = require('./data_access/premium_index');
 // Mongo setup
 const mongoose = require("mongoose");
 mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
@@ -38,7 +40,9 @@ for (const file of commandFiles) {
 client.once('ready', async x => {
     let deletedentries = await alarm_db.delete_all_expired_one_time_alarms();
     logging.logger.info("Deleted " + deletedentries.deletedCount + " one time alarms");
-
+    let deletedpremium = await premium_db.delete_all_expired_memberships();
+    logging.logger.info(deletedpremium.deletedCount + " premium memberships have expired");
+    
     client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
         try {
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
