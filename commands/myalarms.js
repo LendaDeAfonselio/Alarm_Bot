@@ -53,12 +53,12 @@ module.exports = {
         }
 
         // create alarm messages
-        let general_alarms = await createMessageWithEntries(results_pub, client);
-        let private_alarms = await createMessageWithEntries(results_priv, client);
+        let general_alarms = await createMessageWithEntries(results_pub);
+        let private_alarms = await createMessageWithEntries(results_priv);
 
         // ota message
-        let general_otas = await createMessageWithOTAEntries(results_ota_pub, client);
-        let priv_otas = await createMessageWithOTAEntries(results_ota_priv, client);
+        let general_otas = await createMessageWithOTAEntries(results_ota_pub);
+        let priv_otas = await createMessageWithOTAEntries(results_ota_priv);
 
 
         // chunk it because of the max size for discord messages
@@ -118,34 +118,34 @@ function sendChunksAsPublicMsg(public_chunks, msg, title_message) {
     }
 }
 
-async function createMessageWithEntries(results_pub, client) {
+async function createMessageWithEntries(msgs) {
     let general_alarms = [];
-    for (let alarm of results_pub) {
+    for (let alarm of msgs) {
         let alarm_id = alarm.alarm_id;
         let alarm_params = alarm.alarm_args;
         let alarm_preview = alarm.message.substring(0, 30);
         let active_alarm = alarm.isActive ? "Active" : "Silenced";
-        let server = "F";//await client.guilds.fetch(alarm.guild);
+        let server = alarm.server_name ?? alarm.guild;
         let field = {
             name: `ID: ${alarm_id}`,
-            value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}\nIn server: ${server?.name}`
+            value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}\nIn server: ${server}`
         };
         general_alarms.push(field);
     }
     return general_alarms;
 }
 
-async function createMessageWithOTAEntries(results, client) {
+async function createMessageWithOTAEntries(results) {
     let general_alarms = [];
     for (let alarm of results) {
         let alarm_id = alarm.alarm_id;
         let alarm_params = alarm.alarm_date;
         let alarm_preview = alarm.message.substring(0, 30);
         if (!alarm.isPrivate) {
-            let server = "F";//await client.guilds.fetch(alarm.guild);
+            let server = alarm.server_name ?? alarm.guild;
             let field = {
                 name: `ID: ${alarm_id}`,
-                value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\nIn server: ${server?.name}`
+                value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\nIn server: ${server}`
             };
             general_alarms.push(field);
         } else {
