@@ -163,15 +163,15 @@ async function get_alarm_by_id(id) {
     if (isPublicAlarm(id)) {
         return await Alarm_model.findOne({ alarm_id: id });
 
-    } else if (isOtaAlarm) {
+    } else if (isOtaAlarm(id)) {
         return await One_Time_Alarm_model.findOne({ alarm_id: id });
 
-    } else if (isPrivateAlarm) {
+    } else if (isPrivateAlarm(id)) {
         return await Private_alarm_model.findOne({ alarm_id: id });
     }
 }
 
-function isPrivateAlarm(alarm_id) {
+function isPrivateAlarm(alarm_id) {    
     return alarm_id.startsWith(auth.private_prefix);
 }
 
