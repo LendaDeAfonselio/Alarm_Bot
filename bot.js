@@ -42,7 +42,7 @@ client.once('ready', async x => {
     logging.logger.info("Deleted " + deletedentries.deletedCount + " one time alarms");
     let deletedpremium = await premium_db.delete_all_expired_memberships();
     logging.logger.info(deletedpremium.deletedCount + " premium memberships have expired");
-    
+
     client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
         try {
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);

@@ -125,7 +125,7 @@ async function createMessageWithEntries(results_pub, client) {
         let alarm_params = alarm.alarm_args;
         let alarm_preview = alarm.message.substring(0, 30);
         let active_alarm = alarm.isActive ? "Active" : "Silenced";
-        let server = await client.guilds.fetch(alarm.guild);
+        let server = "F";//await client.guilds.fetch(alarm.guild);
         let field = {
             name: `ID: ${alarm_id}`,
             value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}\nIn server: ${server?.name}`
@@ -142,7 +142,7 @@ async function createMessageWithOTAEntries(results, client) {
         let alarm_params = alarm.alarm_date;
         let alarm_preview = alarm.message.substring(0, 30);
         if (!alarm.isPrivate) {
-            let server = await client.guilds.fetch(alarm.guild);
+            let server = "F";//await client.guilds.fetch(alarm.guild);
             let field = {
                 name: `ID: ${alarm_id}`,
                 value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\nIn server: ${server?.name}`

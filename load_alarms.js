@@ -26,7 +26,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
             cron_list[alarm_id] = scheduledMessage;
         } else {
             logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
-            return undefined;
+            return false;
         }
     }
 }
