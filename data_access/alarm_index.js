@@ -17,13 +17,14 @@ const auth = require('./../auth.json');
  * @param {String} user_id - The id of the user that sets it up if it is applicable
  */
 async function add_oneTimeAlarm(alarm_id, alarm_date, message,
-    isPrivate, guild, channel, user_id) {
+    isPrivate, guild, channel, user_id, guildName) {
     const newOneTimeAlarm = new One_Time_Alarm_model({
         alarm_id: alarm_id,
         alarm_date: alarm_date,
         message: message,
         isPrivate: isPrivate,
         guild: guild,
+        server_name: guildName,
         channel: channel,
         user_id: user_id,
         timestamp: Date.now()

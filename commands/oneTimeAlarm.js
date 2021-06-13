@@ -38,7 +38,7 @@ async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezo
     let this_alarm_id = Math.random().toString(36).substring(4);
     let alarm_id = `${auth.one_time_prefix}_${this_alarm_id}`;
 
-    await alarm_db.add_oneTimeAlarm(alarm_id, d, message, isPrivate, msg.guild?.id, discord_channel?.id, alarm_user);
+    await alarm_db.add_oneTimeAlarm(alarm_id, d, message, isPrivate, msg.guild?.id, discord_channel?.id, alarm_user, msg.guild?.name);
 
     // save locally
     cron_list[alarm_id] = ota;

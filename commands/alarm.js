@@ -64,6 +64,7 @@ module.exports = {
                                 user_id: alarm_user,
                                 message: message_stg,
                                 guild: msg.guild.id,
+                                server_name: msg.guild.name,
                                 channel: channel_discord.id,
                                 isActive: true,
                                 timestamp: Date.now(),
