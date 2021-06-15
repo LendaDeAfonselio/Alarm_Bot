@@ -1,6 +1,8 @@
 # AlarmBot
 A Discord Bot that allows users to set up alarms periodic or one time alarms and receive them via DM or in a certain channel.
 
+You can check out the bot's page on [top.gg](https://top.gg/bot/754350217876340816) to invite AlarmBot to your server!
+
 ## Module installs:
 - `npm install discord.js`
 - `npm i cron`
