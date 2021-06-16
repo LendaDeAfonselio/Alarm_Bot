@@ -63,7 +63,7 @@ module.exports = {
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
 
-            var alarm_to_silence = args[0];
+            let alarm_to_silence = args[0];
             if (alarm_to_silence.includes(auth.one_time_prefix)) {
                 msg.channel.send('Silence feature is not available for oneTimeAlarms, if you wish to silence a oneTimeAlarm just delete it with `$deleteAlarm ' + alarm_to_silence + '`');
                 return;
@@ -129,8 +129,7 @@ module.exports = {
                     }
                 }
                 else {
-                    var myalarms_command_stg = "`myAlarms`";
-                    msg.channel.send(`Impossible to silence alarm with id ${alarm_to_silence}.\nPlease check if you entered the id of the alarm correctly!\nTo see your alarms, type: ${auth.prefix}${myalarms_command_stg}`);
+                    msg.channel.send(`Impossible to silence alarm with id ${alarm_to_silence}.\nPlease try again later.`);
                 }
             }
         } else {

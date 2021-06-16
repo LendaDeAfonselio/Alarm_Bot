@@ -11,16 +11,16 @@ module.exports = {
         + '-a for public alarms of that server; -p for private alarms; -oa for public one time alarms; -op for private one time alarms',
     usage: auth.prefix + 'deleteAllAlarms <flag>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
-        var flag = args[0];
+        let flag = args[0];
         let alarm_user = msg.author.id;
         if (args.length > 0) {
             if (flag.toLowerCase() === '-p') {
                 try {
-                    var to_be_removed = await Private_alarm_model.find(
+                    let to_be_removed = await Private_alarm_model.find(
                         { user_id: alarm_user },
                     );
                     if (to_be_removed.length > 0) {
-                        var x = await Private_alarm_model.deleteMany(
+                        let x = await Private_alarm_model.deleteMany(
                             { user_id: alarm_user },
                         );
                         to_be_removed.find(function (i) {
@@ -42,7 +42,7 @@ module.exports = {
                     return;
                 }
                 try {
-                    var to_be_removed = await Alarm_model.find({
+                    let to_be_removed = await Alarm_model.find({
                         $and: [
                             { user_id: alarm_user },
                             { guild: msg.guild.id },
@@ -50,7 +50,7 @@ module.exports = {
                     });
                     if (to_be_removed.length > 0) {
                         //delete regular alarms
-                        var y = await Alarm_model.deleteMany({
+                        let y = await Alarm_model.deleteMany({
                             $and: [
                                 { user_id: alarm_user },
                                 { guild: msg.guild.id },
@@ -99,7 +99,7 @@ module.exports = {
                 msg.channel.send(`Sucessfully deleted ${n.deletedCount} alarms.`);
             }
         } else {
-            var stg = "You did not specify what alarms you wish to delete.\n"
+            let stg = "You did not specify what alarms you wish to delete.\n"
                 + "`:deleteAllAlarms -p` deletes all of your private alarms.\n"
                 + "`:deleteAllAlarms -a` deletes YOUR alarms for this server.\n"
                 + "`:deleteAllAlarms -oa` deletes YOUR one time alarms in the server you are using.\n"

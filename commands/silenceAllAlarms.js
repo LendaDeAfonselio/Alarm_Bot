@@ -17,7 +17,7 @@ module.exports = {
 
             try {
                 if (flag === '-p') {
-                    var x = await Private_alarm_model.find(
+                    let x = await Private_alarm_model.find(
                         { isActive: true, user_id: alarm_user }
                     );
 
@@ -39,15 +39,15 @@ module.exports = {
                         msg.channel.send('Can only silence public alarms in a server, otherwise the bot does not know which alarms to silence.');
                         return;
                     }
-                    var x = await Alarm_model.find(
-                        { isActive: true, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } });
+                    let x = await Alarm_model.find(
+                        { isActive: true, guild: msg.guild.id, user_id: alarm_user });
 
                     x.forEach(alarm => {
                         cron_list[alarm.alarm_id].stop();
                     });
 
                     await Alarm_model.updateMany(
-                        { isActive: true, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } },
+                        { isActive: true, guild: msg.guild.id, user_id: alarm_user },
                         { isActive: false }
                     );
                     msg.channel.send(`Sucesfully silenced ${x.length} alarms.`);

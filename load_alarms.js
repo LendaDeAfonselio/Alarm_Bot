@@ -5,7 +5,7 @@ const alarm_db = require('./data_access/alarm_index');
 const logging = require('./Utils/logging');
 
 async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
-    var alarms = await Alarm_model.find({ guild: guild_id });
+    let alarms = await Alarm_model.find({ guild: guild_id });
     for (alarm of alarms) {
         let message_stg = alarm.message;
         let crono = alarm.alarm_args;
@@ -33,7 +33,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
 
 async function fetchPrivateAlarms(cron_list, cron, client) {
 
-    var alarms = await Private_alarm_model.find();
+    let alarms = await Private_alarm_model.find();
     for (alarm of alarms) {
         let message_stg = alarm.message;
         let crono = alarm.alarm_args;
@@ -61,7 +61,7 @@ async function fetchPrivateAlarms(cron_list, cron, client) {
 
 async function fetchOTAsforGuild(cron_list, cron, guild, guild_id) {
     let current = new Date();
-    var alarms = await One_Time_Alarm_model.find({ guild: guild_id, isPrivate: false });
+    let alarms = await One_Time_Alarm_model.find({ guild: guild_id, isPrivate: false });
     for (alarm of alarms) {
         let alarm_id = alarm.alarm_id;
         let crono = alarm.alarm_date;
@@ -89,7 +89,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id) {
 
 async function fetchPrivateOTAs(cron_list, cron, client) {
     let current = new Date();
-    var alarms = await One_Time_Alarm_model.find({ isPrivate: true });
+    let alarms = await One_Time_Alarm_model.find({ isPrivate: true });
     for (alarm of alarms) {
         let alarm_id = alarm.alarm_id;
         let crono = alarm.alarm_date;

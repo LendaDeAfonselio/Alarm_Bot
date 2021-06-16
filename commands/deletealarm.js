@@ -15,7 +15,7 @@ module.exports = {
     usage: auth.prefix + 'deleteAlarm <id>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
-            var alarm_to_delete = args[0];
+            let alarm_to_delete = args[0];
             if (!(await utility_functions.can_change_alarm(msg, alarm_to_delete))) {
                 msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
             }
@@ -31,15 +31,7 @@ module.exports = {
                                 msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
                                 return;
                             }
-                            await Alarm_model.deleteOne(
-                                {
-                                    $and: [
-                                        { alarm_id: alarm_to_delete },
-                                        { guild: msg.guild.id },
-                                    ]
-                                }
-
-                            )
+                            await Alarm_model.deleteOne({ alarm_id: alarm_to_delete });
                         } else if (utility_functions.isOtaAlarm(alarm_to_delete)) {
                             db_alarms.delete_oneTimeAlarm_with_id(alarm_to_delete);
                         }
@@ -53,8 +45,7 @@ module.exports = {
                     }
                 }
                 else {
-                    var myalarms_command_stg = "`myAlarms`";
-                    msg.channel.send(`Impossible to delete alarm with id ${alarm_to_delete}.\nPlease check if you entered the id of the alarm correctly!\nTo see your alarms, type: ${auth.prefix}${myalarms_command_stg}`);
+                    msg.channel.send(`Impossible to delete alarm with id ${alarm_to_delete}.\nTry again later. If the problem persist use the bot support server`);
                 }
             }
         } else {

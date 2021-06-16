@@ -118,7 +118,7 @@ function getAbsoluteDiff(a, b) {
  */
 function isAChannel(stg) {
     const channel_regex = /<#\d+>/;
-    var hasSpecifiedChannel = channel_regex.test(stg);
+    let hasSpecifiedChannel = channel_regex.test(stg);
     return hasSpecifiedChannel;
 }
 
@@ -129,9 +129,9 @@ function isAChannel(stg) {
  * @param {BigInteger} chunk_size Size of every group
  */
 function chunkArray(myArray, chunk_size) {
-    var index = 0;
-    var arrayLength = myArray.length;
-    var tempArray = [];
+    let index = 0;
+    let arrayLength = myArray.length;
+    let tempArray = [];
 
     for (index = 0; index < arrayLength; index += chunk_size) {
         let myChunk = myArray.slice(index, index + chunk_size);

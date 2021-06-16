@@ -23,10 +23,10 @@ module.exports = {
         }
         if (args.length > 6) {
 
-            var timezone = args[0];
-            var crono = args.slice(1, 6).join(' ');
-            var message_stg = args.slice(6, args.length).join(' ');
-            var difference = time_utils.get_offset_difference(timezone);
+            let timezone = args[0];
+            let crono = args.slice(1, 6).join(' ');
+            let message_stg = args.slice(6, args.length).join(' ');
+            let difference = time_utils.get_offset_difference(timezone);
             if (difference === undefined) {
                 msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
             }

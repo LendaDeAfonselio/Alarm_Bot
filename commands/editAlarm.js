@@ -21,7 +21,7 @@ async function getAlarmById(alarm_id, guild_id) {
 
 function editCronForAlarm(cron, cron_list, newMsg, channel_discord, msg, alarm_list) {
     for (let alarm of alarm_list) {
-        var k = alarm.alarm_id;
+        let k = alarm.alarm_id;
         if (k.includes(auth.private_prefix)) {
             updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, msg.author, newMsg);
         } else if (!k.includes(auth.one_time_prefix)) {
@@ -46,12 +46,12 @@ function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, cha
 
 async function editAlarmMessageOnDatabase(newMsg, newChannel, alarm_id_regex, guild_id, author_id) {
     try {
-        var publicUpdate = await Alarm_model.updateMany(
+        let publicUpdate = await Alarm_model.updateMany(
             { "$and": [{ alarm_id: { "$regex": `.*${alarm_id_regex}.*` } }, { guild: guild_id }] },
             { message: newMsg, channel: newChannel }
         );
 
-        var privateUpdate = await Private_alarm_model.updateMany(
+        let privateUpdate = await Private_alarm_model.updateMany(
             { "$and": [{ alarm_id: { "$regex": `.*${alarm_id_regex}.*` } }, { user_id: author_id }] },
             { message: newMsg }
         );
@@ -67,13 +67,13 @@ async function editAlarmMessageOnDatabase(newMsg, newChannel, alarm_id_regex, gu
 async function editAlarmCronArgsOnDatabase(new_cron, alarm_id_to_change) {
     try {
         if (alarm_id_to_change.includes(auth.private_prefix)) {
-            var privateUpdate = await Private_alarm_model.updateOne(
+            let privateUpdate = await Private_alarm_model.updateOne(
                 { alarm_id: alarm_id_to_change },
                 { alarm_args: new_cron }
             );
             return checkIfUpdated(privateUpdate, alarm_id_to_change, new_cron, 'with the same message');
         } else if (!alarm_id_to_change.includes(auth.one_time_prefix)) {
-            var publicUpdate = await Alarm_model.updateOne(
+            let publicUpdate = await Alarm_model.updateOne(
                 { alarm_id: alarm_id_to_change },
                 { alarm_args: new_cron }
             );
@@ -89,13 +89,13 @@ async function editAlarmCronArgsOnDatabase(new_cron, alarm_id_to_change) {
 async function editAlarmCronAndMessageOnDatabase(new_msg, new_cron, alarm_id_to_change, new_channel, guild_id) {
     try {
         if (alarm_id_to_change.includes(auth.private_prefix)) {
-            var privateUpdate = await Private_alarm_model.updateOne(
+            let privateUpdate = await Private_alarm_model.updateOne(
                 { alarm_id: alarm_id_to_change },
                 { message: new_msg, alarm_args: new_cron }
             );
             return checkIfUpdated(privateUpdate, alarm_id_to_change, new_cron, new_msg);
         } else if (!alarm_id_to_change.includes(auth.one_time_prefix)) {
-            var publicUpdate = await Alarm_model.updateOne(
+            let publicUpdate = await Alarm_model.updateOne(
                 { "$and": [{ alarm_id: alarm_id_to_change }, { guild: guild_id }] },
                 { message: new_msg, alarm_args: new_cron, channel: new_channel }
             );
@@ -119,7 +119,7 @@ function checkIfUpdated(updateObject, alarm_id_to_change, new_cron, new_message)
 }
 
 function extractChannelAndMessage(channel, msg, message_stg, args, startIndex) {
-    var hasSpecifiedChannel = utility_functions.isAChannel(channel);
+    let hasSpecifiedChannel = utility_functions.isAChannel(channel);
     let channel_discord = msg.channel;
     if (hasSpecifiedChannel) {
         channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
@@ -144,7 +144,7 @@ module.exports = {
             if (!is_dm) {
                 guildId = msg.guild.id;
             }
-            var alarm_id = args[1];
+            let alarm_id = args[1];
             if (alarm_id.length <= 8) {
                 msg.channel.send(`The id you entered is to short. Please try a larger regex...`);
                 return;
@@ -153,18 +153,18 @@ module.exports = {
                 msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
                 return;
             }
-            var message_stg = args.slice(2, args.length).join(' ');
-            var channel = args.pop();
+            let message_stg = args.slice(2, args.length).join(' ');
+            let channel = args.pop();
             let channel_discord;
             ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 2));
             if (channel_discord !== undefined) {
-                var public_alarms = new Array();
+                let public_alarms = new Array();
                 if (!is_dm) {
                     public_alarms = await Alarm_model.find(
                         { "$and": [{ alarm_id: { "$regex": `.*${alarm_id}.*` } }, { guild: guildId }] }
                     );
                 }
-                var private_alarms = await Private_alarm_model.find(
+                let private_alarms = await Private_alarm_model.find(
                     { "$and": [{ alarm_id: { "$regex": `.*${alarm_id}.*` } }, { user_id: msg.author.id }] }
                 );
 
@@ -177,20 +177,20 @@ module.exports = {
             }
         } else if (args.length >= 8 && utility_functions.compareIgnoringCase(args[0], "-c") &&
             !utility_functions.compareIgnoringCase(args[1], "-m")) {
-            var alarm_id = args[1];
+            let alarm_id = args[1];
             if (!(await utility_functions.can_change_alarm(msg, alarm_id))) {
                 msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
                 return;
             }
-            var timezone = args[2];
-            var crono = args.slice(3, 8).join(' ');
+            let timezone = args[2];
+            let crono = args.slice(3, 8).join(' ');
             let guild_id = msg.guild ? msg.guild.id : undefined;
-            var alarm = await getAlarmById(alarm_id, guild_id);
+            let alarm = await getAlarmById(alarm_id, guild_id);
             if (alarm == null) {
                 msg.channel.send(`No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.`);
                 return;
             }
-            var difference = time_utils.get_offset_difference(timezone);
+            let difference = time_utils.get_offset_difference(timezone);
             if (difference === undefined) {
                 msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
                 return;
@@ -218,29 +218,29 @@ module.exports = {
         } else if (args.length >= 10 &&
             utility_functions.compareIgnoringCase(args[0], "-c") &&
             utility_functions.compareIgnoringCase(args[1], "-m")) {
-            var alarm_id = args[2];
+            let alarm_id = args[2];
             if (!(await utility_functions.can_change_alarm(msg, alarm_id))) {
                 msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
                 return;
             }
             let guild_id = msg.guild ? msg.guild.id : undefined;
-            var alarm = await getAlarmById(alarm_id, guild_id);
+            let alarm = await getAlarmById(alarm_id, guild_id);
 
             if (alarm == null) {
                 msg.channel.send(`No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.`);
                 return;
             }
-            var timezone = args[3];
-            var crono = args.slice(4, 9).join(' ');
-            var message_stg = args.slice(9, args.length).join(' ');
+            let timezone = args[3];
+            let crono = args.slice(4, 9).join(' ');
+            let message_stg = args.slice(9, args.length).join(' ');
 
-            var difference = time_utils.get_offset_difference(timezone);
+            let difference = time_utils.get_offset_difference(timezone);
             if (difference === undefined) {
                 msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
                 return;
             }
             else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
-                var channel = args.pop();
+                let channel = args.pop();
                 let channel_discord;
                 ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 9));
                 if (channel_discord === undefined) {

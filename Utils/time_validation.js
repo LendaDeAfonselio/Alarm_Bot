@@ -3,21 +3,21 @@
 const timezones_remote_library = require('timezones.json');
 const custom_timezones = require('../timezones.json');
 
-var r = 0;
+let r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
     if (mins.includes(',')) {
-        var tokens = mins.split(',');
+        let tokens = mins.split(',');
         return (tokens.length < 4) && tokens.some(v => small_time_interval(v));
     }
     if (mins.includes('/')) {
-        var tokens = mins.split('/');
+        let tokens = mins.split('/');
         if (tokens.length !== 2) {
             return true;
         }
-        var num_minutes = tokens[1];
-        var n = parseInt(num_minutes);
-        var isDigit = num_minutes.match(/^[0-9]+$/);
+        let num_minutes = tokens[1];
+        let n = parseInt(num_minutes);
+        let isDigit = num_minutes.match(/^[0-9]+$/);
 
         return isDigit == null || isNaN(n) || n < 30;
     }
@@ -27,7 +27,7 @@ function small_time_interval(mins) {
     if (mins.includes('-')) {
         return true;
     }
-    var isDigit = mins.match(/^[0-9]+$/);
+    let isDigit = mins.match(/^[0-9]+$/);
     return isDigit == null;
 }
 
@@ -42,16 +42,16 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
     if (stg == '*') {
         return true;
     } else if (stg.includes(',')) {
-        var tokens = stg.split(',');
+        let tokens = stg.split(',');
         return tokens.every(v => isAValidRangeGroupOrNumber(v, min, max));
     } else if (stg.includes('/')) {
-        var tokens = stg.split('/');
+        let tokens = stg.split('/');
         if (tokens.length !== 2) {
             return false;
         }
-        var a = isAValidRangeGroupOrNumber(tokens[0], min, max);
+        let a = isAValidRangeGroupOrNumber(tokens[0], min, max);
         let isDigit = tokens[1].match(/^[0-9]+$/);
-        var b = parseInt(tokens[1]);
+        let b = parseInt(tokens[1]);
         return isDigit != null && a && b >= min && b <= max;
     } else if (stg.includes('-')) {
         let tokens = stg.split('-');
@@ -123,8 +123,8 @@ function validate_alarm_parameters(msg, cron_stg, message_stg) {
 
 // https://stackoverflow.com/questions/11887934/how-to-check-if-dst-daylight-saving-time-is-in-effect-and-if-so-the-offset
 Date.prototype.stdTimezoneOffset = function () {
-    var jan = new Date(this.getFullYear(), 0, 1);
-    var jul = new Date(this.getFullYear(), 6, 1);
+    let jan = new Date(this.getFullYear(), 0, 1);
+    let jul = new Date(this.getFullYear(), 6, 1);
     return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
 }
 
@@ -151,19 +151,19 @@ function get_timezone_by_city(city) {
 function get_timezone_offset(stg) {
 
     // check if the timezone is in format UTC+X
-    var offset_utc = get_offset_from_stg('UTC', stg);
+    let offset_utc = get_offset_from_stg('UTC', stg);
     if (offset_utc !== undefined) {
         return offset_utc;
     }
 
     // check if timezone is in format GMT+X
-    var offset_gmt = get_offset_from_stg('GMT', stg);
+    let offset_gmt = get_offset_from_stg('GMT', stg);
     if (offset_gmt !== undefined) {
         return offset_gmt;
     }
 
 
-    var timezone = get_timezone_by_abreviation(stg);
+    let timezone = get_timezone_by_abreviation(stg);
     if (!timezone) {
         timezone = get_timezone_by_city(stg);
         return timezone !== undefined ? timezone.offset : undefined;
@@ -179,7 +179,7 @@ function get_offset_difference(stg) {
         return undefined;
     }
 
-    var today = new Date();
+    let today = new Date();
     let current_offset = 0;
     if (today.isDstObserved()) {
         current_offset = 1;
@@ -230,10 +230,10 @@ function updateParamsAux(stg, min_value, max_value, diff) {
         dec ? r = -1 : r = 0;
         return generated_stgs.join();
     } else if (stg.includes('/')) {
-        var tokens = stg.split('/');
+        let tokens = stg.split('/');
 
-        var left_arg = tokens[0];
-        var right_arg = tokens[1];
+        let left_arg = tokens[0];
+        let right_arg = tokens[1];
         if (left_arg === '*') {
             left_arg = `${min_value}-${max_value}`;
         }
@@ -281,11 +281,11 @@ function updateParamsAux(stg, min_value, max_value, diff) {
 }
 
 function get_numbers_for_pattern(left_arg, right_arg) {
-    var bounds = left_arg.split('-');
-    var min_bound = parseInt(bounds[0]);
-    var max_bound = parseInt(bounds[1]);
-    var right_arg_num = parseInt(right_arg);
-    var numbers_in_interval = new Array();
+    let bounds = left_arg.split('-');
+    let min_bound = parseInt(bounds[0]);
+    let max_bound = parseInt(bounds[1]);
+    let right_arg_num = parseInt(right_arg);
+    let numbers_in_interval = new Array();
     for (let i = min_bound; i <= max_bound; i += right_arg_num) {
         numbers_in_interval.push(i);
     }
@@ -297,7 +297,7 @@ function generateDateGivenOffset(originalDate, offset) {
         return undefined;
     }
     // get UTC time in msec
-    var original = originalDate.getTime();
+    let original = originalDate.getTime();
 
     // create new Date object for different city
     // using supplied offset

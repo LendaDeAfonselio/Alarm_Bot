@@ -19,9 +19,9 @@ module.exports = {
 
             jsfiles.forEach((f) => {
                 let props = require(`./${f}`);
-                var namelist = props.name;
-                var desclist = props.description;
-                var usage = props.usage;
+                let namelist = props.name;
+                let desclist = props.description;
+                let usage = props.usage;
                 msg = `\tDescription - ${desclist} \n\tUsage - ${usage}\n`;
                 field = {
                     name: `Command - **${namelist}**`,

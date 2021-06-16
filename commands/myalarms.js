@@ -62,11 +62,11 @@ module.exports = {
 
 
         // chunk it because of the max size for discord messages
-        var public_chunks = utility.chunkArray(general_alarms, 20);
-        var private_chunks = utility.chunkArray(private_alarms, 20);
+        let public_chunks = utility.chunkArray(general_alarms, 20);
+        let private_chunks = utility.chunkArray(private_alarms, 20);
 
-        var public_chunks2 = utility.chunkArray(general_otas, 20);
-        var private_chunks2 = utility.chunkArray(priv_otas, 20);
+        let public_chunks2 = utility.chunkArray(general_otas, 20);
+        let private_chunks2 = utility.chunkArray(priv_otas, 20);
 
         if (general_alarms.length <= 0) {
             msg.channel.send('You do not have alarms in this server!');
@@ -125,7 +125,7 @@ async function createMessageWithEntries(msgs) {
         let alarm_params = alarm.alarm_args;
         let alarm_preview = alarm.message.substring(0, 30);
         let active_alarm = alarm.isActive ? "Active" : "Silenced";
-        let server = alarm.server_name ?? alarm.guild;
+        let server = (alarm.server_name ?? alarm.guild) ?? "N/A";
         let field = {
             name: `ID: ${alarm_id}`,
             value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}\nIn server: ${server}`
