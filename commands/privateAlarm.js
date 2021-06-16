@@ -33,15 +33,21 @@ module.exports = {
             if (utils.validate_alarm_parameters(msg, crono, message_stg)) {
                 crono = time_utils.updateParams(difference, crono);
                 try {
+                    let alarm_user = msg.author.id;
+                    let this_alarm_id = Math.random().toString(36).substring(4);
+                    let alarm_id = `${private_flag}_${this_alarm_id}`;
+
                     let scheduledMessage = new cron(crono, () => {
-                        msg.author.send(`${message_stg}`);
+                        try {
+                            msg.author.send(`${message_stg}`);
+                        } catch (err) {
+                            logging.logger.error(`Error when private alarm with id ${alarm_id} went off: ${err}`);
+                        }
                     }, {
                         scheduled: true
                     });
                     scheduledMessage.start();
-                    let alarm_user = msg.author.id;
-                    let this_alarm_id = Math.random().toString(36).substring(4);
-                    let alarm_id = `${private_flag}_${this_alarm_id}`;
+
                     // save locally
                     cron_list[alarm_id] = scheduledMessage;
 
