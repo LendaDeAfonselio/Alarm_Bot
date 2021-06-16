@@ -74,8 +74,8 @@ client.on('message', async message => {
     if (!message.content.startsWith(channelPrefix)) return;
     if (message.author.bot) return;
     else {
-        var args = message.content.slice(auth.prefix.length).split(/ +/);
-        var command = args.shift();
+        let args = message.content.slice(auth.prefix.length).split(/ +/);
+        let command = args.shift();
         if (command !== undefined) {
             command = command.toLowerCase();
         }

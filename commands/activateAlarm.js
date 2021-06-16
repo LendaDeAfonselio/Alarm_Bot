@@ -14,7 +14,7 @@ module.exports = {
     usage: auth.prefix + 'silenceAlarm <id>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
-            var alarm_to_activate = args[0];
+            let alarm_to_activate = args[0];
 
             if (alarm_to_activate.includes(auth.one_time_prefix)) {
                 msg.channel.send('You cannot activate a oneTimeAlarm because they cannot be silenced...');
@@ -57,8 +57,7 @@ module.exports = {
                     }
                 }
                 else {
-                    var myalarms_command_stg = "`myAlarms`";
-                    msg.channel.send(`Impossible to silence alarm with id ${alarm_to_activate}.\nPlease check if you entered the id of the alarm correctly!\nTo see your alarms, type: ${auth.prefix}${myalarms_command_stg}`);
+                    msg.channel.send(`Impossible to silence alarm with id ${alarm_to_activate}.\nPlease try again later.`);
                 }
             }
         } else {

@@ -42,7 +42,7 @@ async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezo
     // save locally
     cron_list[alarm_id] = ota;
 
-    var dif = d.getTime() - now.getTime();
+    let dif = d.getTime() - now.getTime();
     setTimeout(() => {
         try {
             ota.stop();
@@ -60,8 +60,8 @@ async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezo
 
 
 function extract_discord_channel(args, msg, message) {
-    var channel = args.pop();
-    var hasSpecifiedChannel = utils.isAChannel(channel);
+    let channel = args.pop();
+    let hasSpecifiedChannel = utils.isAChannel(channel);
     // need to put this outside to keep it in memory then use it when saving to the database
     let channel_discord = msg.channel;
     if (hasSpecifiedChannel) {
@@ -102,8 +102,7 @@ module.exports = {
     name: 'oneTimeAlarm',
     description: 'Sets up an alarm that will play one time\n'
         + 'For a private alarm use the -p flag as the second argument otherwise it will send the message to the channel you typed the command at\n'
-        + 'If no Date is specified then it will default to today\n'
-        + 'P.S - These alarms are not persistent - they are not saved on a DB, therefore if the bot goes down you will have to set them up again.',
+        + 'If no Date is specified then it will default to today',
     usage: auth.prefix + 'oneTimeAlarm <-p?> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (msg.channel.type === 'dm' || utils.isAdministrator(msg) || utils.hasAlarmRole(msg, auth.alarm_role_name)) {
@@ -119,7 +118,7 @@ module.exports = {
                     let date_args = '';
                     let message = '';
                     if (!isPrivate) {
-                        let canCreate = await utils.can_create_ota_alarm(msg.author.id, msg.guild.id);
+                        let canCreate = await utils.can_create_ota_alarm(msg.author.id, msg.guild?.id);
                         if (!canCreate) {
                             msg.channel.send(auth.limit_alarm_message);
                             return;
@@ -134,11 +133,11 @@ module.exports = {
                                 date_args = args[2];
                                 message = args.slice(3, args.length).join(' ');
 
-                                var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
                                 let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
                                 if (isValidDate(d)) {
-                                    var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                    var now = new Date();
+                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    let now = new Date();
                                     if (d > now) {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
@@ -162,12 +161,12 @@ module.exports = {
                                 let today = new Date();
                                 date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
 
-                                var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
                                 let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
 
                                 if (isValidDate(d)) {
-                                    var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                    var now = new Date();
+                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    let now = new Date();
                                     if (d > now) {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
@@ -203,14 +202,14 @@ module.exports = {
                                 date_args = args[3];
                                 message = args.slice(4, args.length).join(' ');
 
-                                var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
                                 let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
 
                                 if (isValidDate(d)) {
-                                    var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                    var now = new Date();
+                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    let now = new Date();
                                     if (d > now) {
-                                        var ota = createPrivateOneTimeCron(msg, cron, d, message);
+                                        let ota = createPrivateOneTimeCron(msg, cron, d, message);
                                         setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);
@@ -225,14 +224,14 @@ module.exports = {
                                 let today = new Date();
                                 date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
 
-                                var nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
+                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
                                 let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
 
                                 if (isValidDate(d)) {
-                                    var params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                    var now = new Date();
+                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    let now = new Date();
                                     if (d > now) {
-                                        var ota = createPrivateOneTimeCron(msg, cron, d, message);
+                                        let ota = createPrivateOneTimeCron(msg, cron, d, message);
                                         setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
                                     } else {
                                         msg.channel.send(`The date you entered:${params_stg} already happened!`);

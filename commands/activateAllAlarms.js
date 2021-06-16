@@ -15,7 +15,7 @@ module.exports = {
 
             try {
                 if (flag === '-p') {
-                    var x = await Private_alarm_model.find(
+                    let x = await Private_alarm_model.find(
                         { isActive: false, user_id: alarm_user }
                     );
 
@@ -36,15 +36,15 @@ module.exports = {
                         return;
                     }
 
-                    var x = await Alarm_model.find(
-                        { isActive: false, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } });
+                    let x = await Alarm_model.find(
+                        { isActive: false, guild: msg.guild.id, user_id: alarm_user });
 
                     x.forEach(alarm => {
                         cron_list[alarm.alarm_id].start();
                     });
 
                     await Alarm_model.updateMany(
-                        { isActive: false, guild: msg.guild.id, alarm_id: { $regex: `.*${alarm_user}.*` } },
+                        { isActive: false, guild: msg.guild.id, user_id: alarm_user },
                         { isActive: true }
                     );
                     msg.channel.send(`Sucesfully re-activated ${x.length} alarms.`);
