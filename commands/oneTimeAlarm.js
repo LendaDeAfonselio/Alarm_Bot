@@ -3,7 +3,6 @@ const auth = require('./../auth.json');
 const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const time_utils = require('../Utils/time_validation');
-const channel_regex = /<#\d+>/;
 const alarm_db = require('../data_access/alarm_index');
 
 function isValidDate(d) {
@@ -57,15 +56,7 @@ async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezo
     logging.logger.info(`One time alarm: ${alarm_id} has been setup for ${ota.cronTime.source}`);
 }
 
-function createOneTimeCron(cron, d, message, channel_discord) {
-    if (channel_discord !== undefined) {
-        let ota = new cron(d, () => {
-            channel_discord.send(`${message}`);
-        });
-        return ota;
-    }
-    return undefined;
-}
+
 
 
 function extract_discord_channel(args, msg, message) {
@@ -81,15 +72,31 @@ function extract_discord_channel(args, msg, message) {
     return { channel_discord, message };
 }
 
-function createPrivateOneTimeCron(msg, cron, d, message) {
-    let ota = new cron(d, () => {
-        msg.author.send(`${message}`);
-    });
-    return ota;
+function createOneTimeCron(cron, d, message, channel_discord) {
+    try {
+        if (channel_discord !== undefined) {
+            let ota = new cron(d, () => {
+                channel_discord.send(`${message}`);
+            });
+            return ota;
+        }
+    } catch (err) {
+        logging.logger.error(`Error when private one time alarm alarm with message ${message} went off: ${err}`);
+    }
+    return undefined;
 }
 
-
-
+function createPrivateOneTimeCron(msg, cron, d, message) {
+    try {
+        let ota = new cron(d, () => {
+            msg.author.send(`${message}`);
+        });
+        return ota;
+    } catch (err) {
+        logging.logger.error(`Error when private one time alarm alarm with message ${message} went off: ${err}`);
+    }
+    return undefined;
+}
 
 module.exports = {
     name: 'oneTimeAlarm',

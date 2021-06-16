@@ -37,7 +37,7 @@ for (const file of commandFiles) {
 
 
 /****** Setup the bot for life upon startup ******/
-client.once('ready', async x => {
+client.once('ready', async () => {
     let deletedentries = await alarm_db.delete_all_expired_one_time_alarms();
     logging.logger.info("Deleted " + deletedentries.deletedCount + " one time alarms");
     let deletedpremium = await premium_db.delete_all_expired_memberships();
@@ -57,8 +57,13 @@ client.once('ready', async x => {
             logging.logger.error(e);
         }
     });
-    await load_alarms.fetchPrivateAlarms(cron_list, cron, client);
-    await load_alarms.fetchPrivateOTAs(cron_list, cron, client);
+
+    try {
+        await load_alarms.fetchPrivateAlarms(cron_list, cron, client);
+        await load_alarms.fetchPrivateOTAs(cron_list, cron, client);
+    } catch (err) {
+        logging.logger.error(err);
+    }
     client.user.setActivity("$help to get started!");
     logging.logger.info("Running in " + client.guilds.cache.size + " guilds");
 });

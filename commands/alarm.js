@@ -18,7 +18,7 @@ module.exports = {
             return;
         }
         let canCreate = await utils.can_create_public_alarm(msg.author.id, msg.guild.id);
-        if(!canCreate){
+        if (!canCreate) {
             msg.channel.send(auth.limit_alarm_message);
             return;
         }
@@ -43,17 +43,23 @@ module.exports = {
                         let old_c = crono;
                         crono = time_utils.updateParams(difference, crono);
                         try {
+                            // generate the id to save in the db
+                            let alarm_user = msg.author.id;
+                            let this_alarm_id = Math.random().toString(36).substring(4);
+                            let alarm_id = `${auth.public_alarm_prefix}_${this_alarm_id}`;
+
                             let scheduledMessage = new cron(crono, () => {
-                                channel_discord.send(`${message_stg}`);
+                                try {
+                                    channel_discord.send(`${message_stg}`);
+                                } catch (err) {
+                                    logging.logger.error(`Error when alarm with id ${alarm_id} went off: ${err}`);
+                                    msg.author.send(`Your alarm with id ${alarm_id} failed to went off. Try deleting this alarm and recreating if the problem persists`);
+                                }
                             }, {
                                 scheduled: true
                             });
                             scheduledMessage.start();
 
-                            // generate the id to save in the db
-                            let alarm_user = msg.author.id;
-                            let this_alarm_id = Math.random().toString(36).substring(4);
-                            let alarm_id = `${auth.public_alarm_prefix}_${this_alarm_id}`;
                             // save locally
                             cron_list[alarm_id] = scheduledMessage;
 
