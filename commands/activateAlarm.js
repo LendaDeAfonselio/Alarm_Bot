@@ -10,7 +10,7 @@ const logging = require('../Utils/logging');
 
 module.exports = {
     name: 'activateAlarm',
-    description: 'Silences the alarm with a given id. To turn it back on use activateAlarm <id>',
+    description: 'Activates an alarm with a given id that was silenced previously',
     usage: auth.prefix + 'silenceAlarm <id>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
