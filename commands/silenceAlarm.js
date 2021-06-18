@@ -123,7 +123,7 @@ module.exports = {
                             msg.channel.send(`Error silencing alarm with id:${alarm_to_silence}... Please try again later!`);
                         }
                     } else {
-                        msg.channel.send(`Alarm with id ${alarm_to_silence} has already been silenced.\nTo see your alarms, type: ${auth.prefix}${myalarms_command_stg}`);
+                        msg.channel.send(`Alarm with id ${alarm_to_silence} has already been silenced.\nTo see the status your alarms type: ${auth.prefix}myalarms`);
                     }
                 }
                 else {
