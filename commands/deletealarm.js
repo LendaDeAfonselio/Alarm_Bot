@@ -4,8 +4,6 @@ const Private_alarm_model = require('../models/private_alarm_model');
 const utility_functions = require('../Utils/utility_functions');
 
 const auth = require('./../auth.json');
-const private_flag = auth.private_prefix;
-const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 const db_alarms = require('../data_access/alarm_index');
 
