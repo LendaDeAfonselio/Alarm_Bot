@@ -4,8 +4,6 @@ const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 
 const auth = require('./../auth.json');
-const private_flag = auth.private_prefix;
-const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 
 const utility_functions = require('../Utils/utility_functions');
@@ -64,7 +62,7 @@ module.exports = {
         if (args.length >= 1) {
 
             let alarm_to_silence = args[0];
-            if (alarm_to_silence.includes(auth.one_time_prefix)) {
+            if (utility_functions.isOtaAlarm(alarm_to_silence)) {
                 msg.channel.send('Silence feature is not available for oneTimeAlarms, if you wish to silence a oneTimeAlarm just delete it with `$deleteAlarm ' + alarm_to_silence + '`');
                 return;
             }
@@ -77,13 +75,13 @@ module.exports = {
                 return;
             }
 
-            if (!alarm_to_silence.includes(auth.private_prefix) && msg.channel.type === 'dm') {
+            if (!utility_functions.isPublicAlarm(alarm_to_silence) && msg.channel.type === 'dm') {
                 msg.channel.send('Impossible to silence a public alarm in DMs');
                 return;
             }
             else {
                 if (cron_list[alarm_to_silence] !== undefined) {
-                    if (!alarm_to_silence.includes(auth.private_prefix)) {
+                    if (utility_functions.isPublicAlarm(alarm_to_silence)) {
                         let b = await can_be_silenced(alarm_to_silence, msg);
                         if (!b) {
                             msg.channel.send('Alarm cannot be silenced. Check if it is setup in this server...');

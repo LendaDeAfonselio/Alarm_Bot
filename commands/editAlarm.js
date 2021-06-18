@@ -11,9 +11,9 @@ const utility_functions = require('../Utils/utility_functions');
 const name_command = 'editAlarm';
 
 async function getAlarmById(alarm_id, guild_id) {
-    if (alarm_id.includes(auth.private_prefix)) {
+    if (utility_functions.isPrivateAlarm(alarm_id)) {
         return await Private_alarm_model.findOne({ "alarm_id": alarm_id });
-    } else if (!alarm_id.includes(auth.one_time_prefix)) {
+    } else if (utility_functions.isPublicAlarm(alarm_id)) {
         return await Alarm_model.findOne({ "alarm_id": alarm_id, "guild": guild_id });
     }
     return undefined;
@@ -22,9 +22,9 @@ async function getAlarmById(alarm_id, guild_id) {
 function editCronForAlarm(cron, cron_list, newMsg, channel_discord, msg, alarm_list) {
     for (let alarm of alarm_list) {
         let k = alarm.alarm_id;
-        if (k.includes(auth.private_prefix)) {
+        if (utility_functions.isPrivateAlarm(k)) {
             updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, msg.author, newMsg);
-        } else if (!k.includes(auth.one_time_prefix)) {
+        } else if (utility_functions.isPublicAlarm(k)) {
             updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, channel_discord, newMsg);
         }
     };
@@ -46,13 +46,13 @@ function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, cha
 
 async function editAlarmMessageOnDatabase(newMsg, newChannel, alarm_id_regex, guild_id, author_id) {
     try {
-        let publicUpdate = await Alarm_model.updateMany(
-            { "$and": [{ alarm_id: { "$regex": `.*${alarm_id_regex}.*` } }, { guild: guild_id }] },
+        let publicUpdate = await Alarm_model.updateOne(
+            { "$and": [{ alarm_id: alarm_id_regex }, { guild: guild_id }] },
             { message: newMsg, channel: newChannel }
         );
 
-        let privateUpdate = await Private_alarm_model.updateMany(
-            { "$and": [{ alarm_id: { "$regex": `.*${alarm_id_regex}.*` } }, { user_id: author_id }] },
+        let privateUpdate = await Private_alarm_model.updateOne(
+            { "$and": [{ alarm_id: alarm_id_regex }, { user_id: author_id }] },
             { message: newMsg }
         );
         logging.logger.info(`Updated the message for ${publicUpdate.nModified} public alarms and ${privateUpdate.nModified} private alarms with regex ${alarm_id_regex}`);
@@ -66,13 +66,13 @@ async function editAlarmMessageOnDatabase(newMsg, newChannel, alarm_id_regex, gu
 
 async function editAlarmCronArgsOnDatabase(new_cron, alarm_id_to_change) {
     try {
-        if (alarm_id_to_change.includes(auth.private_prefix)) {
+        if (utility_functions.isPrivateAlarm(alarm_id_to_change)) {
             let privateUpdate = await Private_alarm_model.updateOne(
                 { alarm_id: alarm_id_to_change },
                 { alarm_args: new_cron }
             );
             return checkIfUpdated(privateUpdate, alarm_id_to_change, new_cron, 'with the same message');
-        } else if (!alarm_id_to_change.includes(auth.one_time_prefix)) {
+        } else if (utility_functions.isPublicAlarm(alarm_id_to_change)) {
             let publicUpdate = await Alarm_model.updateOne(
                 { alarm_id: alarm_id_to_change },
                 { alarm_args: new_cron }
@@ -88,13 +88,13 @@ async function editAlarmCronArgsOnDatabase(new_cron, alarm_id_to_change) {
 
 async function editAlarmCronAndMessageOnDatabase(new_msg, new_cron, alarm_id_to_change, new_channel, guild_id) {
     try {
-        if (alarm_id_to_change.includes(auth.private_prefix)) {
+        if (utility_functions.isPrivateAlarm(alarm_id_to_change)) {
             let privateUpdate = await Private_alarm_model.updateOne(
                 { alarm_id: alarm_id_to_change },
                 { message: new_msg, alarm_args: new_cron }
             );
             return checkIfUpdated(privateUpdate, alarm_id_to_change, new_cron, new_msg);
-        } else if (!alarm_id_to_change.includes(auth.one_time_prefix)) {
+        } else if (utility_functions.isPublicAlarm(alarm_id_to_change)) {
             let publicUpdate = await Alarm_model.updateOne(
                 { "$and": [{ alarm_id: alarm_id_to_change }, { guild: guild_id }] },
                 { message: new_msg, alarm_args: new_cron, channel: new_channel }
@@ -161,11 +161,11 @@ module.exports = {
                 let public_alarms = new Array();
                 if (!is_dm) {
                     public_alarms = await Alarm_model.find(
-                        { "$and": [{ alarm_id: { "$regex": `.*${alarm_id}.*` } }, { guild: guildId }] }
+                        { "$and": [{ alarm_id: alarm_id }, { guild: guildId }] }
                     );
                 }
                 let private_alarms = await Private_alarm_model.find(
-                    { "$and": [{ alarm_id: { "$regex": `.*${alarm_id}.*` } }, { user_id: msg.author.id }] }
+                    { "$and": [{ alarm_id: alarm_id }, { user_id: msg.author.id }] }
                 );
 
                 let combination = public_alarms.concat(private_alarms);
@@ -184,7 +184,7 @@ module.exports = {
             }
             let timezone = args[2];
             let crono = args.slice(3, 8).join(' ');
-            let guild_id = msg.guild ? msg.guild.id : undefined;
+            let guild_id = msg.guild?.id;
             let alarm = await getAlarmById(alarm_id, guild_id);
             if (alarm == null) {
                 msg.channel.send(`No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.`);
@@ -199,7 +199,7 @@ module.exports = {
                 crono = time_utils.updateParams(difference, crono);
                 let channel;
 
-                if ((alarm.alarm_id).includes(auth.private_prefix)) {
+                if (utility_functions.isPrivateAlarm(alarm.alarm_id)) {
                     channel = await client.users.fetch(msg.author.id);
                 } else {
                     let guild = msg.guild;

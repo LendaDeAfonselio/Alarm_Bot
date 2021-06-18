@@ -3,8 +3,6 @@ const Private_alarm_model = require('../models/private_alarm_model');
 const utility_functions = require('../Utils/utility_functions');
 
 const auth = require('./../auth.json');
-const private_flag = auth.private_prefix;
-const temp_flag = auth.one_time_prefix;
 const logging = require('../Utils/logging');
 
 
@@ -16,7 +14,7 @@ module.exports = {
         if (args.length >= 1) {
             let alarm_to_activate = args[0];
 
-            if (alarm_to_activate.includes(auth.one_time_prefix)) {
+            if (utility_functions.isOtaAlarm(alarm_to_activate)) {
                 msg.channel.send('You cannot activate a oneTimeAlarm because they cannot be silenced...');
                 return;
             }
