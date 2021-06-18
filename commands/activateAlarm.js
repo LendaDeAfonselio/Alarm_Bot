@@ -50,7 +50,7 @@ module.exports = {
                             msg.channel.send(`Error re-activating alarm with id:${alarm_to_activate}... Please try again later!`);
                         }
                     } else {
-                        msg.channel.send(`Alarm with id ${alarm_to_activate} has already been silenced.\nTo see your alarms, type: ${auth.prefix}${myalarms_command_stg}`);
+                        msg.channel.send(`Alarm with id ${alarm_to_activate} has already been silenced.\nTo see the status of your alarms type: ${auth.prefix}myalarms`);
 
                     }
                 }
