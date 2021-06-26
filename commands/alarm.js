@@ -57,7 +57,6 @@ module.exports = {
                             }, {
                                 scheduled: true
                             });
-                            console.log(scheduledMessage);
                             scheduledMessage.start();
                             // save locally
                             cron_list[alarm_id] = scheduledMessage;
