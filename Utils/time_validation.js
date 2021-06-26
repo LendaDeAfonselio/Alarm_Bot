@@ -3,7 +3,7 @@
 const timezones_remote_library = require('timezones.json');
 const custom_timezones = require('../timezones.json');
 
-let r = 0;
+var r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
     if (mins.includes(',')) {
