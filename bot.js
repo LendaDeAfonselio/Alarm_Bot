@@ -47,11 +47,11 @@ client.once('ready', async () => {
         try {
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
             if (f == false) {
-                alarm_db.delete_all_alarms_for_guild(guild.id);
+                await alarm_db.delete_all_alarms_for_guild(guild.id);
             }
             let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild, guild.id);
             if (a == false) {
-                alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
+                await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
         } catch (e) {
             logging.logger.error(e);

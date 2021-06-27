@@ -36,7 +36,11 @@ function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, cha
 
     // create the cron event to send the message...
     let scheduledMessage = new cron(cron_old, () => {
-        channel_discord.send(`${newMsg}`);
+        try {
+            channel_discord.send(`${newMsg}`);
+        } catch (err) {
+            logging.logger.error(`Failed to send message for alarm with id ${alarm_id} after editing! Cause: ${err}`);
+        }
     }, {
         scheduled: true
     });
