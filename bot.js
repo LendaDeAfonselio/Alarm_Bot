@@ -6,7 +6,7 @@ const appsettings = require('./appsettings.json');
 const load_alarms = require('./load_alarms');
 const delete_alarms_when_kicked = require('./delete_alarms_for_guilds');
 const logging = require('./Utils/logging');
-const utility_functions = require('./Utils/utility_functions');
+// const utility_functions = require('./Utils/utility_functions');
 
 const alarm_db = require('./data_access/alarm_index');
 const premium_db = require('./data_access/premium_index');
@@ -55,11 +55,11 @@ client.once('ready', async () => {
             if (a == false) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
-//             if (f == 0 && a == 0) {
-//                 utility_functions.send_message_to_default_channel(guild, `Hello, the bot is currently approaching 2500 servers.
-// At that point I need to update the bot.\nUnfortunately I did not have time to take care of that update.
-// As a result, I am once again asking you to kick the bot from this server **if you ARE NOT USING any alarms in this server**. Thank you`);
-//             }
+            //             if (f == 0 && a == 0) {
+            //                 utility_functions.send_message_to_default_channel(guild, `Hello, the bot is currently approaching 2500 servers.
+            // At that point I need to update the bot.\nUnfortunately I did not have time to take care of that update.
+            // As a result, I am once again asking you to kick the bot from this server **if you ARE NOT USING any alarms in this server**. Thank you`);
+            //             }
         } catch (e) {
             logging.logger.error(e);
         }
