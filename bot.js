@@ -55,9 +55,11 @@ client.once('ready', async () => {
             if (a == false) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
-            utility_functions.send_message_to_default_channel(guild, `Hello, the bot is currently approaching 2500 servers.
+            if (f == 0 && a == 0) {
+                utility_functions.send_message_to_default_channel(guild, `Hello, the bot is currently approaching 2500 servers.
 At that point I need to update the bot.\nUnfortunately I did not have time to take care of that update.
 As a result, I am once again asking you to kick the bot from this server **if you ARE NOT USING any alarms in this server**. Thank you`);
+            }
         } catch (e) {
             logging.logger.error(e);
         }

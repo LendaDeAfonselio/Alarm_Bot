@@ -34,6 +34,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
         }
         cron_list[alarm_id] = scheduledMessage;
     }
+    return alarms;
 }
 
 async function fetchPrivateAlarms(cron_list, cron, client) {
@@ -101,6 +102,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id) {
         cron_list[alarm_id] = scheduledMessage;
 
     }
+    return alarms;
 }
 
 async function fetchPrivateOTAs(cron_list, cron, client) {
