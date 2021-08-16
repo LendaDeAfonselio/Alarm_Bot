@@ -4,6 +4,7 @@ const Discord = require('discord.js');
 const auth = require('./../auth.json');
 const alarm_db = require('./../data_access/alarm_index');
 const premium_db = require('./../data_access/premium_index');
+const logging = require('./logging');
 
 function isPrivateAlarm(alarm_id) {
     return alarm_id.startsWith(auth.private_prefix);
@@ -151,6 +152,16 @@ function compareIgnoringCase(stg1, stg2) {
     return stg1.toUpperCase() === stg2.toUpperCase();
 }
 
+function send_message_to_default_channel(guild, message) {
+    const channel = guild.channels.cache.find(
+        (c) => c.type === "text" && c.permissionsFor(guild.me).has("SEND_MESSAGES")
+    );
+    if (channel) {
+        channel.send(message);
+    } else {
+        logging.logger.error(`Impossible to send message to guild ${guild.id}`);
+    }
+}
 
 module.exports = {
     hasAlarmRole: hasAlarmRole,
@@ -165,5 +176,6 @@ module.exports = {
     can_create_ota_alarm: can_create_ota_alarm,
     isPrivateAlarm: isPrivateAlarm,
     isOtaAlarm: isOtaAlarm,
-    isPublicAlarm: isPublicAlarm
+    isPublicAlarm: isPublicAlarm,
+    send_message_to_default_channel: send_message_to_default_channel
 }
