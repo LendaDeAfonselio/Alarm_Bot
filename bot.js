@@ -26,6 +26,7 @@ const client = new Discord.Client();
 const cron_list = {}; // the in memory crono list
 const cron = require('cron').CronJob;
 const fs = require('fs');
+const utility_functions = require('./Utils/utility_functions');
 
 /****** Gets all available commands ******/
 client.commands = new Discord.Collection();
@@ -45,7 +46,9 @@ client.once('ready', async () => {
     let deletedpremium = await premium_db.delete_all_expired_memberships();
     logging.logger.info(deletedpremium.deletedCount + " premium memberships have expired");
 
-    client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
+
+    let allGuilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
+    allGuilds.forEach(async (guild) => { //for each guild the bot is in
         try {
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
             if (f == false) {
@@ -55,11 +58,6 @@ client.once('ready', async () => {
             if (a == false) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
-            //             if (f == 0 && a == 0) {
-            //                 utility_functions.send_message_to_default_channel(guild, `Hello, the bot is currently approaching 2500 servers.
-            // At that point I need to update the bot.\nUnfortunately I did not have time to take care of that update.
-            // As a result, I am once again asking you to kick the bot from this server **if you ARE NOT USING any alarms in this server**. Thank you`);
-            //             }
         } catch (e) {
             logging.logger.error(e);
         }
@@ -72,7 +70,9 @@ client.once('ready', async () => {
         logging.logger.error(err);
     }
     client.user.setActivity("$help to get started!");
-    logging.logger.info("Running in " + client.guilds.cache.size + " guilds");
+    let guildSizeShards = utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache.size');
+    let guildTotal = guildSizeShards.reduce((a, b) => a + b, 0);
+    logging.logger.info("Running in " + guildTotal + " guilds");
 });
 
 /*************************** Execute Commands ************************/

@@ -163,6 +163,16 @@ function send_message_to_default_channel(guild, message) {
     }
 }
 
+async function fetchValuesAndConcatValues(client, queryStg) {
+    let allArrays = await client.shard.fetchClientValues(queryStg);
+    return Array.prototype.concat.apply([], allArrays);
+}
+
+async function broadcastEvalAndConcat(client, query) {
+    let resultsArray = await client.shard.broadcastEval(query);
+    return Array.prototype.concat.apply([], resultsArray);
+}
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
@@ -177,5 +187,7 @@ module.exports = {
     isPrivateAlarm: isPrivateAlarm,
     isOtaAlarm: isOtaAlarm,
     isPublicAlarm: isPublicAlarm,
-    send_message_to_default_channel: send_message_to_default_channel
+    fetchValuesAndConcatValues: fetchValuesAndConcatValues,
+    send_message_to_default_channel: send_message_to_default_channel,
+    broadcastEvalAndConcat: broadcastEvalAndConcat
 }
