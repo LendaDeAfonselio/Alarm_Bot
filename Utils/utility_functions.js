@@ -164,15 +164,21 @@ function send_message_to_default_channel(guild, message) {
 }
 
 async function fetchValuesAndConcatValues(client, queryStg) {
-    let allArrays = await client.shard.fetchClientValues(queryStg);
-    return Array.prototype.concat.apply([], allArrays);
+    return client.shard.fetchClientValues(queryStg).then(
+        (allArrays) => {
+            return Array.prototype.concat.apply([], allArrays)
+        }
+    );
 }
 
-async function broadcastEvalAndConcat(client, query) {
+async function broadcastEvalAndConcatLambda(client, query) {
     let resultsArray = await client.shard.broadcastEval(query);
     return Array.prototype.concat.apply([], resultsArray);
 }
-
+async function broadcastEvalAndConcat(client, queryStg) {
+    let resultsArray = await client.shard.broadcastEval(queryStg);
+    return Array.prototype.concat.apply([], resultsArray);
+}
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
@@ -189,5 +195,6 @@ module.exports = {
     isPublicAlarm: isPublicAlarm,
     fetchValuesAndConcatValues: fetchValuesAndConcatValues,
     send_message_to_default_channel: send_message_to_default_channel,
-    broadcastEvalAndConcat: broadcastEvalAndConcat
+    broadcastEvalAndConcat: broadcastEvalAndConcat,
+    broadcastEvalAndConcatLambda: broadcastEvalAndConcatLambda
 }

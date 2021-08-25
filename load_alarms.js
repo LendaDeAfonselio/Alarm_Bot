@@ -3,23 +3,25 @@ const Private_alarm_model = require('./models/private_alarm_model');
 const One_Time_Alarm_model = require('./models/one_time_alarm_model');
 const alarm_db = require('./data_access/alarm_index');
 const logging = require('./Utils/logging');
+const utility_functions = require('./Utils/utility_functions');
 
-async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id) {
+async function fetchAlarmsforGuild(cron_list, cron, guild_id, client) {
     let alarms = await Alarm_model.find({ guild: guild_id });
     for (alarm of alarms) {
         let message_stg = alarm.message;
         let crono = alarm.alarm_args;
         let alarm_id = alarm.alarm_id;
         let channel_id = alarm.channel;
+
         let scheduledMessage = new cron(crono, async () => {
             try {
-                let channel = await guild.channels.cache.get(channel_id);
-                if (channel !== undefined) {
-                    channel.send(`${message_stg}`);
-                } else {
-                    logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
-                    return false;
-                }
+                client.shard.broadcastEval(`
+                (async () => {
+                    let channel = await this.channels.cache.get("${channel_id}");
+                    if (channel !== undefined) {
+                        channel.send("${message_stg}");
+                    }
+                })()`);
             }
             catch (err) {
                 logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
@@ -70,7 +72,7 @@ async function fetchPrivateAlarms(cron_list, cron, client) {
     }
 }
 
-async function fetchOTAsforGuild(cron_list, cron, guild, guild_id) {
+async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
     let current = new Date();
     let alarms = await One_Time_Alarm_model.find({ guild: guild_id, isPrivate: false });
     for (alarm of alarms) {
@@ -82,7 +84,8 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id) {
         }
         let message_stg = alarm.message;
         let channel_id = alarm.channel;
-        let channel = await guild.channels.cache.get(channel_id);
+        let channelArray = await utility_functions.broadcastEvalAndConcat(client, `this.channels.cache.get("${channel_id}")`);
+        let channel = channelArray[0];
         let scheduledMessage = new cron(crono, async () => {
             try {
                 if (channel !== undefined) {
