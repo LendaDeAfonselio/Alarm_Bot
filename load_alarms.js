@@ -25,6 +25,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild_id, client) {
             }
             catch (err) {
                 logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
+                return false;
             }
         }, {
             scheduled: true
@@ -84,21 +85,24 @@ async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
         }
         let message_stg = alarm.message;
         let channel_id = alarm.channel;
-        let channelArray = await utility_functions.broadcastEvalAndConcat(client, `this.channels.cache.get("${channel_id}")`);
-        let channel = channelArray[0];
         let scheduledMessage = new cron(crono, async () => {
             try {
-                if (channel !== undefined) {
-                    channel.send(`${message_stg}`);
-                    scheduledMessage.stop();
-                    delete cron_list[alarm_id];
-                } else {
-                    logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
-                    return false;
-                }
+                client.shard.broadcastEval(`
+                (async () => {
+                    let channel = await this.channels.cache.get("${channel_id}");
+                    if (channel !== undefined) {
+                        channel.send("${message_stg}");
+                    }
+                    else {
+                        return false;
+                    }
+                })()`);
+                scheduledMessage.stop();
+                delete cron_list[alarm_id];
             }
             catch (err) {
                 logging.logger.error(`Alarm with id ${alarm_id} failed to off. Reason: ${err}`);
+                return false;
             }
         });
         scheduledMessage.start();
@@ -112,6 +116,8 @@ async function fetchPrivateOTAs(cron_list, cron, client) {
     let current = new Date();
     let alarms = await One_Time_Alarm_model.find({ isPrivate: true });
     for (alarm of alarms) {
+        console.log("rei ricardo");
+
         let alarm_id = alarm.alarm_id;
         let crono = alarm.alarm_date;
         if (current > crono) {
@@ -120,23 +126,24 @@ async function fetchPrivateOTAs(cron_list, cron, client) {
         }
         let message_stg = alarm.message;
         let user_id = alarm.user_id;
-        let member = await client.users.fetch(user_id);
-        if (member !== undefined) {
-            let scheduledMessage = new cron(crono, async () => {
-                try {
-                    member.send(message_stg);
-                    scheduledMessage.stop();
-                    delete cron_list[alarm_id];
-                } catch (err) {
-                    logging.logger.error(`Alarm with id ${alarm_id} failed to off. Reason: ${err}`);
+
+        let scheduledMessage = new cron(crono, async () => {
+            await client.shard.broadcastEval(`
+            (async () => {
+                let member = await this.users.fetch("${user_id}");
+                if (member !== undefined) {
+                    member.send("${message_stg}");
+                } else {
+                    logging.logger.info(\`${alarm_id} from the DB is not usable because the user was not found\`);
                 }
-            });
-            scheduledMessage.start();
-            cron_list[alarm_id] = scheduledMessage;
-        } else {
-            logging.logger.info(`${alarm_id} from the DB is not usable because the user was not found`);
-            await alarm_db.delete_oneTimeAlarm_with_id(alarm_id);
-        }
+            })()`);
+            scheduledMessage.stop();
+            delete cron_list[alarm_id];
+        });
+
+        scheduledMessage.start();
+        cron_list[alarm_id] = scheduledMessage;
+
     }
 
 }
