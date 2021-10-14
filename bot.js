@@ -70,11 +70,6 @@ client.once('ready', async () => {
 /*************************** Execute Commands ************************/
 client.on('message', async message => {
     const channelPrefix = auth.prefix;
-    if (message.type == "shardId") {
-        console.log(`The shard id is: ${message.shardId}`);
-        shard_id = message.data.shardId;
-        await deletePrivate(message.data.shardId);
-    };
     if (!message.content.startsWith(channelPrefix)) return;
     if (message.author.bot) return;
     else {
@@ -94,6 +89,17 @@ client.on('message', async message => {
             }
         }
     }
+});
+
+// This is where your Discord bot's code is.
+process.on("message", async message => {
+    if (!message.type) return false;
+
+    if (message.type == "shardId") {
+        console.log(`The shard id is: ${message.data.shardId}`);
+        shard_id = message.data.shardId;
+        await deletePrivate(message.data.shardId);
+    };
 });
 
 
