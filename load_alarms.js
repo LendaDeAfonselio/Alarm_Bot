@@ -45,7 +45,6 @@ async function fetchAlarmsforGuild(cron_list, cron, guild_id, client) {
 
 async function fetchPrivateAlarms(cron_list, cron, client, shardid) {
     let shard_total = await getShardCount(client);
-    console.log(shard_total);
     let alarms = await Private_alarm_model.find();
     for (alarm of alarms) {
         let message_stg = alarm.message;
@@ -123,7 +122,9 @@ async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
     return [];
 }
 
-async function fetchPrivateOTAs(cron_list, cron, client) {
+async function fetchPrivateOTAs(cron_list, cron, client,shardid) {
+    let shard_total = await getShardCount(client);
+
     let current = new Date();
     let alarms = await One_Time_Alarm_model.find({ isPrivate: true });
     for (alarm of alarms) {
