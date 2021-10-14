@@ -205,6 +205,10 @@ module.exports = {
 
                 if (utility_functions.isPrivateAlarm(alarm.alarm_id)) {
                     channel = await client.users.fetch(msg.author.id);
+                    if (channel == undefined) {
+                        let allchannels = await utility_functions.fetchValuesAndConcatValues(client, 'users.cache');
+                        channel = (allchannels.filter(z => z.id == msg.author.id))[0];
+                    }
                 } else {
                     let guild = msg.guild;
                     let channel_id = alarm.channel;

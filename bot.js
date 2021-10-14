@@ -1,12 +1,12 @@
 "use strict";
 // Packages and dependencies
-const Discord = require('discord.js');
+const { Collection, Client, Intents } = require('discord.js');
 const auth = require('./auth.json');
 const appsettings = require('./appsettings.json');
 const load_alarms = require('./load_alarms');
 const delete_alarms_when_kicked = require('./delete_alarms_for_guilds');
 const logging = require('./Utils/logging');
-const utility_functions = require('./Utils/utility_functions');
+// const utility_functions = require('./Utils/utility_functions');
 
 const alarm_db = require('./data_access/alarm_index');
 const premium_db = require('./data_access/premium_index');
@@ -22,13 +22,14 @@ mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrl
 });
 
 // Instances
-const client = new Discord.Client();
+const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 const cron_list = {}; // the in memory crono list
 const cron = require('cron').CronJob;
 const fs = require('fs');
+const utility_functions = require('./Utils/utility_functions');
 
 /****** Gets all available commands ******/
-client.commands = new Discord.Collection();
+client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
@@ -45,21 +46,17 @@ client.once('ready', async () => {
     let deletedpremium = await premium_db.delete_all_expired_memberships();
     logging.logger.info(deletedpremium.deletedCount + " premium memberships have expired");
 
-    client.guilds.cache.forEach(async (guild) => { //for each guild the bot is in
+    let allGuilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
+    allGuilds.forEach(async (guild) => { //for each guild the bot is in
         try {
-            let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id);
+            let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild.id, client);
             if (f == false) {
                 await alarm_db.delete_all_alarms_for_guild(guild.id);
             }
-            let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild, guild.id);
+            let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild.id, client);
             if (a == false) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
-//             if (f == 0 && a == 0) {
-//                 utility_functions.send_message_to_default_channel(guild, `Hello, the bot is currently approaching 2500 servers.
-// At that point I need to update the bot.\nUnfortunately I did not have time to take care of that update.
-// As a result, I am once again asking you to kick the bot from this server **if you ARE NOT USING any alarms in this server**. Thank you`);
-//             }
         } catch (e) {
             logging.logger.error(e);
         }
@@ -72,7 +69,7 @@ client.once('ready', async () => {
         logging.logger.error(err);
     }
     client.user.setActivity("$help to get started!");
-    logging.logger.info("Running in " + client.guilds.cache.size + " guilds");
+    logging.logger.info("Running in " + allGuilds.length + " guilds");
 });
 
 /*************************** Execute Commands ************************/
