@@ -22,11 +22,14 @@ async function fetchAlarmsforGuild(cron_list, cron, guild_id, client) {
                     if (channel !== undefined) {
                         channel.send("${message_stg}");
                     }
+                    else{
+                        return undefined;
+                    }
                 })()`);
                 }
                 catch (err) {
                     logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
-                    return false;
+                    return undefined;
                 }
             }, {
                 scheduled: true
@@ -101,8 +104,8 @@ async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
                     if (channel !== undefined) {
                         channel.send("${message_stg}");
                     }
-                    else {
-                        return false;
+                    else{
+                        return undefined;
                     }
                 })()`);
                     scheduledMessage.stop();
@@ -110,7 +113,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
                 }
                 catch (err) {
                     logging.logger.error(`Alarm with id ${alarm_id} failed to off. Reason: ${err}`);
-                    return false;
+                    return undefined;
                 }
             });
             scheduledMessage.start();

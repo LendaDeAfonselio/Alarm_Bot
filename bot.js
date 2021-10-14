@@ -51,11 +51,13 @@ client.once('ready', async () => {
     allGuilds.forEach(async (guild) => { //for each guild the bot is in
         try {
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild.id, client);
-            if (f == false && f != []) {
+
+            if (f == undefined) {
                 await alarm_db.delete_all_alarms_for_guild(guild.id);
             }
             let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild.id, client);
-            if (a == false && f != []) {
+
+            if (a == undefined) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
         } catch (e) {
