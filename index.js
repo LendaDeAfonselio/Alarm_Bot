@@ -8,6 +8,7 @@ const shards = new ShardingManager('./bot.js', {
 
 shards.on('shardCreate', async (shard) => {
     console.log(`New shard with id ${shard.id}`);
+    shard.send({type: "shardId", data: {shardId: shard.id}});
 });
 
 shards.spawn().catch(error => console.error(`[ERROR/SHARD] Shard failed to spawn.`));

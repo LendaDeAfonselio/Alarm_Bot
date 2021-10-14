@@ -12,6 +12,7 @@ const alarm_db = require('./data_access/alarm_index');
 const premium_db = require('./data_access/premium_index');
 // Mongo setup
 const mongoose = require("mongoose");
+let shard_id;
 mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
     if (err) {
         logging.logger.error(err);
@@ -50,11 +51,11 @@ client.once('ready', async () => {
     allGuilds.forEach(async (guild) => { //for each guild the bot is in
         try {
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild.id, client);
-            if (f == false) {
+            if (f == false && f != []) {
                 await alarm_db.delete_all_alarms_for_guild(guild.id);
             }
             let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild.id, client);
-            if (a == false) {
+            if (a == false && f != []) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
         } catch (e) {
@@ -62,12 +63,6 @@ client.once('ready', async () => {
         }
     });
 
-    try {
-        await load_alarms.fetchPrivateAlarms(cron_list, cron, client);
-        await load_alarms.fetchPrivateOTAs(cron_list, cron, client);
-    } catch (err) {
-        logging.logger.error(err);
-    }
     client.user.setActivity("$help to get started!");
     logging.logger.info("Running in " + allGuilds.length + " guilds");
 });
@@ -75,6 +70,11 @@ client.once('ready', async () => {
 /*************************** Execute Commands ************************/
 client.on('message', async message => {
     const channelPrefix = auth.prefix;
+    if (message.type == "shardId") {
+        console.log(`The shard id is: ${message.shardId}`);
+        shard_id = message.data.shardId;
+        await deletePrivate(message.data.shardId);
+    };
     if (!message.content.startsWith(channelPrefix)) return;
     if (message.author.bot) return;
     else {
@@ -109,6 +109,16 @@ client.on('guildDelete', async (guild) => {
         logging.logger.error(e);
     }
 });
+
+// delete private alarms on bootstrap
+async function deletePrivate(shardid) {
+    try {
+        await load_alarms.fetchPrivateAlarms(cron_list, cron, client, shardid);
+        await load_alarms.fetchPrivateOTAs(cron_list, cron, client, shardid);
+    } catch (err) {
+        logging.logger.error(err);
+    }
+}
 
 //Login
 client.login(appsettings.token);
