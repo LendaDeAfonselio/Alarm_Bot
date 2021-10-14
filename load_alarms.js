@@ -16,7 +16,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild_id, client) {
 
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    client.shard.broadcastEval(`
+                    await client.shard.broadcastEval(`
                 (async () => {
                     let channel = await this.channels.cache.get("${channel_id}");
                     if (channel !== undefined) {
@@ -54,7 +54,7 @@ async function fetchPrivateAlarms(cron_list, cron, client, shardid) {
         if (parseInt(user_id) % shard_total == shardid) {
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    client.shard.broadcastEval(`
+                    await client.shard.broadcastEval(`
                 (async () => {
                     let member = await this.users.fetch("${user_id}");
                     if (member !== undefined) {
@@ -95,7 +95,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
             let channel_id = alarm.channel;
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    client.shard.broadcastEval(`
+                    await client.shard.broadcastEval(`
                 (async () => {
                     let channel = await this.channels.cache.get("${channel_id}");
                     if (channel !== undefined) {
@@ -122,7 +122,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
     return [];
 }
 
-async function fetchPrivateOTAs(cron_list, cron, client,shardid) {
+async function fetchPrivateOTAs(cron_list, cron, client, shardid) {
     let shard_total = await getShardCount(client);
 
     let current = new Date();
