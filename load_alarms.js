@@ -16,20 +16,16 @@ async function fetchAlarmsforGuild(cron_list, cron, guild_id, client) {
 
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    await client.shard.broadcastEval(`
-                (async () => {
-                    let channel = await this.channels.cache.get("${channel_id}");
+                    let channel = await guild.channels.cache.get(channel_id);
                     if (channel !== undefined) {
-                        channel.send("${message_stg}");
+                        channel.send(`${message_stg}`);
+                    } else {
+                        logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
+                        return false;
                     }
-                    else{
-                        return undefined;
-                    }
-                })()`);
                 }
                 catch (err) {
                     logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
-                    return undefined;
                 }
             }, {
                 scheduled: true
@@ -96,29 +92,24 @@ async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
             }
             let message_stg = alarm.message;
             let channel_id = alarm.channel;
+            let channel = await guild.channels.cache.get(channel_id);
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    await client.shard.broadcastEval(`
-                (async () => {
-                    let channel = await this.channels.cache.get("${channel_id}");
                     if (channel !== undefined) {
-                        channel.send("${message_stg}");
+                        channel.send(`${message_stg}`);
+                        scheduledMessage.stop();
+                        delete cron_list[alarm_id];
+                    } else {
+                        logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
+                        return false;
                     }
-                    else{
-                        return undefined;
-                    }
-                })()`);
-                    scheduledMessage.stop();
-                    delete cron_list[alarm_id];
                 }
                 catch (err) {
                     logging.logger.error(`Alarm with id ${alarm_id} failed to off. Reason: ${err}`);
-                    return undefined;
                 }
             });
             scheduledMessage.start();
             cron_list[alarm_id] = scheduledMessage;
-
         }
         return alarms;
     }
