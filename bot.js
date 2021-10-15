@@ -47,7 +47,7 @@ client.once('ready', async () => {
     let deletedpremium = await premium_db.delete_all_expired_memberships();
     logging.logger.info(deletedpremium.deletedCount + " premium memberships have expired");
 
-    let allGuilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
+    let allGuilds = client.guilds.cache;
     allGuilds.forEach(async (guild) => { //for each guild the bot is in
         try {
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild.id, client);
@@ -66,7 +66,7 @@ client.once('ready', async () => {
     });
 
     client.user.setActivity("$help to get started!");
-    logging.logger.info("Running in " + allGuilds.length + " guilds");
+    // let allGuilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
 });
 
 /*************************** Execute Commands ************************/
@@ -93,16 +93,30 @@ client.on('message', async message => {
     }
 });
 
-// This is where your Discord bot's code is.
+// automatically take care of private alarms and log basic stats.
 process.on("message", async message => {
     if (!message.type) return false;
 
     if (message.type == "shardId") {
-        console.log(`The shard id is: ${message.data.shardId}`);
         shard_id = message.data.shardId;
-        await deletePrivate(message.data.shardId);
+        await fetchPrivate(message.data.shardId);
+        logging.logger.info(`The shard id is: ${message.data.shardId} and has ${client.guilds.cache.size} servers`);
+        if (message.data.shardId == 0) {
+            await logTotalGuildsDaily();
+        }
     };
+
 });
+
+async function logTotalGuildsDaily() {
+    let scheduledMessage = new cron('0 0 * * *', async () => {
+        let allguilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
+        logging.logger.info("Running in " + allguilds.length + " guilds");
+    }, {
+        scheduled: true
+    });
+    scheduledMessage.start();
+}
 
 
 // If the bot is kicked, delete the alarms
@@ -119,7 +133,7 @@ client.on('guildDelete', async (guild) => {
 });
 
 // delete private alarms on bootstrap
-async function deletePrivate(shardid) {
+async function fetchPrivate(shardid) {
     try {
         await load_alarms.fetchPrivateAlarms(cron_list, cron, client, shardid);
         await load_alarms.fetchPrivateOTAs(cron_list, cron, client, shardid);

@@ -1,7 +1,6 @@
 const Alarm_model = require('./models/alarm_model');
 const Private_alarm_model = require('./models/private_alarm_model');
 const One_Time_Alarm_model = require('./models/one_time_alarm_model');
-const alarm_db = require('./data_access/alarm_index');
 const logging = require('./Utils/logging');
 
 async function fetchAlarmsforGuild(cron_list, cron, guild_id, client) {
@@ -43,26 +42,25 @@ async function fetchAlarmsforGuild(cron_list, cron, guild_id, client) {
 }
 
 async function fetchPrivateAlarms(cron_list, cron, client, shardid) {
-    let shard_total = await getShardCount(client);
     let alarms = await Private_alarm_model.find();
     for (alarm of alarms) {
         let message_stg = alarm.message;
         let crono = alarm.alarm_args;
         let alarm_id = alarm.alarm_id;
         let user_id = alarm.user_id;
-        if (parseInt(user_id) % shard_total == shardid) {
+        let user_from_shard = await client.users.fetch(user_id);
+        if (user_from_shard !== undefined) {
+
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    await client.shard.broadcastEval(`
-                (async () => {
-                    let member = await this.users.fetch("${user_id}");
+                    let member = await client.users.fetch(user_id);
                     if (member !== undefined) {
-                        member.send("${message_stg}");
-                    } 
-                })()`);
+                        member.send(message_stg);
+                    } else {
+                        logging.logger.info(`${alarm_id} from the DB is not usable because the user ${user_id} was not found in shard ${shardid}`);
+                    }
                 } catch (err) {
                     logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
-                    await alarm_db.delete_private_alarm_with_id(alarm_id);
                 }
             }, {
                 scheduled: true
@@ -73,8 +71,9 @@ async function fetchPrivateAlarms(cron_list, cron, client, shardid) {
                 scheduledMessage.stop();
             }
             cron_list[alarm_id] = scheduledMessage;
+        } else {
+            logging.logger.info(`${alarm_id} from the DB is not usable because the user ${user_id} was not found in shard ${shardid}`);
         }
-
     }
 }
 
@@ -117,7 +116,6 @@ async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
 }
 
 async function fetchPrivateOTAs(cron_list, cron, client, shardid) {
-    let shard_total = await getShardCount(client);
 
     let current = new Date();
     let alarms = await One_Time_Alarm_model.find({ isPrivate: true });
@@ -131,40 +129,25 @@ async function fetchPrivateOTAs(cron_list, cron, client, shardid) {
         }
         let message_stg = alarm.message;
         let user_id = alarm.user_id;
-        if (parseInt(user_id) % shard_total == shardid) {
+        let user_from_shard = await client.users.fetch(user_id);
+
+        if (user_from_shard !== undefined) {
             let scheduledMessage = new cron(crono, async () => {
                 try {
-
-                    await client.shard.broadcastEval(`
-            (async () => {
-                let member = await this.users.fetch("${user_id}");
-                if (member !== undefined) {
-                    member.send("${message_stg}");
-                }
-            })()`);
+                    member.send(message_stg);
                     scheduledMessage.stop();
                     delete cron_list[alarm_id];
                 } catch (err) {
-                    logging.logger.info(`${alarm_id} from the DB is not usable because the user was not found`);
-                    await alarm_db.delete_oneTimeAlarm_with_id(alarm_id);
+                    logging.logger.error(`Alarm with id ${alarm_id} failed to off. Reason: ${err}`);
                 }
             });
-
             scheduledMessage.start();
             cron_list[alarm_id] = scheduledMessage;
-
+        } else {
+            logging.logger.info(`${alarm_id} from the DB is not usable because the user ${user_id} was not found in shard ${shardid}`);
         }
     }
 
-}
-
-
-const getShardCount = async (client) => {
-    // get guild collection size from all the shards
-    const req = await client.shard.fetchClientValues("guilds.cache.size");
-
-    // return the added value
-    return req.length;
 }
 
 module.exports = {
