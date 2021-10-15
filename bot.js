@@ -42,10 +42,6 @@ for (const file of commandFiles) {
 
 /****** Setup the bot for life upon startup ******/
 client.once('ready', async () => {
-    let deletedentries = await alarm_db.delete_all_expired_one_time_alarms();
-    logging.logger.info("Deleted " + deletedentries.deletedCount + " one time alarms");
-    let deletedpremium = await premium_db.delete_all_expired_memberships();
-    logging.logger.info(deletedpremium.deletedCount + " premium memberships have expired");
 
     let allGuilds = client.guilds.cache;
     allGuilds.forEach(async (guild) => { //for each guild the bot is in
@@ -93,19 +89,26 @@ client.on('message', async message => {
     }
 });
 
-// automatically take care of private alarms and log basic stats.
+// automatically take care of private alarms, clean old entries in databases, and log basic stats.
 process.on("message", async message => {
     if (!message.type) return false;
-
     if (message.type == "shardId") {
+        logging.logger.info(`The shard id is: ${message.data.shardId} and has ${client.guilds.cache.size} servers`);
+    }
+    if (message.type == "shardId" && message.data && message.data.shardId == 0) {
+        // delete old entries
+        let deletedentries = await alarm_db.delete_all_expired_one_time_alarms();
+        logging.logger.info("Deleted " + deletedentries.deletedCount + " one time alarms");
+        let deletedpremium = await premium_db.delete_all_expired_memberships();
+        logging.logger.info(deletedpremium.deletedCount + " premium memberships have expired");
+
+        // fetch private alarms
         shard_id = message.data.shardId;
         await fetchPrivate(message.data.shardId);
-        logging.logger.info(`The shard id is: ${message.data.shardId} and has ${client.guilds.cache.size} servers`);
-        if (message.data.shardId == 0) {
-            await logTotalGuildsDaily();
-        }
-    };
 
+        // log total guilds every day at midnight
+        await logTotalGuildsDaily();
+    };
 });
 
 async function logTotalGuildsDaily() {
