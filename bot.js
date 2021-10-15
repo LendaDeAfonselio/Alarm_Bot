@@ -50,12 +50,12 @@ client.once('ready', async () => {
     let allGuilds = client.guilds.cache;
     allGuilds.forEach(async (guild) => { //for each guild the bot is in
         try {
-            let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild.id, client);
+            let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id, client);
 
             if (f == undefined) {
                 await alarm_db.delete_all_alarms_for_guild(guild.id);
             }
-            let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild.id, client);
+            let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild, guild.id, client);
 
             if (a == undefined) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);

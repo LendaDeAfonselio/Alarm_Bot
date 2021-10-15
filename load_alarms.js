@@ -3,7 +3,7 @@ const Private_alarm_model = require('./models/private_alarm_model');
 const One_Time_Alarm_model = require('./models/one_time_alarm_model');
 const logging = require('./Utils/logging');
 
-async function fetchAlarmsforGuild(cron_list, cron, guild_id, client) {
+async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
     let shard_guilds = Array.from(client.guilds.cache.keys());
     if (shard_guilds.includes(guild_id)) {
         let alarms = await Alarm_model.find({ guild: guild_id });
@@ -77,7 +77,7 @@ async function fetchPrivateAlarms(cron_list, cron, client, shardid) {
     }
 }
 
-async function fetchOTAsforGuild(cron_list, cron, guild_id, client) {
+async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
     let shard_guilds = Array.from(client.guilds.cache.keys());
     if (shard_guilds.includes(guild_id)) {
         let current = new Date();
