@@ -2,8 +2,9 @@ const { ShardingManager } = require('discord.js');
 const appsettings = require('./appsettings.json');
 
 const shards = new ShardingManager('./bot.js', {
-    totalShards: 'auto',
-    token: appsettings.token
+    totalShards: 'auto', // this value should always be 'auto', if its a number it should only be used for testing
+    token: appsettings.token,
+    execArgv: ['--trace-warnings'],
 });
 
 shards.on('shardCreate', async (shard) => {
