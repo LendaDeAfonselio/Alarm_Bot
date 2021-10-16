@@ -62,7 +62,6 @@ client.once('ready', async () => {
     });
 
     client.user.setActivity("$help to get started!");
-    // let allGuilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
 });
 
 /*************************** Execute Commands ************************/
