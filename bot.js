@@ -1,15 +1,23 @@
 "use strict";
 // Packages and dependencies
 const { Collection, Client, Intents } = require('discord.js');
+const logging = require('./Utils/logging');
+
+// configuration files
+const appsettings = require('./appsettings.json'); // on github project this file 
+// is not completed, it does need some 
+// values like the bot token and the mongo db url
+
 const auth = require('./auth.json');
-const appsettings = require('./appsettings.json');
+
+// auxiliary js files with functions
 const load_alarms = require('./load_alarms');
 const delete_alarms_when_kicked = require('./delete_alarms_for_guilds');
-const logging = require('./Utils/logging');
-// const utility_functions = require('./Utils/utility_functions');
 
+// db access
 const alarm_db = require('./data_access/alarm_index');
 const premium_db = require('./data_access/premium_index');
+
 // Mongo setup
 const mongoose = require("mongoose");
 let shard_id;
@@ -40,7 +48,7 @@ for (const file of commandFiles) {
 }
 
 
-/****** Setup the bot for life upon startup ******/
+/****** Setup the bot by fetching all alarms ******/
 client.once('ready', async () => {
 
     let allGuilds = client.guilds.cache;
@@ -57,6 +65,7 @@ client.once('ready', async () => {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
         } catch (e) {
+            logging.logger.info(`Error booting up the alarms for guild: ${guild.id}`);
             logging.logger.error(e);
         }
     });
@@ -110,6 +119,7 @@ process.on("message", async message => {
     };
 });
 
+// aux function to get all guilds every day
 async function logTotalGuildsDaily() {
     let scheduledMessage = new cron('0 0 * * *', async () => {
         let allguilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
