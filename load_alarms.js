@@ -17,7 +17,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                 try {
                     let channel = await guild.channels.cache.get(channel_id);
                     if (channel !== undefined) {
-                        channel.send(`${message_stg}`);
+                        channel.send(message_stg);
                     } else {
                         logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
                         return false;
@@ -95,7 +95,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
             let scheduledMessage = new cron(crono, async () => {
                 try {
                     if (channel !== undefined) {
-                        channel.send(`${message_stg}`);
+                        channel.send(message_stg);
                         scheduledMessage.stop();
                         delete cron_list[alarm_id];
                     } else {

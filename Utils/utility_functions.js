@@ -175,10 +175,12 @@ async function broadcastEvalAndConcatLambda(client, query) {
     let resultsArray = await client.shard.broadcastEval(query);
     return Array.prototype.concat.apply([], resultsArray);
 }
+
 async function broadcastEvalAndConcat(client, queryStg) {
     let resultsArray = await client.shard.broadcastEval(queryStg);
     return Array.prototype.concat.apply([], resultsArray);
 }
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
