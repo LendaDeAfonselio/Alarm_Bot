@@ -141,6 +141,9 @@ function get_timezone_by_abreviation(abr) {
 }
 
 function get_timezone_by_city(city) {
+    if (city.includes('GMT') || city.includes('UTC')) {
+        return undefined;
+    }
     return timezones_remote_library.filter(
         function (data) {
             return data.utc.find(a => a.includes(city))
@@ -318,6 +321,9 @@ function get_offset_from_stg(ref, stg) {
         let tokens = hour_diff.split(':');
         if (tokens.length >= 1) {
             let hours = parseInt(signal.concat(tokens[0]));
+            if (Number.isNaN(hours)) {
+                return undefined;
+            }
             let offset = hours;
             if (tokens.length >= 2) {
                 let minutes = parseInt(signal.concat(tokens[1]));
