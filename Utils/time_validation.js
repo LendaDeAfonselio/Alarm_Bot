@@ -185,7 +185,6 @@ function get_offset_difference(stg) {
         current_offset = 1;
     }
     return other_offset - current_offset;
-    //return utility.getAbsoluteDiff(other_offset, current_offset);
 }
 
 function updateParams(difference, crono) {
@@ -198,8 +197,7 @@ function updateParams(difference, crono) {
     cron_params[2] = updateParamsAux(cron_params[2], 1, 31, 0);
     cron_params[3] = updateParamsAux(cron_params[3], 0, 12, 0);
     r = r1;
-    cron_params[4] = updateParamsAux(cron_params[4], 0, 6, 0);
-
+    cron_params[4] = updateParamsAux(cron_params[4], 0, 7, 0);
     crono = cron_params.slice().join(' ');
     r = 0;
     return crono;
@@ -271,6 +269,7 @@ function updateParamsAux(stg, min_value, max_value, diff) {
     if (update_stg < min_value) {
         update_stg = update_stg + max_value;
         r--;
+        return update_stg;
     }
     if (update_stg >= max_value) {
         update_stg = update_stg % max_value;
@@ -329,7 +328,6 @@ function get_offset_from_stg(ref, stg) {
         return undefined;
     }
 }
-
 
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
