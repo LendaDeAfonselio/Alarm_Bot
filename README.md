@@ -3,14 +3,16 @@ A Discord Bot that allows users to set up alarms periodic or one time alarms and
 
 You can check out the bot's page on [top.gg](https://top.gg/bot/754350217876340816) to invite AlarmBot to your server!
 
+Check out the developer's [Buy me a Coffee](https://www.buymeacoffee.com/Afonselio) if you want (and can) support the developer or purchase premium membership to the bot. 
+
 ## Module installs:
-- `npm install discord.js`
+- `npm i discord.js`
 - `npm i cron`
 - `npm i mongoose`
 - `npm i file-system`
 - `npm i timezones.json`
 - `npm i winston`
-- `npm install pm2`
+- `npm i pm2`
 
 ## Running the bot
 
@@ -58,7 +60,7 @@ The parameters for `alarm` and `privateAlarm` work as follows:
 
 **Send `aaa` hourly from 9 to 19 everyday** => `$alarm GMT 0 9-19 * * * aaa`
 
-**Send `aaa` every 30 minutes from 9 to 19(excluding) everyday** => `$alarm GMT */30 9-18 * * * aaa`
+**Send `aaa` every 30 minutes from 9 to 12(excluding) everyday** => `$alarm GMT */30 9-12 * * * aaa`
 
 **Note:** These examples also work for the privateAlarm command by replacing alarm with privateAlarm.
 
@@ -111,6 +113,3 @@ Currently the bot has the following commands:
 
 ### Bot Support ###
 Join our discord server for more information: https://discord.gg/zV3xnt8zkA
-
-
-Support the bot and the creator financially [here](https://www.buymeacoffee.com/Afonselio) 

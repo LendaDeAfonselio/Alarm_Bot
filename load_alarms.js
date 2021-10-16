@@ -55,7 +55,11 @@ async function fetchPrivateAlarms(cron_list, cron, client, shardid) {
                 try {
                     let member = await client.users.fetch(user_id);
                     if (member !== undefined) {
-                        member.send(message_stg);
+                        member.send(message_stg).catch(() => {
+                            logging.logger.error(`${shardid} does not have permission to send message to ${user_id}`);
+                            cron_list[alarm_id].stop();
+                            delete cron_list[alarm_id];
+                        });
                     } else {
                         logging.logger.info(`${alarm_id} from the DB is not usable because the user ${user_id} was not found in shard ${shardid}`);
                     }
@@ -134,7 +138,8 @@ async function fetchPrivateOTAs(cron_list, cron, client, shardid) {
         if (user_from_shard !== undefined) {
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    member.send(message_stg);
+                    member.send(message_stg)
+                        .catch(logging.logger.error(`${shardid} does not have permission to send message to ${user_id}`));
                     scheduledMessage.stop();
                     delete cron_list[alarm_id];
                 } catch (err) {
