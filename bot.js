@@ -64,6 +64,13 @@ client.once('ready', async () => {
             if (a == undefined) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
+
+            let b = await load_alarms.fetchTTSAlarms(cron_list, cron, guild, guild.id, client);
+
+            if (b == undefined) {
+                await alarm_db.delete_allttsalarm_from_guild(guild.id);
+            }
+
         } catch (e) {
             logging.logger.info(`Error booting up the alarms for guild: ${guild.id}`);
             logging.logger.error(e);
@@ -138,6 +145,10 @@ client.on('guildDelete', async (guild) => {
     try {
         let results = await delete_alarms_when_kicked.deleteAlarmsForGuild(cron_list, guild.id);
         logging.logger.info(`Sucessfully deleted ${results.deletedCount} alarms that were being used in guild ${guild.id}`);
+
+        let results1 = await delete_alarms_when_kicked.deleteTTSAlarmsForGuild(cron_list, guild.id);
+        logging.logger.info(`Sucessfully deleted ${results1.deletedCount} alarms that were being used in guild ${guild.id}`);
+
     } catch (e) {
         logging.logger.info(`An error has occured while trying to delete the alarms for guild ${guild.id}`);
         logging.logger.error(e);
