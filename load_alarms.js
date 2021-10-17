@@ -1,6 +1,7 @@
 const Alarm_model = require('./models/alarm_model');
 const Private_alarm_model = require('./models/private_alarm_model');
 const One_Time_Alarm_model = require('./models/one_time_alarm_model');
+const alarm_db = require('./data_access/alarm_index');
 const logging = require('./Utils/logging');
 
 async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
@@ -155,9 +156,50 @@ async function fetchPrivateOTAs(cron_list, cron, client, shardid) {
 
 }
 
+async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
+    let shard_guilds = Array.from(client.guilds.cache.keys());
+    if (shard_guilds.includes(guild_id)) {
+        let alarms = await alarm_db.get_all_ttsAlarms_for_guild(guild_id);
+        for (alarm of alarms) {
+            let message_stg = alarm.message;
+            let crono = alarm.alarm_args;
+            let alarm_id = alarm.alarm_id;
+            let channel_id = alarm.channel;
+
+            let scheduledMessage = new cron(crono, async () => {
+                try {
+                    let channel = await guild.channels.cache.get(channel_id);
+                    if (channel !== undefined) {
+                        channel.send(message_stg, {
+                            tts: true
+                        });
+                    } else {
+                        logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
+                        return false;
+                    }
+                }
+                catch (err) {
+                    logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
+                }
+            }, {
+                scheduled: true
+            });
+            scheduledMessage.start();
+            if (!alarm.isActive) {
+                // it is not active
+                scheduledMessage.stop();
+            }
+            cron_list[alarm_id] = scheduledMessage;
+        }
+        return alarms;
+    }
+    return [];
+}
+
 module.exports = {
     fetchAlarmsforGuild: fetchAlarmsforGuild,
     fetchPrivateAlarms: fetchPrivateAlarms,
     fetchPrivateOTAs: fetchPrivateOTAs,
-    fetchOTAsforGuild: fetchOTAsforGuild
+    fetchOTAsforGuild: fetchOTAsforGuild,
+    fetchTTSAlarms: fetchTTSAlarms
 }

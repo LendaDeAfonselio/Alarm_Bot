@@ -57,7 +57,7 @@ module.exports = {
                     // generate the id to save in the db
                     let alarm_user = msg.author.id;
                     let this_alarm_id = Math.random().toString(36).substring(4);
-                    let alarm_id = `${auth.public_alarm_prefix}_${this_alarm_id}`;
+                    let alarm_id = `${auth.tts_alarm_prefix}_${this_alarm_id}`;
 
                     let scheduledMessage = new cron(crono, () => {
                         try {
@@ -75,24 +75,20 @@ module.exports = {
                     cron_list[alarm_id] = scheduledMessage;
 
                     await alarm_index.add_ttsAlarm(alarm_id, crono, message_stg, msg.guild.id, channel_discord.id, alarm_user, msg.guild.name);
-                    logging.logger.info(`${result} added to database`);
                     msg.channel.send({
                         embed: {
-                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                            fields: { name: `Created TTS alarm ${alarm_id}!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
                             timestamp: new Date()
                         }
                     });
                 } catch (err) {
-                    logging.logger.info(`An error while trying to add alarm with params: ${msg.content}`);
+                    logging.logger.info(`An error occured while trying to add alarm with params: ${msg.content}`);
                     logging.logger.error(err);
                     msg.channel.send(`Error adding the alarm with params: ${crono}, with message ${message_stg}`);
                 }
             } else {
                 msg.channel.send(`It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!`);
             }
-
-        } else {
-
         }
     }
 }

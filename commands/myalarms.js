@@ -17,6 +17,7 @@ module.exports = {
         let results_priv = await db_alarms.get_all_privAlarms_from_user(msg.author.id);
         let results_ota_pub = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, false, msg.guild?.id);
         let results_ota_priv = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, true, msg.guild?.id);
+        let results_tts = await db_alarms.get_all_ttsalarms_from_user_and_guild(msg.author.id, guild_id);
 
         if (args.length >= 1 && utility_functions.compareIgnoringCase(args[0], '-id')) {
             let id_stg = '**Public Alarms**:\n';
@@ -24,8 +25,11 @@ module.exports = {
                 id_stg += `${alarm.alarm_id}\n`;
             });
             results_ota_pub.forEach(ota => {
-                id_stg += `${ota.alarm_id}\n`
-            })
+                id_stg += `${ota.alarm_id}\n`;
+            });
+            results_tts.forEach(ta => {
+                id_stg += `${id_stg.alarm_id}\n`;
+            });
             let chunks = utility_functions.chunkArray(id_stg, 2000);
 
 
@@ -53,12 +57,13 @@ module.exports = {
         }
 
         // create alarm messages
-        let general_alarms = await createMessageWithEntries(results_pub);
-        let private_alarms = await createMessageWithEntries(results_priv);
+        let general_alarms = createMessageWithEntries(results_pub);
+        let private_alarms = createMessageWithEntries(results_priv);
+        let tts_alarms = createMessageWithEntries(results_tts);
 
         // ota message
-        let general_otas = await createMessageWithOTAEntries(results_ota_pub);
-        let priv_otas = await createMessageWithOTAEntries(results_ota_priv);
+        let general_otas = createMessageWithOTAEntries(results_ota_pub);
+        let priv_otas = createMessageWithOTAEntries(results_ota_priv);
 
 
         // chunk it because of the max size for discord messages
@@ -68,16 +73,16 @@ module.exports = {
         let public_chunks2 = utility.chunkArray(general_otas, 20);
         let private_chunks2 = utility.chunkArray(priv_otas, 20);
 
-        if (general_alarms.length <= 0) {
+        let tts_chunks = utility.chunkArray(tts_alarms, 20);
+
+        if (general_alarms.length <= 0 && tts_alarms.length <= 0) {
             msg.channel.send('You do not have alarms in this server!');
         }
 
-        const title_message = "Your public alarms in this server are:";
-
         // send public alarms
-        sendChunksAsPublicMsg(public_chunks, msg, title_message);
-        sendChunksAsPublicMsg(public_chunks2, msg, title_message);
-
+        sendChunksAsPublicMsg(public_chunks, msg, "Your public alarms in this server are:");
+        sendChunksAsPublicMsg(public_chunks2, msg, "Your public one time alarms in this server are:");
+        sendChunksAsPublicMsg(tts_chunks, msg, "Your TTS alarms for this server are:");
 
         // send private alarms
         for (let chunk of private_chunks) {
@@ -118,7 +123,7 @@ function sendChunksAsPublicMsg(public_chunks, msg, title_message) {
     }
 }
 
-async function createMessageWithEntries(msgs) {
+function createMessageWithEntries(msgs) {
     let general_alarms = [];
     for (let alarm of msgs) {
         let alarm_id = alarm.alarm_id;
@@ -135,7 +140,7 @@ async function createMessageWithEntries(msgs) {
     return general_alarms;
 }
 
-async function createMessageWithOTAEntries(results) {
+function createMessageWithOTAEntries(results) {
     let general_alarms = [];
     for (let alarm of results) {
         let alarm_id = alarm.alarm_id;

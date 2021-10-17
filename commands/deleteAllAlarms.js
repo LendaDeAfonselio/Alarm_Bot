@@ -3,6 +3,7 @@ const Private_alarm_model = require('../models/private_alarm_model');
 const alarm_db = require('../data_access/alarm_index');
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
+const utility_functions = require('../Utils/utility_functions');
 
 
 module.exports = {
@@ -83,9 +84,10 @@ module.exports = {
                 let f = await alarm_db.delete_all_private_oneTimeAlarm_from_user(alarm_user);
                 msg.channel.send(`Sucessfully deleted ${f.deletedCount} alarms.`);
 
-            } else if (flag.toLowerCase() === '-oa') {
+            }
+            else if (flag.toLowerCase() === '-oa') {
                 if (msg.channel.type === 'dm') {
-                    msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
+                    msg.channel.send('Can only delete public one time alarms in a server, otherwise the bot does not know which alarms to delete.');
                     return;
                 }
                 let als = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, false, msg.guild.id);
@@ -97,12 +99,22 @@ module.exports = {
                 });
                 let n = await alarm_db.delete_all_public_oneTimeAlarm_from_user(alarm_user, msg.guild.id);
                 msg.channel.send(`Sucessfully deleted ${n.deletedCount} alarms.`);
+            } else if (flag.toLowerCase() == '-tts') {
+                if (msg.channel.type === 'dm') {
+                    msg.channel.send('Can only delete tts alarms in a server, otherwise the bot does not know which alarms to delete.');
+                    return;
+                }
+                let tts_alarms = await alarm_db.get_all_ttsalarms_from_user_and_guild(alarm_user, msg.guild.id);
+                tts_alarms.find((i) => { utility_functions.deleteFromCronList(cron_list, i) });
+                let num_del_tts = await alarm_db.delete_all_ttsAlarm_from_user(alarm_user, msg.guild.id);
+                msg.channel.send(`Sucessfully deleted ${num_del_tts.deletedCount} tts alarms.`);
             }
         } else {
             let stg = "You did not specify what alarms you wish to delete.\n"
                 + "`:deleteAllAlarms -p` deletes all of your private alarms.\n"
-                + "`:deleteAllAlarms -a` deletes YOUR alarms for this server.\n"
-                + "`:deleteAllAlarms -oa` deletes YOUR one time alarms in the server you are using.\n"
+                + "`:deleteAllAlarms -a` deletes **YOUR** alarms for this server.\n"
+                + "`:deleteAllAlarms -tts` deletes **YOUR** TTS alarms for this server.\n"
+                + "`:deleteAllAlarms -oa` deletes **YOUR** one time alarms in the server you are using.\n"
                 + "`:deleteAllAlarms -op` deletes your private one time alarms";
             msg.channel.send(stg.replace(/:/g, auth.prefix));
         }

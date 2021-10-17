@@ -23,7 +23,7 @@ module.exports = {
                         if (utility_functions.isPrivateAlarm(alarm_to_delete)) {
                             await Private_alarm_model.deleteOne(
                                 { alarm_id: alarm_to_delete }
-                            )
+                            );
                         } else if (utility_functions.isPublicAlarm(alarm_to_delete)) {
                             if (msg.channel.type === 'dm') {
                                 msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
@@ -31,7 +31,13 @@ module.exports = {
                             }
                             await Alarm_model.deleteOne({ alarm_id: alarm_to_delete });
                         } else if (utility_functions.isOtaAlarm(alarm_to_delete)) {
-                            db_alarms.delete_oneTimeAlarm_with_id(alarm_to_delete);
+                            await db_alarms.delete_oneTimeAlarm_with_id(alarm_to_delete);
+                        } else if (utility_functions.isTTSAlarm(alarm_to_delete)) {
+                            if (msg.channel.type === 'dm') {
+                                msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
+                                return;
+                            }
+                            await db_alarms.delete_ttsAlarm_with_id(alarm_to_delete);
                         }
                         cron_list[alarm_to_delete].stop();
                         delete cron_list[alarm_to_delete];
@@ -47,8 +53,8 @@ module.exports = {
                 }
             }
         } else {
-            msg.channel.send(`No arguments were passed to execute this command.\n`
-                + 'Usage: ' + this.usage);
+            msg.channel.send(`No arguments were passed to execute this command.\n
+                + Usage:  + ${this.usage}`);
         }
 
     }

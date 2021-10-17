@@ -183,6 +183,13 @@ async function broadcastEvalAndConcat(client, queryStg) {
     return Array.prototype.concat.apply([], resultsArray);
 }
 
+function deleteFromCronList(cron_list, alarm) {
+    if (cron_list[alarm.alarm_id] !== undefined) {
+        cron_list[alarm.alarm_id].stop();
+        delete cron_list[alarm.alarm_id];
+    }
+}
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
@@ -201,5 +208,6 @@ module.exports = {
     send_message_to_default_channel: send_message_to_default_channel,
     broadcastEvalAndConcat: broadcastEvalAndConcat,
     broadcastEvalAndConcatLambda: broadcastEvalAndConcatLambda,
-    isTTSAlarm: isTTSAlarm
+    isTTSAlarm: isTTSAlarm,
+    deleteFromCronList: deleteFromCronList
 }

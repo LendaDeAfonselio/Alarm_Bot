@@ -72,10 +72,25 @@ async function delete_all_ttsAlarm_from_user(author_id, guild_id) {
  * @param {String} guild_id - The id of the server
  */
 async function delete_ttsAlarm_with_id(alarm_id, guild_id) {
-    return await One_Time_Alarm_model.deleteOne(
+    return await TTS_alarm_model_model.deleteOne(
         { alarm_id: alarm_id, guild: guild_id }
     );
 }
+
+/**
+ * Gets all alarms for a server (guild)
+ * @param {String} guild_id - the id of the server
+ */
+async function get_all_ttsAlarms_for_guild(guild_id) {
+    return await TTS_alarm_model_model.find({ guild: guild_id });
+}
+
+async function delete_allttsalarm_from_guild(guild_id) {
+    return await TTS_alarm_model_model.deleteMany({
+        guild: guild_id
+    });
+}
+
 
 /**
  * Adds a new one time one time alarm entry to the database
@@ -283,5 +298,7 @@ module.exports = {
     add_ttsAlarm: add_ttsAlarm,
     get_all_ttsalarms_from_user_and_guild: get_all_ttsalarms_from_user_and_guild,
     delete_all_ttsAlarm_from_user: delete_all_ttsAlarm_from_user,
-    delete_ttsAlarm_with_id: delete_ttsAlarm_with_id
+    delete_ttsAlarm_with_id: delete_ttsAlarm_with_id,
+    get_all_ttsAlarms_for_guild: get_all_ttsAlarms_for_guild,
+    delete_allttsalarm_from_guild: delete_allttsalarm_from_guild
 }
