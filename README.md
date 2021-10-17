@@ -87,7 +87,7 @@ Currently the bot has the following commands:
 - `activateAllAlarms` - Reactives **all**  silenced alarms.
     - Usage example: `$activateAllAlarm -a` or `$activateAllAlarm -p`
 - `alarm` - Sets up an alarm to the channel in which you're sending the message. If you wish to send the alarm to a specific channel, the last "word" of the message should be the channel that you desire to send the message to (examples above).
-    - Usage example: `$alarm GMT */30 9-18 * * * aaa`
+    - Usage example: `$alarm GMT 30 12 * * * aaa`
 - `alarmHelp` - Some examples and help on how to setup an alarm.
     - Usage example: `$alarmHelp`
 - `deleteAlarm` - Deletes an alarm given an id.
@@ -102,13 +102,17 @@ Currently the bot has the following commands:
     - Usage example: `$oneTimeAlarm GMT 19:00 Hello`
 - `ping` - Just to check if the bot is alive.
     - Usage example: `$ping`
+- `premium` - Get information and the link to get AlarmBot premium (75 alarms)
+    - Usage example: `$premium`
 - `privateAlarm`- Sets up a private alarm via DM.
     - Usage example: `$privateAlarm GMT */30 9-18 * * * aaa`
 - `silenceAlarm` - Silences a specific alarm, if you pass a date (ex: 22/03) it will activate once that they arrives otherwise the alarm will be silent activated again with `activateAlarm`.
     - Usage example: `$silenceAlarm id123 23/01`
 - `silenceAllAlarms` - Silences all alarms until they are activated again.
     - Usage example: `$silenceAllAlarms -a` or `$silenceAllAlarms -p` 
-- `premium` - Get information and the link to get AlarmBot premium (75 alarms)
+- `ttsAlarm` - Creates a scheduled alarm in a channel that is read out loud by discord TTS. Same usage as alarm, only changes the command.
+    - Usage example: `$ttsAlarm GMT 30 12 * * * aaa`
+
 
 
 ### Bot Support ###
