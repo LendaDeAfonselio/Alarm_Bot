@@ -19,6 +19,11 @@ function isPublicAlarm(alarm_id) {
     return alarm_id.startsWith(auth.public_alarm_prefix);
 }
 
+function isTTSAlarm(alarm_id) {
+    return alarm_id.startsWith(auth.tts_alarm_prefix);
+}
+
+
 /**
  * Checks if an user can create a public alarm
  * @param {String} user_id  - the id of user
@@ -65,9 +70,6 @@ async function isPremiumUser(user_id) {
     let user = await premium_db.get_premium_user_by_id(user_id);
     return user !== null;
 }
-
-
-
 
 /**
  * Checks if an user is a Administrator on a Guild
@@ -198,5 +200,6 @@ module.exports = {
     fetchValuesAndConcatValues: fetchValuesAndConcatValues,
     send_message_to_default_channel: send_message_to_default_channel,
     broadcastEvalAndConcat: broadcastEvalAndConcat,
-    broadcastEvalAndConcatLambda: broadcastEvalAndConcatLambda
+    broadcastEvalAndConcatLambda: broadcastEvalAndConcatLambda,
+    isTTSAlarm: isTTSAlarm
 }
