@@ -71,9 +71,9 @@ async function delete_all_ttsAlarm_from_user(author_id, guild_id) {
  * @param {String} alarm_id - The id of the alarm
  * @param {String} guild_id - The id of the server
  */
-async function delete_ttsAlarm_with_id(alarm_id, guild_id) {
+async function delete_ttsAlarm_with_id(alarm_id) {
     return await TTS_alarm_model_model.deleteOne(
-        { alarm_id: alarm_id, guild: guild_id }
+        { alarm_id: alarm_id }
     );
 }
 
