@@ -190,6 +190,10 @@ function deleteFromCronList(cron_list, alarm) {
     }
 }
 
+function can_send_embeded(msg) {
+    return msg.guild.me.hasPermission('EMBED_LINKS');
+}
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
@@ -209,5 +213,6 @@ module.exports = {
     broadcastEvalAndConcat: broadcastEvalAndConcat,
     broadcastEvalAndConcatLambda: broadcastEvalAndConcatLambda,
     isTTSAlarm: isTTSAlarm,
-    deleteFromCronList: deleteFromCronList
+    deleteFromCronList: deleteFromCronList,
+    can_send_embeded: can_send_embeded
 }

@@ -112,14 +112,18 @@ module.exports = {
 
 function sendChunksAsPublicMsg(public_chunks, msg, title_message) {
     for (let chunk of public_chunks) {
-        msg.channel.send({
-            embed: {
-                color: 0xff80d5,
-                title: title_message,
-                fields: chunk,
-                timestamp: new Date()
-            }
-        });
+        if (utility_functions.can_send_embeded(msg)) {
+            msg.channel.send({
+                embed: {
+                    color: 0xff80d5,
+                    title: title_message,
+                    fields: chunk,
+                    timestamp: new Date()
+                }
+            });
+        } else {
+            msg.channel.send('Embeded messages are disallowed for this server. Try turning them on or use `$myalarms -id`.');
+        }
     }
 }
 

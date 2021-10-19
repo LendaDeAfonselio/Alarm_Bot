@@ -5,6 +5,7 @@ const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
 const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
+const utility_functions = require('../Utils/utility_functions');
 const channel_regex = /<#\d+>/;
 
 module.exports = {
@@ -76,12 +77,17 @@ module.exports = {
                             newAlarm.save()
                                 .then((result) => {
                                     logging.logger.info(`${result} added to database`);
-                                    msg.channel.send({
-                                        embed: {
-                                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
-                                            timestamp: new Date()
-                                        }
-                                    });
+                                    if (utility_functions.can_send_embeded(msg)) {
+                                        msg.channel.send({
+                                            embed: {
+                                                fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                                                timestamp: new Date()
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        msg.channel.send(`Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!`);
+                                    }
                                 })
                                 .catch((err) => {
                                     logging.logger.info(`An error while trying to add ${result} to the database.`);
