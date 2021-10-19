@@ -90,7 +90,7 @@ module.exports = {
                                     }
                                 })
                                 .catch((err) => {
-                                    logging.logger.info(`An error while trying to add ${result} to the database.`);
+                                    logging.logger.info(`An error while trying to add ${alarm_id} to the database.`);
                                     logging.logger.error(err);
                                 });
                         } catch (err) {

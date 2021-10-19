@@ -1,6 +1,8 @@
 "use strict";
 
 const Discord = require('discord.js');
+const { Permissions } = require('discord.js');
+
 const auth = require('./../auth.json');
 const alarm_db = require('./../data_access/alarm_index');
 const premium_db = require('./../data_access/premium_index');
@@ -191,20 +193,30 @@ function deleteFromCronList(cron_list, alarm) {
 }
 
 function can_send_embeded(msg) {
-    return msg.guild.me.hasPermission('EMBED_LINKS');
+    let ch = msg.channel;
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.EMBED_LINKS);
 }
 
 
 function can_send_tts_messages(msg) {
-    return msg.guild.me.hasPermission('SEND_TTS_MESSAGES');
+    let ch = msg.channel;
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
 }
 
 function can_send_messages(msg) {
-    return msg.guild.me.hasPermission('SEND_MESSAGES');
+    let ch = msg.channel;
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
 }
 
 function can_send_DM(msg) {
     return true;
+}
+
+function permissions_include(permissions, perm) {
+    return permissions.has(perm);
 }
 
 module.exports = {
