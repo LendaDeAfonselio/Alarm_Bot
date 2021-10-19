@@ -28,7 +28,7 @@ module.exports = {
                 id_stg += `${ota.alarm_id}\n`;
             });
             results_tts.forEach(ta => {
-                id_stg += `${id_stg.alarm_id}\n`;
+                id_stg += `${ta.alarm_id}\n`;
             });
             let chunks = utility_functions.chunkArray(id_stg, 2000);
 

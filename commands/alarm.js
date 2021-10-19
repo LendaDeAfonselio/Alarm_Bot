@@ -86,7 +86,7 @@ module.exports = {
                                         });
                                     }
                                     else {
-                                        msg.channel.send(`Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!`);
+                                        msg.channel.send(`Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success! Consider turning on embed links for the bot to get a prettier message :)`);
                                     }
                                 })
                                 .catch((err) => {
