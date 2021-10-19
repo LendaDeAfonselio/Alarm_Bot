@@ -18,6 +18,10 @@ module.exports = {
             msg.channel.send('Impossible to setup a tts alarm via DM, you have to use this command in a server!');
             return;
         }
+        if (!utility_functions.can_send_tts_messages(msg)) {
+            msg.channel.send('Impossible to setup tts messages, because the bot does not have TTS permission for this server!');
+            return;
+        }
         let canCreate = await utils.can_create_public_alarm(msg.author.id, msg.guild.id);
         if (!canCreate) {
             msg.channel.send(auth.limit_alarm_message);

@@ -194,6 +194,19 @@ function can_send_embeded(msg) {
     return msg.guild.me.hasPermission('EMBED_LINKS');
 }
 
+
+function can_send_tts_messages(msg) {
+    return msg.guild.me.hasPermission('SEND_TTS_MESSAGES');
+}
+
+function can_send_messages(msg) {
+    return msg.guild.me.hasPermission('SEND_MESSAGES');
+}
+
+function can_send_DM(msg) {
+    return true;
+}
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
@@ -214,5 +227,8 @@ module.exports = {
     broadcastEvalAndConcatLambda: broadcastEvalAndConcatLambda,
     isTTSAlarm: isTTSAlarm,
     deleteFromCronList: deleteFromCronList,
-    can_send_embeded: can_send_embeded
+    can_send_embeded: can_send_embeded,
+    can_send_tts_messages: can_send_tts_messages,
+    can_send_messages: can_send_messages,
+    can_send_DM: can_send_DM
 }
