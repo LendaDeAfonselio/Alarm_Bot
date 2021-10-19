@@ -211,6 +211,14 @@ function can_send_messages(msg) {
     return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
 }
 
+function can_send_messages_to_ch(msg, ch) {
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+}
+function can_send_ttsmessages_to_ch(msg, ch) {
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
+}
 function can_send_DM(msg) {
     return true;
 }
@@ -242,5 +250,7 @@ module.exports = {
     can_send_embeded: can_send_embeded,
     can_send_tts_messages: can_send_tts_messages,
     can_send_messages: can_send_messages,
-    can_send_DM: can_send_DM
+    can_send_DM: can_send_DM,
+    can_send_messages_to_ch: can_send_messages_to_ch,
+    can_send_ttsmessages_to_ch: can_send_ttsmessages_to_ch
 }

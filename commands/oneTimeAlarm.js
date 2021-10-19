@@ -141,6 +141,10 @@ module.exports = {
                                     if (d > now) {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
+                                        if (!utility_functions.can_send_messages_to_ch(msg, channel_discord)) {
+                                            msg.channel.send(`Cannot setup the alarm in that channel because the bot does not have permission to send messages to it.`)
+                                            return;
+                                        }
                                         let ota = createOneTimeCron(cron, d, message, channel_discord);
                                         if (ota !== undefined) {
                                             setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
@@ -170,6 +174,10 @@ module.exports = {
                                     if (d > now) {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
+                                        if (!utility_functions.can_send_messages_to_ch(msg, channel_discord)) {
+                                            msg.channel.send(`Cannot setup the alarm to specified channel because the bot does not have permission to send messages to it.`)
+                                            return;
+                                        }
                                         let ota = createOneTimeCron(cron, d, message, channel_discord);
 
                                         if (ota !== undefined) {

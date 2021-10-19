@@ -161,6 +161,10 @@ module.exports = {
             let channel = args.pop();
             let channel_discord;
             ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 2));
+            if (!utility_functions.can_send_messages_to_ch(msg, channel_discord)) {
+                msg.channel.send(`Cannot setup the alarm in channel ${channel} because the bot does not have permission to send messages to it.`)
+                return;
+            }
             if (channel_discord !== undefined) {
                 let public_alarms = new Array();
                 if (!is_dm) {

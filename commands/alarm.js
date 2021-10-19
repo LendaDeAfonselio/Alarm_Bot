@@ -41,6 +41,10 @@ module.exports = {
                         message_stg = args.slice(6, args.length).join(' ');
                     }
                     if (channel_discord !== undefined) {
+                        if (!utility_functions.can_send_messages_to_ch(msg, channel_discord)) {
+                            msg.channel.send(`Cannot setup the alarm in channel ${channel} because the bot does not have permission to send messages to it.`)
+                            return;
+                        }
                         let old_c = crono;
                         crono = time_utils.updateParams(difference, crono);
                         try {
