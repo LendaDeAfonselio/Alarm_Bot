@@ -69,7 +69,10 @@ module.exports = {
                     fields: msg_fields,
                     timestamp: new Date()
                 }
-            });
+            }).catch((err) => {
+                logging.logger.info(`Can't send reply to message user ${message.author.id}.`);
+                logging.logger.error(err);
+            });;
         } catch (e) {
             console.err(e);
         }

@@ -50,8 +50,13 @@ module.exports = {
 
             chunks = utility_functions.chunkArray(id_stg, 2000);
 
-            for (let chunk of chunks) {
-                msg.author.send(chunk);
+            try {
+                for (let chunk of chunks) {
+                    msg.author.send(chunk);
+                }
+            } catch (err) {
+                logging.logger.info(`Can't send reply to message ${args} from user ${msg.author.id}.`);
+                logging.logger.error(err);
             }
             return;
         }
@@ -93,6 +98,9 @@ module.exports = {
                     fields: chunk,
                     timestamp: new Date()
                 }
+            }).catch((err) => {
+                logging.logger.info(`Can't send reply to myalarms message from user ${msg.author.id}.`);
+                logging.logger.error(err);
             });
         }
 

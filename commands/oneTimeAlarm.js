@@ -89,7 +89,10 @@ function createOneTimeCron(cron, d, message, channel_discord) {
 function createPrivateOneTimeCron(msg, cron, d, message) {
     try {
         let ota = new cron(d, () => {
-            msg.author.send(`${message}`);
+            msg.author.send(message).catch((err) => {
+                logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.author.id}.`);
+                logging.logger.error(err)
+            });
         });
         return ota;
     } catch (err) {

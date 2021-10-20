@@ -12,7 +12,10 @@ module.exports = {
             if (err) logging.logger.error(err);
             let jsfiles = files.filter(f => f.split(".").pop() === "js");
             if (jsfiles.length <= 0) {
-                message.author.send("No commands to load!");
+                message.author.send("No commands to load!").catch((err) => {
+                    logging.logger.info(`Can't send reply to user ${message.author.id}.`);
+                    logging.logger.error(err);
+                });;
                 return;
             }
             let msg_fields = [];
@@ -47,7 +50,10 @@ module.exports = {
                         fields: msg_fields,
                         timestamp: new Date()
                     }
-                });
+                }).catch((err) => {
+                    logging.logger.info(`Can't send reply to help from user ${message.author.id}.`);
+                    logging.logger.error(err)
+                });;
             } catch (e) {
                 logging.logger.info(`Error trying to get the help command`);
                 logging.logger.error(e);

@@ -102,7 +102,11 @@ client.on('message', async message => {
                     message.reply('There was an error trying to execute that command!');
                 }
             } else {
-                message.author.send('AlarmBot does not have permission to send messages. Please check AlarmBot permissions and try again.');
+                message.author.send('AlarmBot does not have permission to send messages. Please check AlarmBot permissions and try again.')
+                    .catch((err) => {
+                        logging.logger.info(`Can't send reply to message ${args} from user ${message.author.id}.`);
+                        logging.logger.error(err)
+                    });
             }
         }
     }

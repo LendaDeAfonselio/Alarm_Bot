@@ -38,13 +38,20 @@ module.exports = {
                         fields: chunk,
                         timestamp: new Date(),
                     }
+                }).catch((err) => {
+                    logging.logger.info(`Can't send timezone message to user ${msg.author.id}`);
+                    logging.logger.error(err)
                 });
             }
         } else {
             let timezone_name = args[0];
             let timezone_data = time_utils.get_timezone_by_abreviation(timezone_name);
             if (timezone_data == undefined) {
-                msg.author.send(`No data was found for ${timezone_name}. Check all timezones with ${auth.prefix + 'timezonesinfo'} for more information.`);
+                msg.author.send(`No data was found for ${timezone_name}. Check all timezones with ${auth.prefix + 'timezonesinfo'} for more information.`)
+                    .catch((err) => {
+                        logging.logger.info(`Can't send private message to user ${msg.author.id}.`);
+                        logging.logger.error(err)
+                    });
                 return;
             }
             let x = new Array();
@@ -68,6 +75,9 @@ module.exports = {
                         text: 'If this example does not yield the desired results try using ' + timezone_data.utc_offset,
                     },
                 }
+            }).catch((err) => {
+                logging.logger.info(`Can't send private message to user ${msg.author.id}.`);
+                logging.logger.error(err)
             });
         }
     }

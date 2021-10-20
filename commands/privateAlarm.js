@@ -39,7 +39,10 @@ module.exports = {
 
                     let scheduledMessage = new cron(crono, () => {
                         try {
-                            msg.author.send(`${message_stg}`);
+                            msg.author.send(message_stg).catch((err) => {
+                                logging.logger.info(`Can't send private message to user ${msg.author.id}. ${alarm_id}.`);
+                                logging.logger.error(err)
+                            });
                         } catch (err) {
                             logging.logger.error(`Error when private alarm with id ${alarm_id} went off: ${err}`);
                         }
@@ -69,7 +72,10 @@ module.exports = {
                                     color: 2447003,
                                     timestamp: new Date()
                                 }
-                            })
+                            }).catch((err) => {
+                                logging.logger.info(`Can't send private message to user ${msg.author.id}. Confirming the alarm ${alarm_id}.`);
+                                logging.logger.error(err);
+                            });
                         })
                         .catch((err) => {
                             logging.logger.info(`Error adding private alarm to the database ${newAlarm}`);
