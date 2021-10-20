@@ -1,6 +1,7 @@
 const fs = require("fs");
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
+const utility_functions = require('../Utils/utility_functions');
 
 module.exports = {
     name: 'help',

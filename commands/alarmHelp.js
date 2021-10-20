@@ -1,5 +1,6 @@
 const utility_functions = require('../Utils/utility_functions');
 const auth = require('./../auth.json');
+const logging = require('../Utils/logging');
 
 module.exports = {
     name: 'alarmHelp',
