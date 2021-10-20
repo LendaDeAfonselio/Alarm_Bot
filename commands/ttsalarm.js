@@ -6,6 +6,7 @@ const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const channel_regex = /<#\d+>/;
 const alarm_index = require('../data_access/alarm_index');
+const utility_functions = require('../Utils/utility_functions');
 
 module.exports = {
     name: 'ttsAlarm',
@@ -15,6 +16,10 @@ module.exports = {
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (msg.channel.type === 'dm') {
             msg.channel.send('Impossible to setup a tts alarm via DM, you have to use this command in a server!');
+            return;
+        }
+        if (!utility_functions.can_send_tts_messages(msg)) {
+            msg.channel.send('Impossible to setup tts messages, because the bot does not have TTS permission for this server!');
             return;
         }
         let canCreate = await utils.can_create_public_alarm(msg.author.id, msg.guild.id);
@@ -51,6 +56,10 @@ module.exports = {
                 message_stg = args.slice(6, args.length).join(' ');
             }
             if (channel_discord !== undefined) {
+                if (!utility_functions.can_send_ttsmessages_to_ch(msg, channel_discord)) {
+                    msg.channel.send(`Cannot setup the alarm in channel ${channel} because the bot does not have permission to send messages to it.`)
+                    return;
+                }
                 let old_c = crono;
                 crono = time_utils.updateParams(difference, crono);
                 try {
@@ -75,12 +84,16 @@ module.exports = {
                     cron_list[alarm_id] = scheduledMessage;
 
                     await alarm_index.add_ttsAlarm(alarm_id, crono, message_stg, msg.guild.id, channel_discord.id, alarm_user, msg.guild.name);
-                    msg.channel.send({
-                        embed: {
-                            fields: { name: `Created TTS alarm ${alarm_id}!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
-                            timestamp: new Date()
-                        }
-                    });
+                    if (utility_functions.can_send_embeded(msg)) {
+                        msg.channel.send({
+                            embed: {
+                                fields: { name: `Created TTS alarm ${alarm_id}!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                                timestamp: new Date()
+                            }
+                        });
+                    } else {
+                        msg.channel.send(`TTS alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!`);
+                    }
                 } catch (err) {
                     logging.logger.info(`An error occured while trying to add alarm with params: ${msg.content}`);
                     logging.logger.error(err);

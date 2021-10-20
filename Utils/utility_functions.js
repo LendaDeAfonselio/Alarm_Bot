@@ -1,6 +1,8 @@
 "use strict";
 
 const Discord = require('discord.js');
+const { Permissions } = require('discord.js');
+
 const auth = require('./../auth.json');
 const alarm_db = require('./../data_access/alarm_index');
 const premium_db = require('./../data_access/premium_index');
@@ -190,6 +192,38 @@ function deleteFromCronList(cron_list, alarm) {
     }
 }
 
+function can_send_embeded(msg) {
+    let ch = msg.channel;
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.EMBED_LINKS);
+}
+
+
+function can_send_tts_messages(msg) {
+    let ch = msg.channel;
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
+}
+
+function can_send_messages(msg) {
+    let ch = msg.channel;
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+}
+
+function can_send_messages_to_ch(msg, ch) {
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+}
+function can_send_ttsmessages_to_ch(msg, ch) {
+    let permission = msg.guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
+}
+
+function permissions_include(permissions, perm) {
+    return permissions.has(Permissions.FLAGS.VIEW_CHANNEL) && permissions.has(perm);
+}
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
@@ -209,5 +243,10 @@ module.exports = {
     broadcastEvalAndConcat: broadcastEvalAndConcat,
     broadcastEvalAndConcatLambda: broadcastEvalAndConcatLambda,
     isTTSAlarm: isTTSAlarm,
-    deleteFromCronList: deleteFromCronList
+    deleteFromCronList: deleteFromCronList,
+    can_send_embeded: can_send_embeded,
+    can_send_tts_messages: can_send_tts_messages,
+    can_send_messages: can_send_messages,
+    can_send_messages_to_ch: can_send_messages_to_ch,
+    can_send_ttsmessages_to_ch: can_send_ttsmessages_to_ch
 }

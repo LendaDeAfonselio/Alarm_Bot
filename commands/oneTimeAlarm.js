@@ -89,7 +89,13 @@ function createOneTimeCron(cron, d, message, channel_discord) {
 function createPrivateOneTimeCron(msg, cron, d, message) {
     try {
         let ota = new cron(d, () => {
-            msg.author.send(`${message}`);
+            msg.author.send(message).catch((err) => {
+                logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.author.id}.`);
+                logging.logger.error(err);
+                if (msg.channel.type !== 'dm' && utils.can_send_messages_to_ch(msg, msg.channel)) {
+                    msg.reply('Unable to send you the private alarms via DM. Check your permissions!');
+                }
+            });
         });
         return ota;
     } catch (err) {
@@ -141,6 +147,10 @@ module.exports = {
                                     if (d > now) {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
+                                        if (!utils.can_send_messages_to_ch(msg, channel_discord)) {
+                                            msg.channel.send(`Cannot setup the alarm in that channel because the bot does not have permission to send messages to it.`)
+                                            return;
+                                        }
                                         let ota = createOneTimeCron(cron, d, message, channel_discord);
                                         if (ota !== undefined) {
                                             setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
@@ -170,6 +180,10 @@ module.exports = {
                                     if (d > now) {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
+                                        if (!utils.can_send_messages_to_ch(msg, channel_discord)) {
+                                            msg.channel.send(`Cannot setup the alarm to specified channel because the bot does not have permission to send messages to it.`)
+                                            return;
+                                        }
                                         let ota = createOneTimeCron(cron, d, message, channel_discord);
 
                                         if (ota !== undefined) {

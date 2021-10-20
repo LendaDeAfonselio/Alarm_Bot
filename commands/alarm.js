@@ -5,6 +5,7 @@ const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
 const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
+const utility_functions = require('../Utils/utility_functions');
 const channel_regex = /<#\d+>/;
 
 module.exports = {
@@ -40,6 +41,10 @@ module.exports = {
                         message_stg = args.slice(6, args.length).join(' ');
                     }
                     if (channel_discord !== undefined) {
+                        if (!utility_functions.can_send_messages_to_ch(msg, channel_discord)) {
+                            msg.channel.send(`Cannot setup the alarm in channel ${channel} because the bot does not have permission to send messages to it.`)
+                            return;
+                        }
                         let old_c = crono;
                         crono = time_utils.updateParams(difference, crono);
                         try {
@@ -76,15 +81,20 @@ module.exports = {
                             newAlarm.save()
                                 .then((result) => {
                                     logging.logger.info(`${result} added to database`);
-                                    msg.channel.send({
-                                        embed: {
-                                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
-                                            timestamp: new Date()
-                                        }
-                                    });
+                                    if (utility_functions.can_send_embeded(msg)) {
+                                        msg.channel.send({
+                                            embed: {
+                                                fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                                                timestamp: new Date()
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        msg.channel.send(`Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success! Consider turning on embed links for the bot to get a prettier message :)`);
+                                    }
                                 })
                                 .catch((err) => {
-                                    logging.logger.info(`An error while trying to add ${result} to the database.`);
+                                    logging.logger.info(`An error while trying to add ${alarm_id} to the database.`);
                                     logging.logger.error(err);
                                 });
                         } catch (err) {

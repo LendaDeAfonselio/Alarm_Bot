@@ -93,12 +93,20 @@ client.on('message', async message => {
         }
         if (!client.commands.has(command)) return;
         else {
-            try {
-                await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
-            } catch (error) {
-                logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
-                logging.logger.error(error);
-                message.reply('There was an error trying to execute that command!');
+            if (utility_functions.can_send_messages(message)) {
+                try {
+                    await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
+                } catch (error) {
+                    logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
+                    logging.logger.error(error);
+                    message.reply('There was an error trying to execute that command!');
+                }
+            } else {
+                message.author.send('AlarmBot does not have permission to send messages. Please check AlarmBot permissions and try again.')
+                    .catch((err) => {
+                        logging.logger.info(`Can't send reply to message ${args} from user ${message.author.id}. And no permissions in the channel...`);
+                        logging.logger.error(err);
+                    });
             }
         }
     }

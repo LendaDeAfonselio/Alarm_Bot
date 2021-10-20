@@ -1,4 +1,6 @@
+const utility_functions = require('../Utils/utility_functions');
 const auth = require('./../auth.json');
+const logging = require('../Utils/logging');
 
 module.exports = {
     name: 'alarmHelp',
@@ -68,6 +70,19 @@ module.exports = {
                     title: 'Examples of usage',
                     fields: msg_fields,
                     timestamp: new Date()
+                }
+            }).catch((err) => {
+                logging.logger.info(`Can't send reply to message user ${message.author.id}.`);
+                logging.logger.error(err);
+                if (message.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(message, message.channel)) {
+                    message.channel.send({
+                        embed: {
+                            color: 0xff80d5,
+                            title: 'Examples of usage',
+                            fields: msg_fields,
+                            timestamp: new Date()
+                        }
+                    });
                 }
             });
         } catch (e) {

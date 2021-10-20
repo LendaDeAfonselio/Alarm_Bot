@@ -1,6 +1,7 @@
 const fs = require("fs");
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
+const utility_functions = require('../Utils/utility_functions');
 
 module.exports = {
     name: 'help',
@@ -12,7 +13,10 @@ module.exports = {
             if (err) logging.logger.error(err);
             let jsfiles = files.filter(f => f.split(".").pop() === "js");
             if (jsfiles.length <= 0) {
-                message.author.send("No commands to load!");
+                message.author.send("No commands to load!").catch((err) => {
+                    logging.logger.info(`Can't send reply to user ${message.author.id}.`);
+                    logging.logger.error(err);
+                });;
                 return;
             }
             let msg_fields = [];
@@ -47,7 +51,20 @@ module.exports = {
                         fields: msg_fields,
                         timestamp: new Date()
                     }
-                });
+                }).catch((err) => {
+                    logging.logger.info(`Can't send reply to help from user ${message.author.id}.`);
+                    logging.logger.error(err);
+                    if (message.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(message, message.channel)) {
+                        message.channel.send({
+                            embed: {
+                                color: 0xff80d5,
+                                title: 'A list of my commands',
+                                fields: msg_fields,
+                                timestamp: new Date()
+                            }
+                        });
+                    }
+                });;
             } catch (e) {
                 logging.logger.info(`Error trying to get the help command`);
                 logging.logger.error(e);

@@ -28,7 +28,7 @@ module.exports = {
                 id_stg += `${ota.alarm_id}\n`;
             });
             results_tts.forEach(ta => {
-                id_stg += `${id_stg.alarm_id}\n`;
+                id_stg += `${ta.alarm_id}\n`;
             });
             let chunks = utility_functions.chunkArray(id_stg, 2000);
 
@@ -50,8 +50,16 @@ module.exports = {
 
             chunks = utility_functions.chunkArray(id_stg, 2000);
 
-            for (let chunk of chunks) {
-                msg.author.send(chunk);
+            try {
+                for (let chunk of chunks) {
+                    msg.author.send(chunk);
+                }
+            } catch (err) {
+                logging.logger.info(`Can't send reply to message ${args} from user ${msg.author.id}.`);
+                logging.logger.error(err);
+                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                }
             }
             return;
         }
@@ -93,6 +101,12 @@ module.exports = {
                     fields: chunk,
                     timestamp: new Date()
                 }
+            }).catch((err) => {
+                logging.logger.info(`Can't send reply to myalarms message from user ${msg.author.id}.`);
+                logging.logger.error(err);
+                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                }
             });
         }
 
@@ -100,9 +114,13 @@ module.exports = {
             msg.author.send({
                 embed: {
                     color: 0xcc1100,
-                    title: "Your private alarms are:",
+                    title: "Your private one time alarms alarms are:",
                     fields: chunk,
                     timestamp: new Date()
+                }
+            }).catch((err) => {
+                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
                 }
             });
         }
@@ -112,14 +130,18 @@ module.exports = {
 
 function sendChunksAsPublicMsg(public_chunks, msg, title_message) {
     for (let chunk of public_chunks) {
-        msg.channel.send({
-            embed: {
-                color: 0xff80d5,
-                title: title_message,
-                fields: chunk,
-                timestamp: new Date()
-            }
-        });
+        if (utility_functions.can_send_embeded(msg)) {
+            msg.channel.send({
+                embed: {
+                    color: 0xff80d5,
+                    title: title_message,
+                    fields: chunk,
+                    timestamp: new Date()
+                }
+            });
+        } else {
+            msg.channel.send('Embeded messages are disallowed for this server. Try turning them on or use `$myalarms -id`.');
+        }
     }
 }
 
