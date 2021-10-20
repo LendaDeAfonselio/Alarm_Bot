@@ -92,7 +92,7 @@ function createPrivateOneTimeCron(msg, cron, d, message) {
             msg.author.send(message).catch((err) => {
                 logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.author.id}.`);
                 logging.logger.error(err);
-                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                if (msg.channel.type !== 'dm' && utils.can_send_messages_to_ch(msg, msg.channel)) {
                     msg.reply('Unable to send you the private alarms via DM. Check your permissions!');
                 }
             });
@@ -147,7 +147,7 @@ module.exports = {
                                     if (d > now) {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
-                                        if (!utility_functions.can_send_messages_to_ch(msg, channel_discord)) {
+                                        if (!utils.can_send_messages_to_ch(msg, channel_discord)) {
                                             msg.channel.send(`Cannot setup the alarm in that channel because the bot does not have permission to send messages to it.`)
                                             return;
                                         }
@@ -180,7 +180,7 @@ module.exports = {
                                     if (d > now) {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
-                                        if (!utility_functions.can_send_messages_to_ch(msg, channel_discord)) {
+                                        if (!utils.can_send_messages_to_ch(msg, channel_discord)) {
                                             msg.channel.send(`Cannot setup the alarm to specified channel because the bot does not have permission to send messages to it.`)
                                             return;
                                         }
