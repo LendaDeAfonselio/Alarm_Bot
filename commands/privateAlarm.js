@@ -42,7 +42,7 @@ module.exports = {
                             msg.author.send(message_stg).catch((err) => {
                                 logging.logger.info(`Can't send private message to user ${msg.author.id}. ${alarm_id}.`);
                                 logging.logger.error(err);
-                                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                                if (msg.channel.type !== 'dm' && gen_utils.can_send_messages_to_ch(msg, msg.channel)) {
                                     msg.reply(`Cannot send you the DM for alarm with id ${alarm_id}. Check your permissions for DMs!`)
                                 }
 
@@ -79,6 +79,9 @@ module.exports = {
                             }).catch((err) => {
                                 logging.logger.info(`Can't send private message to user ${msg.author.id}. Confirming the alarm ${alarm_id}.`);
                                 logging.logger.error(err);
+                                if (msg.channel.type !== 'dm' && gen_utils.can_send_messages_to_ch(msg, msg.channel)) {
+                                    msg.reply(`Cannot send you the DM for alarm with id ${alarm_id}. Check your permissions for DMs!\nThe alarm was stored, but with your current preferences the bot will not be able to send the message to you!`)
+                                }
                             });
                         })
                         .catch((err) => {
