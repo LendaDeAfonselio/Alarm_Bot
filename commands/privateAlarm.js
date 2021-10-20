@@ -41,7 +41,11 @@ module.exports = {
                         try {
                             msg.author.send(message_stg).catch((err) => {
                                 logging.logger.info(`Can't send private message to user ${msg.author.id}. ${alarm_id}.`);
-                                logging.logger.error(err)
+                                logging.logger.error(err);
+                                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                                    msg.reply(`Cannot send you the DM for alarm with id ${alarm_id}. Check your permissions for DMs!`)
+                                }
+
                             });
                         } catch (err) {
                             logging.logger.error(`Error when private alarm with id ${alarm_id} went off: ${err}`);

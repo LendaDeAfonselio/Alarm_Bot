@@ -1,3 +1,4 @@
+const utility_functions = require('../Utils/utility_functions');
 const auth = require('./../auth.json');
 
 module.exports = {
@@ -72,7 +73,17 @@ module.exports = {
             }).catch((err) => {
                 logging.logger.info(`Can't send reply to message user ${message.author.id}.`);
                 logging.logger.error(err);
-            });;
+                if (message.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(message, message.channel)) {
+                    message.channel.send({
+                        embed: {
+                            color: 0xff80d5,
+                            title: 'Examples of usage',
+                            fields: msg_fields,
+                            timestamp: new Date()
+                        }
+                    });
+                }
+            });
         } catch (e) {
             console.err(e);
         }

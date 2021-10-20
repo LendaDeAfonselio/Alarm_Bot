@@ -57,6 +57,9 @@ module.exports = {
             } catch (err) {
                 logging.logger.info(`Can't send reply to message ${args} from user ${msg.author.id}.`);
                 logging.logger.error(err);
+                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                }
             }
             return;
         }
@@ -101,6 +104,9 @@ module.exports = {
             }).catch((err) => {
                 logging.logger.info(`Can't send reply to myalarms message from user ${msg.author.id}.`);
                 logging.logger.error(err);
+                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                }
             });
         }
 
@@ -108,9 +114,13 @@ module.exports = {
             msg.author.send({
                 embed: {
                     color: 0xcc1100,
-                    title: "Your private alarms are:",
+                    title: "Your private one time alarms alarms are:",
                     fields: chunk,
                     timestamp: new Date()
+                }
+            }).catch((err) => {
+                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
                 }
             });
         }

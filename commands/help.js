@@ -52,7 +52,17 @@ module.exports = {
                     }
                 }).catch((err) => {
                     logging.logger.info(`Can't send reply to help from user ${message.author.id}.`);
-                    logging.logger.error(err)
+                    logging.logger.error(err);
+                    if (message.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(message, message.channel)) {
+                        message.channel.send({
+                            embed: {
+                                color: 0xff80d5,
+                                title: 'A list of my commands',
+                                fields: msg_fields,
+                                timestamp: new Date()
+                            }
+                        });
+                    }
                 });;
             } catch (e) {
                 logging.logger.info(`Error trying to get the help command`);

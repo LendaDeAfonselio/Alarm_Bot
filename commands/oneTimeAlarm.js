@@ -91,7 +91,10 @@ function createPrivateOneTimeCron(msg, cron, d, message) {
         let ota = new cron(d, () => {
             msg.author.send(message).catch((err) => {
                 logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.author.id}.`);
-                logging.logger.error(err)
+                logging.logger.error(err);
+                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
+                    msg.reply('Unable to send you the private alarms via DM. Check your permissions!');
+                }
             });
         });
         return ota;
