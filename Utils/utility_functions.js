@@ -221,7 +221,7 @@ function can_send_ttsmessages_to_ch(msg, ch) {
 }
 
 function permissions_include(permissions, perm) {
-    return permissions.has(perm);
+    return permissions.has(Permissions.FLAGS.VIEW_CHANNEL) && permissions.has(perm);
 }
 
 module.exports = {
