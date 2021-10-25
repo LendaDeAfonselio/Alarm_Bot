@@ -139,7 +139,7 @@ async function fetchPrivateOTAs(cron_list, cron, client, shardid) {
         if (user_from_shard !== undefined) {
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    member.send(message_stg)
+                    user_from_shard.send(message_stg)
                         .catch(logging.logger.info(`Shard with number ${shardid} does not have permission to send message to ${user_id}`));
                     scheduledMessage.stop();
                     delete cron_list[alarm_id];
