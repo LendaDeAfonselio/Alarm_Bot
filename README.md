@@ -3,7 +3,7 @@ A Discord Bot that allows users to set up alarms periodic or one time alarms and
 
 You can check out the bot's page on [top.gg](https://top.gg/bot/754350217876340816) to invite AlarmBot to your server!
 
-Check out the developer's [Buy me a Coffee](https://www.buymeacoffee.com/Afonselio) if you want (and can) support the developer or purchase premium membership to the bot. 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A07J64F)
 
 ## Module installs:
 - `npm i discord.js`
