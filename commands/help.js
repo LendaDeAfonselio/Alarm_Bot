@@ -40,7 +40,7 @@ module.exports = {
             });
             msg_fields.push(field = {
                 name: 'Unlock premium and/or support the alarm creator',
-                value: 'https://www.buymeacoffee.com/Afonselio'
+                value: 'https://ko-fi.com/alarmbot'
             });
             // sends dm
             try {
