@@ -10,3 +10,4 @@ npm i timezones.json
 clear
 npm i winston
 clear
+npm i -g pm2
