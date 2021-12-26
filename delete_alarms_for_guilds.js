@@ -6,10 +6,7 @@ async function deleteAlarmsForGuild(cron_list, guild_id) {
     let alarms = await Alarm_model.find({ guild: guild_id });
 
     // deleting the alarms from cron list
-    alarms.forEach((alarm) => {
-        cron_list[alarm.alarm_id].stop();
-        delete cron_list[alarm.alarm_id];
-    });
+    alarms.forEach((alarm) => utility_functions.deleteFromCronList(cron_list, alarm));
 
     // delete from DB
     return await Alarm_model.deleteMany({ guild: guild_id });
