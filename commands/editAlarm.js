@@ -181,7 +181,7 @@ module.exports = {
                 editCronForAlarm(cron, cron_list, message_stg, channel_discord, msg, combination);
                 msg.channel.send(`Updated the message for ${combination.length} alarms that contain \`${alarm_id}\` in the id`);
             } else {
-                msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
+                msg.channel.send('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
             }
         } else if (args.length >= 8 && utility_functions.compareIgnoringCase(args[0], "-c") &&
             !utility_functions.compareIgnoringCase(args[1], "-m")) {
@@ -256,7 +256,7 @@ module.exports = {
                 let channel_discord;
                 ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 9));
                 if (channel_discord === undefined) {
-                    msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
+                    msg.channel.send('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
                     return;
                 }
                 crono = time_utils.updateParams(difference, crono);
