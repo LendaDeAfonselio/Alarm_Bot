@@ -80,7 +80,6 @@ module.exports = {
                             });
                             newAlarm.save()
                                 .then((result) => {
-                                    logging.logger.info(`${result} added to database`);
                                     if (utility_functions.can_send_embeded(msg)) {
                                         msg.channel.send({
                                             embed: {
@@ -103,7 +102,7 @@ module.exports = {
                             msg.channel.send(`Error adding the alarm with params: ${crono}, with message ${message_stg}`);
                         }
                     } else {
-                        msg.channel.send('It was not possible to utilize the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
+                        msg.channel.send('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
                     }
                 }
             } else {

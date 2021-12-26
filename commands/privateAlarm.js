@@ -69,7 +69,6 @@ module.exports = {
                     });
                     newAlarm.save()
                         .then((result) => {
-                            logging.logger.info(`${result} added to database`);
                             msg.author.send({
                                 embed: {
                                     title: `Alarm ${alarm_id} with message: ${message_stg} was sucessfully saved with params: ${crono} and message ${message_stg}`,

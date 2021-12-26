@@ -3,6 +3,7 @@ const Private_alarm_model = require('./models/private_alarm_model');
 const One_Time_Alarm_model = require('./models/one_time_alarm_model');
 const alarm_db = require('./data_access/alarm_index');
 const logging = require('./Utils/logging');
+const utility_functions = require('./Utils/utility_functions');
 
 async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
     let shard_guilds = Array.from(client.guilds.cache.keys());
@@ -17,6 +18,10 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
             let scheduledMessage = new cron(crono, async () => {
                 try {
                     let channel = await guild.channels.cache.get(channel_id);
+                    if (!utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
+                        utility_functions.send_message_to_default_channel(guild,`Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
+                        return false;
+                    }
                     if (channel !== undefined) {
                         channel.send(message_stg);
                     } else {
@@ -65,7 +70,7 @@ async function fetchPrivateAlarms(cron_list, cron, client, shardid) {
                         logging.logger.info(`${alarm_id} from the DB is not usable because the user ${user_id} was not found in shard ${shardid}`);
                     }
                 } catch (err) {
-                    logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
+                    logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}. ${err.stack}`);
                 }
             }, {
                 scheduled: true
@@ -97,6 +102,10 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
             let message_stg = alarm.message;
             let channel_id = alarm.channel;
             let channel = await guild.channels.cache.get(channel_id);
+            if (!utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
+                utility_functions.send_message_to_default_channel(guild,`Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
+                return false;
+            }
             let scheduledMessage = new cron(crono, async () => {
                 try {
                     if (channel !== undefined) {
@@ -109,7 +118,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
                     }
                 }
                 catch (err) {
-                    logging.logger.error(`Alarm with id ${alarm_id} failed to off. Reason: ${err}`);
+                    logging.logger.error(`Alarm with id ${alarm_id} failed to off. Error: ${err}. ${err.stack}`);
                 }
             });
             scheduledMessage.start();
@@ -144,7 +153,7 @@ async function fetchPrivateOTAs(cron_list, cron, client, shardid) {
                     scheduledMessage.stop();
                     delete cron_list[alarm_id];
                 } catch (err) {
-                    logging.logger.error(`Alarm with id ${alarm_id} failed to off. Reason: ${err}`);
+                    logging.logger.error(`Alarm with id ${alarm_id} failed to off. Error: ${err}. ${err.stack}`);
                 }
             });
             scheduledMessage.start();
@@ -169,6 +178,10 @@ async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
             let scheduledMessage = new cron(crono, async () => {
                 try {
                     let channel = await guild.channels.cache.get(channel_id);
+                    if (!utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
+                        utility_functions.send_message_to_default_channel(guild,`Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
+                        return false;
+                    }
                     if (channel !== undefined) {
                         channel.send(message_stg, {
                             tts: true

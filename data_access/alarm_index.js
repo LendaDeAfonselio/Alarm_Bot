@@ -32,7 +32,6 @@ async function add_ttsAlarm(alarm_id, alarm_args, message,
     });
     newTTSAlarm.save()
         .then((result) => {
-            logging.logger.info(`${result} added to database`);
             return result;
         })
         .catch((err) => {

@@ -53,8 +53,7 @@ module.exports = {
                 }
             }
         } else {
-            msg.channel.send(`No arguments were passed to execute this command.\n
-                + Usage:  + ${this.usage}`);
+            msg.channel.send(`No arguments were passed to execute this command.\nUsage: ${this.usage}`);
         }
 
     }

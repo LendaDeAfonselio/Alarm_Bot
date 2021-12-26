@@ -224,6 +224,11 @@ function permissions_include(permissions, perm) {
     return permissions.has(Permissions.FLAGS.VIEW_CHANNEL) && permissions.has(perm);
 }
 
+function can_send_messages_to_ch_using_guild(guild, ch) {
+    let permission = guild.me.permissionsIn(ch);
+    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+}
+
 module.exports = {
     hasAlarmRole: hasAlarmRole,
     isAdministrator: isAdministrator,
@@ -248,5 +253,6 @@ module.exports = {
     can_send_tts_messages: can_send_tts_messages,
     can_send_messages: can_send_messages,
     can_send_messages_to_ch: can_send_messages_to_ch,
-    can_send_ttsmessages_to_ch: can_send_ttsmessages_to_ch
+    can_send_ttsmessages_to_ch: can_send_ttsmessages_to_ch,
+    can_send_messages_to_ch_using_guild: can_send_messages_to_ch_using_guild
 }
