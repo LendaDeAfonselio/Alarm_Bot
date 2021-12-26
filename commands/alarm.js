@@ -80,7 +80,6 @@ module.exports = {
                             });
                             newAlarm.save()
                                 .then((result) => {
-                                    logging.logger.info(`${result} added to database`);
                                     if (utility_functions.can_send_embeded(msg)) {
                                         msg.channel.send({
                                             embed: {
