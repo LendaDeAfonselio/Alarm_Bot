@@ -9,7 +9,7 @@ const logging = require('../Utils/logging');
 module.exports = {
     name: 'silenceAllAlarms',
     description: 'Silences all alarms until they are reactivate.\n-p to silence all private alarms and -a to silence all regular alarms on the server',
-    usage: auth.prefix + 'silenceAllAlarms <type>',
+    usage: `\`${auth.prefix}silenceAllAlarms -a\` or \`${auth.prefix}silenceAllAlarms -p\`\nUse -p to silence all private alarms, and -a to silence regular alarms`,
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
             let flag = args[0].toLowerCase();

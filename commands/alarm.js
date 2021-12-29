@@ -112,7 +112,7 @@ module.exports = {
             }
         }
         else {
-            msg.channel.send('You do not have permissions to set that alarm! Ask for the admins on your server to give you the `Alarming` role!');
+            msg.channel.send('You do not have permissions to set that alarm! Ask for the admins on your server to create and (then) give you the `Alarming` role!');
         }
     }
 };
