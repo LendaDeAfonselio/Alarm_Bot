@@ -9,7 +9,7 @@ const logging = require('../Utils/logging');
 module.exports = {
     name: 'timezonesinfo',
     description: 'Gets information about all timezones, or about a specific timezone if an argument is passed',
-    usage: auth.prefix + 'timezonesinfo\n' + auth.prefix + 'timezonesinfo <timezones_name>',
+    usage: auth.prefix + 'timezonesinfo\nor, ' + auth.prefix + 'timezonesinfo <timezones_name>',
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length == 0) {
 

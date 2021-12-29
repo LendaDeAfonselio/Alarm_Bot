@@ -7,7 +7,7 @@ const logging = require('../Utils/logging');
 module.exports = {
     name: 'activateAllAlarms',
     description: 'Activates all alarms that are currently silent.\n-p to activate all private alarms and -a to activate all regular alarms on the server',
-    usage: auth.prefix + 'activateAllAlarms <type>',
+    usage: `\`${auth.prefix}activateAllAlarms -a\` or \`${auth.prefix}activateAllAlarms -p\`\nUse -p to activate all private alarms, and -a to activate regular alarms`,
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
             let flag = args[0].toLowerCase();
