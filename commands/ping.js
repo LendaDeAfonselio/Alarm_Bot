@@ -1,9 +1,14 @@
 "use strict";
+const { SlashCommandBuilder } = require('@discordjs/builders');
+
 module.exports = {
+  data: new SlashCommandBuilder()
+  .setName('ping')
+  .setDescription('Ping!'),
   name: 'ping',
   description: 'Ping!',
   usage: 'ping',
-  execute(msg, args, client, cron, cron_list, mongoose) {
-    msg.channel.send('pong');
-  },
+  async execute(interaction) {
+		await interaction.reply('Pong!');
+	},
 };
