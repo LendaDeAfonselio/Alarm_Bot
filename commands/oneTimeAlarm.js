@@ -4,6 +4,7 @@ const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const time_utils = require('../Utils/time_validation');
 const alarm_db = require('../data_access/alarm_index');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 function isValidDate(d) {
     return d instanceof Date && !isNaN(d);
@@ -110,6 +111,9 @@ module.exports = {
         + 'For a private alarm use the -p flag as the second argument otherwise it will send the message to the channel you typed the command at\n'
         + 'If no Date is specified then it will default to today',
     usage: auth.prefix + 'oneTimeAlarm <-p?> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n',
+    data: new SlashCommandBuilder()
+        .setName("onetimealarm")
+        .setDescription("Sets up an alarm that will play one time"),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (msg.channel.type === 'dm' || utils.isAdministrator(msg) || utils.hasAlarmRole(msg, auth.alarm_role_name)) {
             if (args.length > 1) {

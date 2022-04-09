@@ -1,4 +1,5 @@
 "use strict";
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const Alarm_model = require('../models/alarm_model');
 const auth = require('./../auth.json');
@@ -9,10 +10,12 @@ const utility_functions = require('../Utils/utility_functions');
 const channel_regex = /<#\d+>/;
 
 module.exports = {
-    name: 'alarm',
-    description: 'Sets up an alarm that will be repeated\n' +
-        'This alarm will send a message to the _channel_ of the _server_ in which it is activated. Insert channel as the last parameter if you wish to send the message to a specific channel, otherwise it will send it to the channel you are typing the message on\n',
+    name:'alarm' ,
+    description: 'Sets up an alarm that will be repeated according to parameters passed',
     usage: auth.prefix + 'alarm <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>',
+    data: new SlashCommandBuilder()
+        .setName('alarm')
+        .setDescription('Sets up an alarm that will be repeated according to parameters passed'),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (msg.channel.type === 'dm') {
             msg.channel.send('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `' + auth.prefix + 'privateAlarm` command');

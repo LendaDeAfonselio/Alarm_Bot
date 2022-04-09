@@ -4,14 +4,18 @@ const alarm_db = require('../data_access/alarm_index');
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
 const utility_functions = require('../Utils/utility_functions');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 
 module.exports = {
     name: 'deleteAllAlarms',
-    description: 'Deletes all of YOUR alarms in the server you use it - **THIS ACTION CANNOT BE REVERTED**\n'
+    description: 'Deletes all of YOUR alarms in the server - **THIS ACTION CANNOT BE REVERTED**\n'
         + '-a for public alarms of that server; -p for private alarms; -oa for public one time alarms; -op for private one time alarms',
     usage: `\`${auth.prefix}deleteAllAlarms -a\`; or \`${auth.prefix}deleteAllAlarms -p\`; or \`${auth.prefix}deleteAllAlarms -oa\`; or \`${auth.prefix}deleteAllAlarms -op\`\nUse -a to silence all private alarms,
      -p for private alarms; -oa for public one time alarms; -op for private one time alarms`,
+    data: new SlashCommandBuilder()
+        .setName("deleteallalarms")
+        .setDescription("Deletes all of YOUR alarms in the server"),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         let flag = args[0];
         let alarm_user = msg.author.id;

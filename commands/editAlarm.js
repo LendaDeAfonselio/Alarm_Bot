@@ -2,13 +2,14 @@
 
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
 const logging = require('../Utils/logging');
 
 const utility_functions = require('../Utils/utility_functions');
-const name_command = 'editAlarm';
+const name_command = 'editalarm';
 
 async function getAlarmById(alarm_id, guild_id) {
     if (utility_functions.isPrivateAlarm(alarm_id)) {
@@ -141,6 +142,9 @@ module.exports = {
     usage: auth.prefix + name_command + ' -m <alarm_id_regex> <message> <channel?>\nOr:\t' +
         auth.prefix + name_command + ' -c <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday>\nOr:\t' +
         auth.prefix + name_command + ' -c -m <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>\n',
+    data: new SlashCommandBuilder()
+        .setName(name_command)
+        .setDescription("Allows the user to edit the alarm."),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         let is_dm = msg.channel.type === 'dm';
         if (args.length >= 3 && utility_functions.compareIgnoringCase(args[0], "-m")) {

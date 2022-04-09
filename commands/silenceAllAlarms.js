@@ -5,11 +5,15 @@ const Private_alarm_model = require('../models/private_alarm_model');
 
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
-    name: 'silenceAllAlarms',
-    description: 'Silences all alarms until they are reactivate.\n-p to silence all private alarms and -a to silence all regular alarms on the server',
+    name: 'silenceallalarms',
+    description: 'Silences all alarms until reactivation.\n-p to silence all private alarms and -a to silence all regular alarms on the server',
     usage: `\`${auth.prefix}silenceAllAlarms -a\` or \`${auth.prefix}silenceAllAlarms -p\`\nUse -p to silence all private alarms, and -a to silence regular alarms`,
+    data: new SlashCommandBuilder()
+        .setName("silenceallalarms")
+        .setDescription("Silences all alarms until reactivation"),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
             let flag = args[0].toLowerCase();

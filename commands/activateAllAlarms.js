@@ -1,3 +1,5 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 
@@ -5,7 +7,10 @@ const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
 
 module.exports = {
-    name: 'activateAllAlarms',
+    data: new SlashCommandBuilder()
+        .setName('activateallalarms')
+        .setDescription('Activates all alarms that are currently silent.'),
+    name: 'activateallalarms',
     description: 'Activates all alarms that are currently silent.\n-p to activate all private alarms and -a to activate all regular alarms on the server',
     usage: `\`${auth.prefix}activateAllAlarms -a\` or \`${auth.prefix}activateAllAlarms -p\`\nUse -p to activate all private alarms, and -a to activate regular alarms`,
     async execute(msg, args, client, cron, cron_list, mongoose) {

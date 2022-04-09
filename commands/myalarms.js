@@ -4,11 +4,15 @@ const auth = require('./../auth.json');
 const utility = require('./../Utils/utility_functions');
 const utility_functions = require('./../Utils/utility_functions');
 const db_alarms = require('../data_access/alarm_index');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'myAlarms',
     description: 'Fetches all of your alarms.\n`myAlarms -id` sends a non embed message with the ids for easier copy/pasting on phone.',
     usage: auth.prefix + 'myAlarms',
+    data: new SlashCommandBuilder()
+        .setName("myalarms")
+        .setDescription("Fetches all alarms"),
     async execute(msg, args, client, cron, cron_list, mongoose) {
 
         let guild_id = msg.channel.type === 'dm' ? "" : msg.guild?.id;

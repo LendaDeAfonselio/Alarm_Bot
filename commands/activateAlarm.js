@@ -1,3 +1,5 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const utility_functions = require('../Utils/utility_functions');
@@ -7,6 +9,9 @@ const logging = require('../Utils/logging');
 
 
 module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('activatealarm')
+        .setDescription('Activates an alarm with a given id that was silenced previously!'),
     name: 'activateAlarm',
     description: 'Activates an alarm with a given id that was silenced previously',
     usage: auth.prefix + 'silenceAlarm <id>',

@@ -2,6 +2,7 @@ const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 
 const utility_functions = require('../Utils/utility_functions');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
@@ -9,8 +10,11 @@ const db_alarms = require('../data_access/alarm_index');
 
 module.exports = {
     name: 'deleteAlarm',
-    description: 'Deletes the alarm with a given id - **THIS ACTION CANNOT BE REVERTED**',
+    description: 'Deletes the alarm with a given id CANNOT',
     usage: auth.prefix + 'deleteAlarm <id>',
+    data: new SlashCommandBuilder()
+        .setName('deletealarm')
+        .setDescription('Deletes the alarm with a given id - **THIS ACTION CANNOT BE REVERTED**'),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
             let alarm_to_delete = args[0];

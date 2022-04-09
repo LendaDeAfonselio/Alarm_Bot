@@ -4,12 +4,16 @@ const time_utils = require('../Utils/time_validation');
 const auth = require('./../auth.json');
 const utility_functions = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 
 module.exports = {
     name: 'timezonesinfo',
     description: 'Gets information about all timezones, or about a specific timezone if an argument is passed',
     usage: auth.prefix + 'timezonesinfo\nor, ' + auth.prefix + 'timezonesinfo <timezones_name>',
+    data: new SlashCommandBuilder()
+        .setName("timezonesinfo")
+        .setDescription("Gets info about timezone(s)"),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length == 0) {
 

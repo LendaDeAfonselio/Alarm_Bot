@@ -1,12 +1,15 @@
 const utility_functions = require('../Utils/utility_functions');
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'alarmHelp',
     description: 'Sends a message with a set of examples on how to use the parameters',
     usage: auth.prefix + 'alarmHelp',
-
+    data: new SlashCommandBuilder()
+        .setName('alarmhelp')
+        .setDescription('Sends a message with a set of examples on how to use the parameters'),
     execute(message, args, client, cron_list) {
         let msg_fields = [];
         let paramsOrder = {

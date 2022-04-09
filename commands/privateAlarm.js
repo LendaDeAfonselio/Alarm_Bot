@@ -7,6 +7,7 @@ const utils = require('../Utils/time_validation');
 const time_utils = require('../Utils/time_validation');
 const logging = require('../Utils/logging');
 const gen_utils = require('../Utils/utility_functions');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 
 module.exports = {
@@ -15,6 +16,9 @@ module.exports = {
         + 'The remainders will be sent to you via Direct Message!\n'
         + '**The bot has to have a server in common with you to send a private message!**',
     usage: auth.prefix + 'privateAlarm <timezone> <m> <h> <day_of_month> <month> <year> <weekday> <message>',
+    data: new SlashCommandBuilder()
+        .setName("privatealarm")
+        .setDescription('Sets up a private alarm that will be repeated as specified in the arguments'),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         let canCreate = await gen_utils.can_create_private_alarm(msg.author.id);
         if (!canCreate) {

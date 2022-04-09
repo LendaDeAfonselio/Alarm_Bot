@@ -2,12 +2,15 @@ const fs = require("fs");
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
 const utility_functions = require('../Utils/utility_functions');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'help',
     description: 'DMs the requiree a list with all the available commands',
     usage: auth.prefix + 'help',
-
+    data: new SlashCommandBuilder()
+        .setName("help")
+        .setDescription('DMs the requiree a list with all the available commands'),
     execute(message, args, client, cron_list) {
         fs.readdir("./commands/", (err, files) => {
             if (err) logging.logger.error(err);

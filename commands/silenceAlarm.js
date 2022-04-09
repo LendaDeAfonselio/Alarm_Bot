@@ -5,6 +5,7 @@ const Private_alarm_model = require('../models/private_alarm_model');
 
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const utility_functions = require('../Utils/utility_functions');
 
@@ -58,6 +59,9 @@ module.exports = {
     name: 'silenceAlarm',
     description: 'Silences the alarm with a given id. If you also pass a date it will activate automatically once that day arrives otherwise it will be silenced until you turn it back on using activateAlarm <id>',
     usage: auth.prefix + 'silenceAlarm <id> <date_to_active_again>',
+    data: new SlashCommandBuilder()
+        .setName("silencealarm")
+        .setDescription("Silences the alarm with a given id."),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (args.length >= 1) {
 

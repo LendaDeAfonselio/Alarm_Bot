@@ -7,12 +7,16 @@ const logging = require('../Utils/logging');
 const channel_regex = /<#\d+>/;
 const alarm_index = require('../data_access/alarm_index');
 const utility_functions = require('../Utils/utility_functions');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'ttsAlarm',
     description: 'Sets up a tts alarm that will be repeated. The user needs to make sure that they do not have the channel muted and that they have the channel open\n' +
         'This alarm will send a message to the _channel_ of the _server_ in which it is activated. Insert channel as the last parameter if you wish to send the message to a specific channel, otherwise it will send it to the channel you are typing the message on\n',
     usage: auth.prefix + 'ttsAlarm <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>',
+    data: new SlashCommandBuilder()
+        .setName("ttsalarm")
+        .setDescription("Sets up a tts alarm that will be repeated."),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         if (msg.channel.type === 'dm') {
             msg.channel.send('Impossible to setup a tts alarm via DM, you have to use this command in a server!');

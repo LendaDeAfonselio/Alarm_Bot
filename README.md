@@ -14,7 +14,7 @@ You can check out the bot's page on [top.gg](https://top.gg/bot/7543502178763408
 - `npm i winston`
 - `npm i pm2`
 - `npm install @discordjs/rest discord-api-types`
-
+- `npm install @discordjs/builders`
 ## Running the bot
 
 **Steps to run the bot**:
