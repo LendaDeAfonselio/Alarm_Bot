@@ -2,7 +2,7 @@
 // Packages and dependencies
 const { Collection, Client, Intents } = require('discord.js');
 const logging = require('./Utils/logging');
-
+const deployCommands = require('./deployCommands')
 // configuration files
 const appsettings = require('./appsettings.json'); // on github project this file 
 // is not completed, it does need some 
@@ -31,7 +31,7 @@ mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrl
 });
 
 // Instances
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const cron_list = {}; // the in memory crono list
 const cron = require('cron').CronJob;
 const fs = require('fs');
@@ -43,10 +43,10 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
 
 
 for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	// Set a new item in the Collection
-	// With the key as the command name and the value as the exported module
-	client.commands.set(command.data.name, command);
+    const command = require(`./commands/${file}`);
+    // Set a new item in the Collection
+    // With the key as the command name and the value as the exported module
+    client.commands.set(command.data.name, command);
 }
 
 /****** Setup the bot by fetching all alarms ******/
@@ -54,6 +54,7 @@ client.once('ready', async () => {
 
     let allGuilds = client.guilds.cache;
     allGuilds.forEach(async (guild) => { //for each guild the bot is in
+        deployCommands.registerSlashCommandsInGuild(guild.id);
         try {
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id, client);
 
@@ -83,7 +84,7 @@ client.once('ready', async () => {
 
 /*************************** Execute Commands ************************/
 client.on('interactionCreate', async interaction => {
-    if(!interaction.isCommand()){
+    if (!interaction.isCommand()) {
         return;
     }
     else {
