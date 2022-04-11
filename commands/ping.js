@@ -7,7 +7,7 @@ module.exports = {
     .setDescription('Ping!'),
   name: 'ping',
   description: 'Ping!',
-  usage: 'ping',
+  usage: '`/ping`',
   async execute(interaction) {
     await interaction.reply('Pong!');
   },

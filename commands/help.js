@@ -7,17 +7,17 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 module.exports = {
     name: 'help',
     description: 'DMs the requiree a list with all the available commands',
-    usage: auth.prefix + 'help',
+    usage: '`/help`',
     data: new SlashCommandBuilder()
         .setName("help")
         .setDescription('DMs the requiree a list with all the available commands'),
-    execute(message, args, client, cron_list) {
+    execute(interaction) {
         fs.readdir("./commands/", (err, files) => {
             if (err) logging.logger.error(err);
             let jsfiles = files.filter(f => f.split(".").pop() === "js");
             if (jsfiles.length <= 0) {
-                message.author.send("No commands to load!").catch((err) => {
-                    logging.logger.info(`Can't send reply to user ${message.author.id}.`);
+                interaction.user.send("No commands to load!").catch((err) => {
+                    logging.logger.info(`Can't send reply to user ${interaction.user.id}.`);
                     logging.logger.error(err);
                 });;
                 return;
@@ -47,27 +47,28 @@ module.exports = {
             });
             // sends dm
             try {
-                message.author.send({
-                    embed: {
+                interaction.user.send({
+                    embeds: [{
                         color: 0xff80d5,
                         title: 'A list of my commands',
                         fields: msg_fields,
                         timestamp: new Date()
-                    }
+                    }]
                 }).catch((err) => {
-                    logging.logger.info(`Can't send reply to help from user ${message.author.id}.`);
+                    logging.logger.info(`Can't send reply to help from user ${interaction.user.id}.`);
                     logging.logger.error(err);
-                    if (message.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(message, message.channel)) {
-                        message.channel.send({
-                            embed: {
+                    if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
+                        interaction.reply({
+                            embeds: [{
                                 color: 0xff80d5,
                                 title: 'A list of my commands',
                                 fields: msg_fields,
                                 timestamp: new Date()
-                            }
+                            }]
                         });
                     }
-                });;
+                });
+                interaction.reply('Sent instructions via DM');
             } catch (e) {
                 logging.logger.info(`Error trying to get the help command`);
                 logging.logger.error(e);

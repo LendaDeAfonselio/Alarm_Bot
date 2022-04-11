@@ -88,18 +88,14 @@ client.on('interactionCreate', async interaction => {
         return;
     }
     else {
-        let args = interaction.content.slice(auth.prefix.length).split(/ +/);
-        let command = args.shift();
-        if (command !== undefined) {
-            command = command.toLowerCase();
-        }
-        if (!client.commands.has(command)) return;
+        const command = client.commands.get(interaction.commandName);
+        if (!command) return;
         else {
             if (utility_functions.can_send_messages(interaction)) {
                 try {
-                    await client.commands.get(command).execute(interaction, args, client, cron, cron_list, mongoose);
+                    await command.execute(interaction, [], client, cron, cron_list, mongoose);
                 } catch (error) {
-                    logging.logger.info(`An error has occured while executing the following command: ${interaction.content}`);
+                    logging.logger.info(`An error has occured while executing the following command: ${interaction.commandName}; options: ${interaction.options}`);
                     logging.logger.error(error);
                     interaction.reply('There was an error trying to execute that command!');
                 }
