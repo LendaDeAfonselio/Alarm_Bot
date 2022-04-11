@@ -6,24 +6,27 @@ const utility_functions = require('./../Utils/utility_functions');
 const db_alarms = require('../data_access/alarm_index');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
+const optionFlag = 'id-only';
+
 module.exports = {
     name: 'myAlarms',
     description: 'Fetches all of your alarms.\n`myAlarms -id` sends a non embed message with the ids for easier copy/pasting on phone.',
     usage: auth.prefix + 'myAlarms',
     data: new SlashCommandBuilder()
         .setName("myalarms")
-        .setDescription("Fetches all alarms"),
-    async execute(msg, args, client, cron, cron_list, mongoose) {
+        .setDescription("Fetches all alarms")
+        .addStringOption(option => option.setName(optionFlag).setDescription('The message only contains the id of the alarms when assigning yes to this field')),
+    async execute(interaction) {
+        let flag = interaction.options.getString('id-only');
+        let guild_id = interaction.channel.type === 'dm' ? "" : interaction.guild?.id;
 
-        let guild_id = msg.channel.type === 'dm' ? "" : msg.guild?.id;
+        let results_pub = await db_alarms.get_all_alarms_from_user_and_guild(interaction.user.id, guild_id);
+        let results_priv = await db_alarms.get_all_privAlarms_from_user(interaction.user.id);
+        let results_ota_pub = await db_alarms.get_all_oneTimeAlarm_from_user(interaction.user.id, false, interaction.guild?.id);
+        let results_ota_priv = await db_alarms.get_all_oneTimeAlarm_from_user(interaction.user.id, true, interaction.guild?.id);
+        let results_tts = await db_alarms.get_all_ttsalarms_from_user_and_guild(interaction.user.id, guild_id);
 
-        let results_pub = await db_alarms.get_all_alarms_from_user_and_guild(msg.author.id, guild_id);
-        let results_priv = await db_alarms.get_all_privAlarms_from_user(msg.author.id);
-        let results_ota_pub = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, false, msg.guild?.id);
-        let results_ota_priv = await db_alarms.get_all_oneTimeAlarm_from_user(msg.author.id, true, msg.guild?.id);
-        let results_tts = await db_alarms.get_all_ttsalarms_from_user_and_guild(msg.author.id, guild_id);
-
-        if (args.length >= 1 && utility_functions.compareIgnoringCase(args[0], '-id')) {
+        if (flag && flag !== "" && utility_functions.compareIgnoringCase(flag, 'yes')) {
             let id_stg = '**Public Alarms**:\n';
             results_pub.forEach(alarm => {
                 id_stg += `${alarm.alarm_id}\n`;
@@ -38,7 +41,7 @@ module.exports = {
 
 
             for (let chunk of chunks) {
-                msg.channel.send(chunk);
+                await interaction.reply(chunk);
             }
 
             id_stg = '**Private Alarms**:\n';
@@ -56,13 +59,13 @@ module.exports = {
 
             try {
                 for (let chunk of chunks) {
-                    msg.author.send(chunk);
+                    interaction.user.send(chunk);
                 }
             } catch (err) {
-                logging.logger.info(`Can't send reply to message ${args} from user ${msg.author.id}.`);
+                logging.logger.info(`Can't send reply to \`myalarms\` ${flag} message from user ${interaction.user.id}.`);
                 logging.logger.error(err);
-                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
+                    await interaction.reply('Unable to send you the private alarms via DM. Check your permissions!');
                 }
             }
             return;
@@ -88,43 +91,43 @@ module.exports = {
         let tts_chunks = utility.chunkArray(tts_alarms, 20);
 
         if (general_alarms.length <= 0 && tts_alarms.length <= 0) {
-            msg.channel.send('You do not have alarms in this server!');
+            await interaction.reply('You do not have alarms in this server!');
         }
 
         // send public alarms
-        sendChunksAsPublicMsg(public_chunks, msg, "Your public alarms in this server are:");
-        sendChunksAsPublicMsg(public_chunks2, msg, "Your public one time alarms in this server are:");
-        sendChunksAsPublicMsg(tts_chunks, msg, "Your TTS alarms for this server are:");
+        sendChunksAsPublicMsg(public_chunks, interaction, "Your public alarms in this server are:");
+        sendChunksAsPublicMsg(public_chunks2, interaction, "Your public one time alarms in this server are:");
+        sendChunksAsPublicMsg(tts_chunks, interaction, "Your TTS alarms for this server are:");
 
         // send private alarms
         for (let chunk of private_chunks) {
-            msg.author.send({
-                embed: {
+            interaction.user.send({
+                embeds: [{
                     color: 0x5CFF5C,
                     title: "Your private alarms are:",
                     fields: chunk,
                     timestamp: new Date()
-                }
-            }).catch((err) => {
-                logging.logger.info(`Can't send reply to myalarms message from user ${msg.author.id}.`);
+                }]
+            }).catch(async (err) => {
+                logging.logger.info(`Can't send reply to myalarms message from user ${interaction.user.id}.`);
                 logging.logger.error(err);
-                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
+                    await interaction.reply('Unable to send you the private alarms via DM. Check your permissions!');
                 }
             });
         }
 
         for (let chunk of private_chunks2) {
-            msg.author.send({
-                embed: {
+            interaction.user.send({
+                embeds: [{
                     color: 0xcc1100,
                     title: "Your private one time alarms alarms are:",
                     fields: chunk,
                     timestamp: new Date()
-                }
-            }).catch((err) => {
-                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                }]
+            }).catch(async _ => {
+                if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
+                    await interaction.reply('Unable to send you the private alarms via DM. Check your permissions!');
                 }
             });
         }
@@ -132,19 +135,19 @@ module.exports = {
     }
 }
 
-function sendChunksAsPublicMsg(public_chunks, msg, title_message) {
+async function sendChunksAsPublicMsg(public_chunks, interaction, title_message) {
     for (let chunk of public_chunks) {
-        if (utility_functions.can_send_embeded(msg)) {
-            msg.channel.send({
-                embed: {
+        if (utility_functions.can_send_embeded(interaction)) {
+            await interaction.reply({
+                embeds: [{
                     color: 0xff80d5,
                     title: title_message,
                     fields: chunk,
                     timestamp: new Date()
-                }
+                }]
             });
         } else {
-            msg.channel.send('Embeded messages are disallowed for this server. Try turning them on or use `$myalarms -id`.');
+            await interaction.reply('Embeded messages are disallowed for this server. Try turning them on or use `$myalarms -id`.');
         }
     }
 }

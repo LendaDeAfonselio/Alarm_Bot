@@ -83,6 +83,37 @@ client.once('ready', async () => {
 });
 
 /*************************** Execute Commands ************************/
+client.on('messageCreate', async message => {
+    const channelPrefix = auth.prefix;
+    if (!message.content.startsWith(channelPrefix)) return;
+    if (message.author.bot) return;
+    else {
+        let args = message.content.slice(auth.prefix.length).split(/ +/);
+        let command = args.shift();
+        if (command !== undefined) {
+            command = command.toLowerCase();
+        }
+        if (!client.commands.has(command)) return;
+        else {
+            if (utility_functions.can_send_messages(message)) {
+                try {
+                    await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
+                } catch (error) {
+                    logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
+                    logging.logger.error(error);
+                    message.reply('There was an error trying to execute that command!');
+                }
+            } else {
+                message.author.send('AlarmBot does not have permission to send messages. Please check AlarmBot permissions and try again.')
+                    .catch((err) => {
+                        logging.logger.info(`Can't send reply to message ${args} from user ${message.author.id}. And no permissions in the channel...`);
+                        logging.logger.error(err);
+                    });
+            }
+        }
+    }
+});
+
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) {
         return;

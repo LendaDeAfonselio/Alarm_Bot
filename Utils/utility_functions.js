@@ -78,7 +78,7 @@ async function isPremiumUser(user_id) {
  * @param {Discord.Message} message - The Discord Message object
  */
 function isAdministrator(message) {
-    return message.member && message.member.hasPermission("ADMINISTRATOR");
+    return message.member && message.member.permissions.has("ADMINISTRATOR");
 }
 
 /**
