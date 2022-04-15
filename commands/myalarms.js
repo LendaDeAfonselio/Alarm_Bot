@@ -17,7 +17,7 @@ module.exports = {
         .setDescription("Fetches all alarms")
         .addStringOption(option => option.setName(optionFlag).setDescription('The message only contains the id of the alarms when assigning yes to this field')),
     async execute(interaction) {
-        let flag = interaction.options.getString('id-only');
+        let flag = interaction.options.getString(optionFlag);
         let guild_id = interaction.channel.type === 'dm' ? "" : interaction.guild?.id;
 
         let results_pub = await db_alarms.get_all_alarms_from_user_and_guild(interaction.user.id, guild_id);

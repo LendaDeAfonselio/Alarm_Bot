@@ -7,15 +7,21 @@ const logging = require('../Utils/logging');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 
+const TIMEZONE_COMMAND = "timezone";
+const ALL_TIMEZONES_COMMAND = "all";
+const TIMEZONE_NAME_OPT = "timezone_name"
 module.exports = {
     name: 'timezonesinfo',
-    description: 'Gets information about all timezones, or about a specific timezone if an argument is passed',
-    usage: auth.prefix + 'timezonesinfo\nor, ' + auth.prefix + 'timezonesinfo <timezones_name>',
+    description: 'Gets information about timezones',
+    usage: '/timezonesinfo\n/timezonesinfo <timezones_name>',
     data: new SlashCommandBuilder()
         .setName("timezonesinfo")
-        .setDescription("Gets info about timezone(s)"),
-    async execute(msg, args, client, cron, cron_list, mongoose) {
-        if (args.length == 0) {
+        .setDescription("Gets info about timezone(s)")
+        .addSubcommand(option => option.setName(TIMEZONE_COMMAND).setDescription("Information about a specific timezone")
+            .addStringOption(option => option.setName(TIMEZONE_NAME_OPT).setDescription("The timezone")))
+        .addSubcommand(option => option.setName(ALL_TIMEZONES_COMMAND).setDescription("Information about all timezones")),
+    async execute(interaction) {
+        if (interaction.options.getSubcommand() === ALL_TIMEZONES_COMMAND) {
 
             let list_timezones = new Array();
 
@@ -33,42 +39,44 @@ module.exports = {
             });
 
             let chunks = utility_functions.chunkArray(list_timezones, 20);
-
+            let success = true;
             for (let chunk of chunks) {
-                msg.author.send({
-                    embed: {
+
+                interaction.user.send({
+                    embeds: [{
                         color: 0x0099ff,
                         title: 'Here are all the timezones supported:',
                         fields: chunk,
                         timestamp: new Date(),
-                    }
-                }).catch((err) => {
-                    logging.logger.info(`Can't send timezone message to user ${msg.author.id}`);
+                    }]
+                }).catch(async (err) => {
+                    success = false;
+                    logging.logger.info(`Can't send timezone message to user ${interaction.user.id}`);
                     logging.logger.error(err);
-                    if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                        msg.channel.send({
-                            embed: {
+                    if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
+                        await interaction.reply({
+                            embeds: [{
                                 color: 0x0099ff,
                                 title: 'Here are all the timezones supported:',
                                 fields: chunk,
                                 timestamp: new Date(),
-                            }
+                            }]
                         });
                     }
                 });
             }
-        } else {
-            let timezone_name = args[0];
+            if (success) {
+                await interaction.reply('Timezone information was sent via DM');
+            }
+        } else if (interaction.options.getSubcommand() === TIMEZONE_COMMAND) {
+            let timezone_name = interaction.options.getString(TIMEZONE_NAME_OPT);
+            if (!timezone_name || timezone_name === null) {
+                interaction.reply('Please insert a timezone as a parameter for the command');
+                return;
+            }
             let timezone_data = time_utils.get_timezone_by_abreviation(timezone_name);
             if (timezone_data == undefined) {
-                msg.author.send(`No data was found for ${timezone_name}. Check all timezones with ${auth.prefix + 'timezonesinfo'} for more information.`)
-                    .catch((err) => {
-                        logging.logger.info(`Can't send private message to user ${msg.author.id}.`);
-                        logging.logger.error(err);
-                        if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                            msg.channel.send(`No data was found for ${timezone_name}. Check all timezones with ${auth.prefix + 'timezonesinfo'} for more information.`)
-                        }
-                    });
+                interaction.reply(`No data was found for ${timezone_name}. Check all timezones with \`/timezonesinfo\` for more information.`);
                 return;
             }
             let x = new Array();
@@ -82,8 +90,8 @@ module.exports = {
                 name: 'For more information visit: ',
                 value: `https://www.timeanddate.com/time/zones/${timezone_data.timezone_abbreviation}`,
             })
-            msg.author.send({
-                embed: {
+            interaction.user.send({
+                embeds: [{
                     color: 0x90ee90,
                     title: 'Details about ' + timezone_data.timezone_abbreviation,
                     fields: x,
@@ -91,24 +99,26 @@ module.exports = {
                     footer: {
                         text: 'If this example does not yield the desired results try using ' + timezone_data.utc_offset,
                     },
-                }
-            }).catch((err) => {
-                logging.logger.info(`Can't send private message to user ${msg.author.id}.`);
-                logging.logger.error(err);
-                if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                    msg.channel.send({
-                        embed: {
-                            color: 0x90ee90,
-                            title: 'Details about ' + timezone_data.timezone_abbreviation,
-                            fields: x,
-                            timestamp: new Date(),
-                            footer: {
-                                text: 'If this example does not yield the desired results try using ' + timezone_data.utc_offset,
-                            },
-                        }
-                    });
-                }
-            });
+                }]
+            })
+                .then(async _ => await interaction.reply(`Sent information about ${timezone_name} via DM`))
+                .catch(async (err) => {
+                    logging.logger.info(`Can't send private message to user ${interaction.user.id}.`);
+                    logging.logger.error(err);
+                    if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
+                        await interaction.reply({
+                            embeds: [{
+                                color: 0x90ee90,
+                                title: 'Details about ' + timezone_data.timezone_abbreviation,
+                                fields: x,
+                                timestamp: new Date(),
+                                footer: {
+                                    text: 'If this example does not yield the desired results try using ' + timezone_data.utc_offset,
+                                },
+                            }]
+                        });
+                    }
+                });
         }
     }
 }

@@ -135,6 +135,9 @@ Date.prototype.isDstObserved = function () {
 
 
 function get_timezone_by_abreviation(abr) {
+    if(!abr){
+        return undefined;
+    }
     return custom_timezones.filter(
         function (data) { return data.timezone_abbreviation.toUpperCase() == abr.toUpperCase() }
     )[0];
