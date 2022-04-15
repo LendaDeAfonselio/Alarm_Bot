@@ -3,29 +3,31 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 
-const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
-
+const PUBLIC_COMMAND = 'public';
+const PRIVATE_COMMAND = 'private';
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('activateallalarms')
-        .setDescription('Activates all alarms that are currently silent.'),
+        .setDescription('Activates all alarms that are currently silent')
+        .addSubcommand(option => option.setName(PUBLIC_COMMAND).setDescription('Activates all public alarms'))
+        .addSubcommand(option => option.setName(PRIVATE_COMMAND).setDescription('Activates all private alarms')),
     name: 'activateallalarms',
-    description: 'Activates all alarms that are currently silent.\n-p to activate all private alarms and -a to activate all regular alarms on the server',
-    usage: `\`${auth.prefix}activateAllAlarms -a\` or \`${auth.prefix}activateAllAlarms -p\`\nUse -p to activate all private alarms, and -a to activate regular alarms`,
-    async execute(msg, args, client, cron, cron_list, mongoose) {
-        if (args.length >= 1) {
-            let flag = args[0].toLowerCase();
-            let alarm_user = msg.author.id;
+    description: 'Activates all alarms that are currently silent.',
+    usage: `\`/activateAllAlarms public\` or \`/activateAllAlarms private\`\nUse private to activate all private alarms, and public to activate regular alarms`,
+    async execute(interaction, cron_list) {
+        let subcommand = interaction.options.getSubcommand();
+        if (subcommand !== null) {
+            let alarm_user = interaction.user.id;
 
             try {
-                if (flag === '-p') {
-                    let x = await Private_alarm_model.find(
+                if (subcommand === PRIVATE_COMMAND) {
+                    let privateAlarms = await Private_alarm_model.find(
                         { isActive: false, user_id: alarm_user }
                     );
 
                     // update in memory list
-                    x.forEach(alarm => {
+                    privateAlarms.forEach(alarm => {
                         cron_list[alarm.alarm_id].start();
                     });
 
@@ -33,39 +35,38 @@ module.exports = {
                         { isActive: false, user_id: alarm_user },
                         { isActive: true }
                     );
-                    msg.channel.send(`Sucesfully re-activated ${x.length} private alarms.`);
+                    await interaction.reply(`Sucesfully re-activated ${privateAlarms.length} private alarms.`);
 
-                } else if (flag === '-a') {
-                    if (msg.channel.type === 'dm') {
-                        msg.channel.send('Can only activate public alarms in a server, otherwise the bot does not know which alarms to activate.');
+                } else if (subcommand === PUBLIC_COMMAND) {
+                    if (interaction.channel.type === 'dm') {
+                        await interaction.reply('Can only activate public alarms in a server, otherwise the bot does not know which alarms to activate.');
                         return;
                     }
 
-                    let x = await Alarm_model.find(
-                        { isActive: false, guild: msg.guild.id, user_id: alarm_user });
+                    let alarms = await Alarm_model.find(
+                        { isActive: false, guild: interaction.guild.id, user_id: alarm_user });
 
-                    x.forEach(alarm => {
+                    alarms.forEach(alarm => {
                         cron_list[alarm.alarm_id].start();
                     });
 
                     await Alarm_model.updateMany(
-                        { isActive: false, guild: msg.guild.id, user_id: alarm_user },
+                        { isActive: false, guild: interaction.guild.id, user_id: alarm_user },
                         { isActive: true }
                     );
-                    msg.channel.send(`Sucesfully re-activated ${x.length} alarms.`);
+                    await interaction.reply(`Sucesfully re-activated ${alarms.length} alarms.`);
                 } else {
-                    msg.channel.send(`The flag you have provided: ${flag} is invalid. Try silenceAllAlarms -p to silent all of your private alarms or -a to silent all of your alarms in this server.`);
+                    await interaction.reply(`The flag you have provided: ${flag} is invalid. Try silenceAllAlarms -p to silent all of your private alarms or -a to silent all of your alarms in this server.`);
                 }
 
             } catch (e) {
                 logging.logger.info(`Error activating all alarm. ${flag}`);
                 logging.logger.error(e);
-                msg.channel.send(`Error activating all alarms`);
+                await interaction.reply(`Error activating all alarms`);
             }
         }
         else {
-            msg.channel.send(`No arguments were passed to execute this command.\n`
-                + 'Usage: ' + this.usage);
+            await interaction.reply('No argument specified');
         }
     }
 };
