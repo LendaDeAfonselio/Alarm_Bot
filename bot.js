@@ -124,7 +124,7 @@ client.on('interactionCreate', async interaction => {
         else {
             if (utility_functions.can_send_messages(interaction)) {
                 try {
-                    await command.execute(interaction, [], client, cron, cron_list, mongoose);
+                    await command.execute(interaction, cron_list);
                 } catch (error) {
                     logging.logger.info(`An error has occured while executing the following command: ${interaction.commandName}; options: ${interaction.options}`);
                     logging.logger.error(error);
