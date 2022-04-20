@@ -34,114 +34,108 @@ module.exports = {
         .addChannelOption(option => option.setName(CHANNEL_PARAM).setDescription('The channel for which the alarm will be sent (optional)')),
     async execute(interaction, cron_list, cron) {
         if (interaction.channel.type === 'dm') {
-            interaction.reply('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `/privateAlarm` command');
+            await interaction.reply('Impossible to setup a public alarm via DM, you have to use this command in a server! For a DM alarm use `/privateAlarm` command');
             return;
         }
-        let canCreate = await utils.can_create_public_alarm(interaction.author.id, interaction.guild.id);
+        let canCreate = await utils.can_create_public_alarm(interaction.user.id, interaction.guild.id);
         if (!canCreate) {
-            interaction.reply(auth.limit_alarm_message);
+            await interaction.reply(auth.limit_alarm_message);
             return;
         }
         if (utils.hasAlarmRole(interaction, auth.alarm_role_name) || utils.isAdministrator(interaction)) {
-            if (args.length > 6) {
-                var timezone = interaction.options.getString(TIMEZOME_PARAM);
-                let minute = interaction.option.getString(MINUTE_PARAM);
-                let hour = interaction.option.getString(HOUR_PARAM);
-                let day_of_the_month = interaction.option.getString(DAY_OF_MONTH_PARAM);
-                let month = interaction.option.getString(MONTH_PARAM);
-                let weekday = interaction.option.getString(WEEKDAY_PARAM);
-                var message_stg = interaction.options.getString(MESSAGE_PARAM);
+            var timezone = interaction.options.getString(TIMEZOME_PARAM);
+            let minute = interaction.options.getString(MINUTE_PARAM);
+            let hour = interaction.options.getString(HOUR_PARAM);
+            let day_of_the_month = interaction.options.getString(DAY_OF_MONTH_PARAM);
+            let month = interaction.options.getString(MONTH_PARAM);
+            let weekday = interaction.options.getString(WEEKDAY_PARAM);
+            var message_stg = interaction.options.getString(MESSAGE_PARAM);
 
-                if (!timezone || !minute || !hour || !day_of_the_month || !month || !weekday || !message_stg) {
-                    interaction.reply({ content: 'You forgot to provide some parameter. You must assign value to all parameters except `channel`, that is optional', ephemeral: true });
-                    return;
-                }
+            if (!timezone || !minute || !hour || !day_of_the_month || !month || !weekday || !message_stg) {
+                await interaction.reply({ content: 'You forgot to provide some parameter. You must assign value to all parameters except `channel`, that is optional', ephemeral: true });
+                return;
+            }
 
-                var crono = `${minute} ${hour} ${day_of_the_month} ${month} ${weekday}`;
-                var difference = time_utils.get_offset_difference(timezone);
-                if (difference === undefined) {
-                    interaction.reply({ content: 'The timezone you have entered is invalid. Please do `/timezonesinfo` for more information', ephemeral: true });
+            var crono = `${minute} ${hour} ${day_of_the_month} ${month} ${weekday}`;
+            var difference = time_utils.get_offset_difference(timezone);
+            if (difference === undefined) {
+                await interaction.reply({ content: 'The timezone you have entered is invalid. Please do `/timezonesinfo` for more information', ephemeral: true });
+            }
+            else if (time_utils.validate_alarm_parameters(interaction, crono, message_stg)) {
+                var channelParam = interaction.options.getChannel(CHANNEL_PARAM);
+                var hasSpecifiedChannel = channelParam !== null;
+                let channel_discord = interaction.channel;
+                if (hasSpecifiedChannel) {
+                    channel_discord = channelParam;
                 }
-                else if (time_utils.validate_alarm_parameters(interaction, crono, message_stg)) {
-                    var channelParam = interaction.options.getString(CHANNEL_PARAM);
-                    var hasSpecifiedChannel = channelParam !== undefined;
-                    let channel_discord = interaction.channel;
-                    if (hasSpecifiedChannel) {
-                        channel_discord = channelParam;
+                if (channel_discord !== undefined) {
+                    if (!utility_functions.can_send_messages_to_ch(interaction, channel_discord)) {
+                        interaction.channel.send(`Cannot setup the alarm in channel ${channel_discord.id} because the bot does not have permission to send messages to it.`)
+                        return;
                     }
-                    if (channel_discord !== undefined) {
-                        if (!utility_functions.can_send_messages_to_ch(interaction, channel_discord)) {
-                            interaction.channel.send(`Cannot setup the alarm in channel ${channel_discord.id} because the bot does not have permission to send messages to it.`)
-                            return;
-                        }
-                        let old_c = crono;
-                        crono = time_utils.updateParams(difference, crono);
-                        try {
-                            // generate the id to save in the db
-                            let alarm_user = interaction.author.id;
-                            let this_alarm_id = Math.random().toString(36).substring(4);
-                            let alarm_id = `${auth.public_alarm_prefix}_${this_alarm_id}`;
+                    let old_c = crono;
+                    crono = time_utils.updateParams(difference, crono);
+                    try {
+                        // generate the id to save in the db
+                        let alarm_user = interaction.user.id;
+                        let this_alarm_id = Math.random().toString(36).substring(4);
+                        let alarm_id = `${auth.public_alarm_prefix}_${this_alarm_id}`;
 
-                            let scheduledMessage = new cron(crono, () => {
-                                try {
-                                    channel_discord.send(message_stg);
-                                } catch (err) {
-                                    logging.logger.error(`Error when alarm with id ${alarm_id} went off: ${err}`);
+                        let scheduledMessage = new cron(crono, () => {
+                            try {
+                                channel_discord.send(message_stg);
+                            } catch (err) {
+                                logging.logger.error(`Error when alarm with id ${alarm_id} went off: ${err}`);
+                            }
+                        }, {
+                            scheduled: true
+                        });
+                        scheduledMessage.start();
+                        // save locally
+                        cron_list[alarm_id] = scheduledMessage;
+
+                        // save to DB
+                        const newAlarm = new Alarm_model({
+                            alarm_id: alarm_id,
+                            alarm_args: crono,
+                            user_id: alarm_user,
+                            message: message_stg,
+                            guild: interaction.guild.id,
+                            server_name: interaction.guild.name,
+                            channel: channel_discord.id,
+                            isActive: true,
+                            timestamp: Date.now(),
+                        });
+                        newAlarm.save()
+                            .then(async (_) => {
+                                if (utility_functions.can_send_embeded(interaction)) {
+                                    await interaction.reply({
+                                        embeds: [{
+                                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                                            timestamp: new Date()
+                                        }]
+                                    });
                                 }
-                            }, {
-                                scheduled: true
+                                else {
+                                    await interaction.reply(`Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success! Consider turning on embed links for the bot to get a prettier message :)`);
+                                }
+                            })
+                            .catch((err) => {
+                                logging.logger.info(`An error while trying to add ${alarm_id} to the database.`);
+                                logging.logger.error(err);
                             });
-                            scheduledMessage.start();
-                            // save locally
-                            cron_list[alarm_id] = scheduledMessage;
-
-                            // save to DB
-                            const newAlarm = new Alarm_model({
-                                alarm_id: alarm_id,
-                                alarm_args: crono,
-                                user_id: alarm_user,
-                                message: message_stg,
-                                guild: interaction.guild.id,
-                                server_name: interaction.guild.name,
-                                channel: channel_discord.id,
-                                isActive: true,
-                                timestamp: Date.now(),
-                            });
-                            newAlarm.save()
-                                .then((_) => {
-                                    if (utility_functions.can_send_embeded(interaction)) {
-                                        interaction.reply({
-                                            embeds: [{
-                                                fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
-                                                timestamp: new Date()
-                                            }]
-                                        });
-                                    }
-                                    else {
-                                        interaction.reply(`Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success! Consider turning on embed links for the bot to get a prettier message :)`);
-                                    }
-                                })
-                                .catch((err) => {
-                                    logging.logger.info(`An error while trying to add ${alarm_id} to the database.`);
-                                    logging.logger.error(err);
-                                });
-                        } catch (err) {
-                            logging.logger.info(`An error while trying to add alarm with params: ${interaction.content}`);
-                            logging.logger.error(err);
-                            interaction.reply(`Error adding the alarm with params: ${crono}, with message ${message_stg}`);
-                        }
-                    } else {
-                        interaction.reply('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
+                    } catch (err) {
+                        logging.logger.info(`An error while trying to add alarm with params: ${interaction.content}`);
+                        logging.logger.error(err);
+                        await interaction.reply(`Error adding the alarm with params: ${crono}, with message ${message_stg}`);
                     }
+                } else {
+                    await interaction.reply('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
                 }
-            } else {
-                interaction.reply('Not enough parameters were passed.\n' +
-                    'Usage: ' + this.usage
-                );
             }
         }
         else {
-            interaction.reply('You do not have permissions to set that alarm! Ask for the admins on your server to create and (then) give you the `Alarming` role!');
+            await interaction.reply('You do not have permissions to set that alarm! Ask for the admins on your server to create and (then) give you the `Alarming` role!');
         }
     }
 };

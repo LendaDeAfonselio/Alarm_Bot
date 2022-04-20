@@ -10,7 +10,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('alarmhelp')
         .setDescription('Sends a message with a set of examples on how to use the parameters'),
-    execute(interaction) {
+    async execute(interaction) {
         let msg_fields = [];
         let paramsOrder = {
             name: 'Parameter order',
@@ -19,7 +19,7 @@ module.exports = {
                 'day of month (1 - 31)\n' +
                 'month (0 - 11)\n' +
                 'day of week(0 - 6)(Sunday = 0, Caturday = 6)\n' +
-                '<minutes> <hour> <day of month> <month> <day of week> <insert message here>\n' +
+                '`<minutes> <hour> <day of month> <month> <day of week> <insert message here>`\n' +
                 'Some examples are described below:'
         };
         msg_fields.push(paramsOrder);
@@ -67,7 +67,7 @@ module.exports = {
 
         // sends the message
         if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
-            interaction.reply({
+            await interaction.reply({
                 embeds: [{
                     color: 0xff80d5,
                     title: 'Examples of usage',
