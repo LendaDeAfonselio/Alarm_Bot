@@ -20,7 +20,7 @@ const CHANNEL_PARAM = 'channel';
 module.exports = {
     name: 'alarm',
     description: 'Sets up an alarm that will be repeated according to parameters passed',
-    usage: '/alarm <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>',
+    usage: '`/alarm <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>`',
     data: new SlashCommandBuilder()
         .setName('alarm')
         .setDescription('Sets up an alarm that will be repeated according to parameters passed')
@@ -70,7 +70,7 @@ module.exports = {
                 }
                 if (channel_discord !== undefined) {
                     if (!utility_functions.can_send_messages_to_ch(interaction, channel_discord)) {
-                        interaction.channel.send(`Cannot setup the alarm in channel ${channel_discord.id} because the bot does not have permission to send messages to it.`)
+                        interaction.reply(`Cannot setup the alarm in channel ${channel_discord.id} because the bot does not have permission to send messages to it.`)
                         return;
                     }
                     let old_c = crono;
