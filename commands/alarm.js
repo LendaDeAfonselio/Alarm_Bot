@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const Alarm_model = require('../models/alarm_model');
@@ -11,7 +11,7 @@ const utility_functions = require('../Utils/utility_functions');
 const TIMEZOME_PARAM = 'timezone';
 const MINUTE_PARAM = 'minute';
 const HOUR_PARAM = 'hour';
-const DAY_OF_MONTH_PARAM = 'day_of_the_month'
+const DAY_OF_MONTH_PARAM = 'day_of_the_month';
 const MONTH_PARAM = 'month';
 const WEEKDAY_PARAM = 'weekday';
 const MESSAGE_PARAM = 'message';
@@ -43,34 +43,34 @@ module.exports = {
             return;
         }
         if (utils.hasAlarmRole(interaction, auth.alarm_role_name) || utils.isAdministrator(interaction)) {
-            var timezone = interaction.options.getString(TIMEZOME_PARAM);
+            let timezone = interaction.options.getString(TIMEZOME_PARAM);
             let minute = interaction.options.getString(MINUTE_PARAM);
             let hour = interaction.options.getString(HOUR_PARAM);
             let day_of_the_month = interaction.options.getString(DAY_OF_MONTH_PARAM);
             let month = interaction.options.getString(MONTH_PARAM);
             let weekday = interaction.options.getString(WEEKDAY_PARAM);
-            var message_stg = interaction.options.getString(MESSAGE_PARAM);
+            let message_stg = interaction.options.getString(MESSAGE_PARAM);
 
             if (!timezone || !minute || !hour || !day_of_the_month || !month || !weekday || !message_stg) {
                 await interaction.reply({ content: 'You forgot to provide some parameter. You must assign value to all parameters except `channel`, that is optional', ephemeral: true });
                 return;
             }
 
-            var crono = `${minute} ${hour} ${day_of_the_month} ${month} ${weekday}`;
-            var difference = time_utils.get_offset_difference(timezone);
+            let crono = `${minute} ${hour} ${day_of_the_month} ${month} ${weekday}`;
+            let difference = time_utils.get_offset_difference(timezone);
             if (difference === undefined) {
                 await interaction.reply({ content: 'The timezone you have entered is invalid. Please do `/timezonesinfo` for more information', ephemeral: true });
             }
             else if (time_utils.validate_alarm_parameters(interaction, crono, message_stg)) {
-                var channelParam = interaction.options.getChannel(CHANNEL_PARAM);
-                var hasSpecifiedChannel = channelParam !== null;
+                let channelParam = interaction.options.getChannel(CHANNEL_PARAM);
+                let hasSpecifiedChannel = channelParam !== null;
                 let channel_discord = interaction.channel;
                 if (hasSpecifiedChannel) {
                     channel_discord = channelParam;
                 }
                 if (channel_discord !== undefined) {
                     if (!utility_functions.can_send_messages_to_ch(interaction, channel_discord)) {
-                        interaction.reply(`Cannot setup the alarm in channel ${channel_discord.id} because the bot does not have permission to send messages to it.`)
+                        interaction.reply(`Cannot setup the alarm in channel ${channel_discord.id} because the bot does not have permission to send messages to it.`);
                         return;
                     }
                     let old_c = crono;

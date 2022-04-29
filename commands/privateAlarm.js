@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const Private_alarm_model = require('../models/private_alarm_model');
 const auth = require('./../auth.json');
@@ -12,19 +12,19 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const TIMEZOME_PARAM = 'timezone';
 const MINUTE_PARAM = 'minute';
 const HOUR_PARAM = 'hour';
-const DAY_OF_MONTH_PARAM = 'day_of_the_month'
+const DAY_OF_MONTH_PARAM = 'day_of_the_month';
 const MONTH_PARAM = 'month';
 const WEEKDAY_PARAM = 'weekday';
 const MESSAGE_PARAM = 'message';
 
 module.exports = {
     name: 'privateAlarm',
-    description: 'Sets up a private alarm that will be repeated as specified in the arguments\n'
-        + 'The remainders will be sent to you via Direct Message!\n'
-        + '**The bot has to have a server in common with you to send a private message!**',
+    description: 'Sets up a private alarm that will be repeated as specified in the arguments\n' +
+        'The remainders will be sent to you via Direct Message!\n' +
+        '**The bot has to have a server in common with you to send a private message!**',
     usage: '`/privateAlarm <timezone> <m> <h> <day_of_month> <month> <year> <weekday> <message>`',
     data: new SlashCommandBuilder()
-        .setName("privatealarm")
+        .setName('privatealarm')
         .setDescription('Sets up a private alarm that will be repeated as specified in the arguments')
         .addStringOption(option => option.setName(TIMEZOME_PARAM).setDescription('The timezone the alarm will follow'))
         .addStringOption(option => option.setName(MINUTE_PARAM).setDescription('The minute in which the alarm goes off'))
@@ -35,6 +35,13 @@ module.exports = {
         .addStringOption(option => option.setName(MESSAGE_PARAM).setDescription('The message to be sent')),
     async execute(interaction, cron_list, cron) {
         let canCreate = await gen_utils.can_create_private_alarm(interaction.user.id);
+        let timezone = interaction.options.getString(TIMEZOME_PARAM);
+        let minute = interaction.options.getString(MINUTE_PARAM);
+        let hour = interaction.options.getString(HOUR_PARAM);
+        let day_of_the_month = interaction.options.getString(DAY_OF_MONTH_PARAM);
+        let month = interaction.options.getString(MONTH_PARAM);
+        let weekday = interaction.options.getString(WEEKDAY_PARAM);
+        let message_stg = interaction.options.getString(MESSAGE_PARAM);
         if (!canCreate) {
             interaction.channel.send('You have reached the maximum ammount of private alarms! Use `$premium` to discover how to get more alarms');
             return;
@@ -43,9 +50,7 @@ module.exports = {
             await interaction.reply({ content: 'You forgot to provide some parameter. You must assign value to all parameters except `channel`, that is optional', ephemeral: true });
             return;
         }
-        let timezone = args[0];
-        let crono = args.slice(1, 6).join(' ');
-        let message_stg = args.slice(6, args.length).join(' ');
+        let crono = `${minute} ${hour} ${day_of_the_month} ${month} ${weekday}`;
         let difference = time_utils.get_offset_difference(timezone);
         if (difference === undefined) {
             interaction.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
@@ -62,7 +67,7 @@ module.exports = {
                         logging.logger.info(`Can't send private message to user ${interaction.author.id}. ${alarm_id}.`);
                         logging.logger.error(err);
                         if (interaction.channel.type !== 'dm' && gen_utils.can_send_messages_to_ch(interaction, interaction.channel)) {
-                            interaction.reply(`Cannot send you the DM for alarm with id ${alarm_id}. Check your permissions for DMs!`)
+                            interaction.reply(`Cannot send you the DM for alarm with id ${alarm_id}. Check your permissions for DMs!`);
                         }
 
                     });

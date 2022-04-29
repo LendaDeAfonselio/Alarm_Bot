@@ -1,3 +1,4 @@
+'use strict';
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const Alarm_model = require('../models/alarm_model');
@@ -14,7 +15,7 @@ module.exports = {
         .addSubcommand(option => option.setName(PRIVATE_COMMAND).setDescription('Activates all private alarms')),
     name: 'activateallalarms',
     description: 'Activates all alarms that are currently silent.',
-    usage: `\`/activateAllAlarms public\` or \`/activateAllAlarms private\`\nUse private to activate all private alarms, and public to activate regular alarms`,
+    usage: '`/activateAllAlarms public` or `/activateAllAlarms private`\nUse private to activate all private alarms, and public to activate regular alarms',
     async execute(interaction, cron_list) {
         let subcommand = interaction.options.getSubcommand();
         if (subcommand !== null) {
@@ -56,13 +57,13 @@ module.exports = {
                     );
                     await interaction.reply(`Sucesfully re-activated ${alarms.length} alarms.`);
                 } else {
-                    await interaction.reply(`The flag you have provided: ${flag} is invalid. Try silenceAllAlarms -p to silent all of your private alarms or -a to silent all of your alarms in this server.`);
+                    await interaction.reply(`The flag you have provided: ${subcommand} is invalid. Try silenceAllAlarms -p to silent all of your private alarms or -a to silent all of your alarms in this server.`);
                 }
 
             } catch (e) {
-                logging.logger.info(`Error activating all alarm. ${flag}`);
+                logging.logger.info(`Error activating all alarm. ${subcommand}`);
                 logging.logger.error(e);
-                await interaction.reply(`Error activating all alarms`);
+                await interaction.reply('Error activating all alarms');
             }
         }
         else {

@@ -1,3 +1,4 @@
+'use strict';
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const alarm_db = require('../data_access/alarm_index');
@@ -9,13 +10,13 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'deleteAllAlarms',
-    description: 'Deletes all of YOUR alarms in the server - **THIS ACTION CANNOT BE REVERTED**\n'
-        + '-a for public alarms of that server; -p for private alarms; -oa for public one time alarms; -op for private one time alarms',
+    description: 'Deletes all of YOUR alarms in the server - **THIS ACTION CANNOT BE REVERTED**\n' +
+        '-a for public alarms of that server; -p for private alarms; -oa for public one time alarms; -op for private one time alarms',
     usage: `\`${auth.prefix}deleteAllAlarms -a\`; or \`${auth.prefix}deleteAllAlarms -p\`; or \`${auth.prefix}deleteAllAlarms -oa\`; or \`${auth.prefix}deleteAllAlarms -op\`\nUse -a to silence all private alarms,
      -p for private alarms; -oa for public one time alarms; -op for private one time alarms`,
     data: new SlashCommandBuilder()
-        .setName("deleteallalarms")
-        .setDescription("Deletes all of YOUR alarms in the server"),
+        .setName('deleteallalarms')
+        .setDescription('Deletes all of YOUR alarms in the server'),
     async execute(msg, args, client, cron, cron_list, mongoose) {
         let flag = args[0];
         let alarm_user = msg.author.id;
@@ -39,7 +40,7 @@ module.exports = {
                     }
                 } catch (e) {
                     logging.logger.error(e);
-                    msg.channel.send(`Error deleting your private alarms...`);
+                    msg.channel.send('Error deleting your private alarms...');
                 }
             }
             else if (flag.toLowerCase() === '-a') {
@@ -75,11 +76,11 @@ module.exports = {
                 } catch (e) {
                     logging.logger.info(`Error deleting alarms for user:${alarm_user} with params ${flag}`);
                     logging.logger.error(e);
-                    msg.channel.send(`Error deleting your alarms...`);
+                    msg.channel.send('Error deleting your alarms...');
                 }
             }
             else if (flag.toLowerCase() === '-op') {
-                let private_ota = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, true, "");
+                let private_ota = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, true, '');
                 private_ota.find(function (i) {
                     if (cron_list[i.alarm_id] !== undefined) {
                         cron_list[i.alarm_id].stop();

@@ -1,3 +1,4 @@
+'use strict';
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const Alarm_model = require('../models/alarm_model');
@@ -26,7 +27,7 @@ module.exports = {
             }
 
             if (!(await utility_functions.can_change_alarm(interaction, alarm_to_activate))) {
-                await interaction.reply(`The alarm you selected isn't yours or you aren't administrator on this server therefore you cannot silence it!`)
+                await interaction.reply('The alarm you selected isn\'t yours or you aren\'t administrator on this server therefore you cannot silence it!');
             }
             else {
                 if (cron_list[alarm_to_activate] !== undefined) {
@@ -39,14 +40,14 @@ module.exports = {
                                     {
                                         isActive: true
                                     }
-                                )
+                                );
                             } else if (utility_functions.isPublicAlarm(alarm_to_activate)) {
                                 await Alarm_model.updateOne(
                                     { alarm_id: alarm_to_activate },
                                     {
                                         isActive: true
                                     }
-                                )
+                                );
                             }
                             cron_list[alarm_to_activate].start();
                             await interaction.reply(`${alarm_to_activate} is now active again.`);

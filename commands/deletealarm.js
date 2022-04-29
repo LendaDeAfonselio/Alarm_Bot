@@ -1,3 +1,4 @@
+'use strict';
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 
@@ -19,8 +20,7 @@ module.exports = {
         if (args.length >= 1) {
             let alarm_to_delete = args[0];
             if (!(await utility_functions.can_change_alarm(msg, alarm_to_delete))) {
-                msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
-            }
+                msg.channel.send('The alarm you selected is not yours or you aren\'t administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.');            }
             else {
                 if (cron_list[alarm_to_delete] !== undefined) {
                     try {
