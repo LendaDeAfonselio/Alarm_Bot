@@ -1,10 +1,12 @@
-"use strict";
+/* eslint-disable no-use-before-define */
+'use strict';
 
 const auth = require('./../auth.json');
 const utility = require('./../Utils/utility_functions');
 const utility_functions = require('./../Utils/utility_functions');
 const db_alarms = require('../data_access/alarm_index');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const logging = require('../Utils/logging');
 
 const optionFlag = 'id-only';
 
@@ -13,12 +15,12 @@ module.exports = {
     description: 'Fetches all of your alarms.\n`myAlarms -id` sends a non embed message with the ids for easier copy/pasting on phone.',
     usage: auth.prefix + 'myAlarms',
     data: new SlashCommandBuilder()
-        .setName("myalarms")
-        .setDescription("Fetches all alarms")
+        .setName('myalarms')
+        .setDescription('Fetches all alarms')
         .addStringOption(option => option.setName(optionFlag).setDescription('The message only contains the id of the alarms when assigning yes to this field')),
     async execute(interaction) {
         let flag = interaction.options.getString(optionFlag);
-        let guild_id = interaction.channel.type === 'dm' ? "" : interaction.guild?.id;
+        let guild_id = interaction.channel.type === 'dm' ? '' : interaction.guild?.id;
 
         let results_pub = await db_alarms.get_all_alarms_from_user_and_guild(interaction.user.id, guild_id);
         let results_priv = await db_alarms.get_all_privAlarms_from_user(interaction.user.id);
@@ -26,7 +28,7 @@ module.exports = {
         let results_ota_priv = await db_alarms.get_all_oneTimeAlarm_from_user(interaction.user.id, true, interaction.guild?.id);
         let results_tts = await db_alarms.get_all_ttsalarms_from_user_and_guild(interaction.user.id, guild_id);
 
-        if (flag && flag !== "" && utility_functions.compareIgnoringCase(flag, 'yes')) {
+        if (flag && flag !== '' && utility_functions.compareIgnoringCase(flag, 'yes')) {
             let id_stg = '**Public Alarms**:\n';
             results_pub.forEach(alarm => {
                 id_stg += `${alarm.alarm_id}\n`;
@@ -52,8 +54,8 @@ module.exports = {
             id_stg += '**Private One Time Alarms:**\n';
 
             results_ota_priv.forEach(ota => {
-                id_stg += `${ota.alarm_id}\n`
-            })
+                id_stg += `${ota.alarm_id}\n`;
+            });
 
             chunks = utility_functions.chunkArray(id_stg, 2000);
 
@@ -95,16 +97,16 @@ module.exports = {
         }
 
         // send public alarms
-        sendChunksAsPublicMsg(public_chunks, interaction, "Your public alarms in this server are:");
-        sendChunksAsPublicMsg(public_chunks2, interaction, "Your public one time alarms in this server are:");
-        sendChunksAsPublicMsg(tts_chunks, interaction, "Your TTS alarms for this server are:");
+        sendChunksAsPublicMsg(public_chunks, interaction, 'Your public alarms in this server are:');
+        sendChunksAsPublicMsg(public_chunks2, interaction, 'Your public one time alarms in this server are:');
+        sendChunksAsPublicMsg(tts_chunks, interaction, 'Your TTS alarms for this server are:');
 
         // send private alarms
         for (let chunk of private_chunks) {
             interaction.user.send({
                 embeds: [{
                     color: 0x5CFF5C,
-                    title: "Your private alarms are:",
+                    title: 'Your private alarms are:',
                     fields: chunk,
                     timestamp: new Date()
                 }]
@@ -121,7 +123,7 @@ module.exports = {
             interaction.user.send({
                 embeds: [{
                     color: 0xcc1100,
-                    title: "Your private one time alarms alarms are:",
+                    title: 'Your private one time alarms alarms are:',
                     fields: chunk,
                     timestamp: new Date()
                 }]
@@ -133,7 +135,7 @@ module.exports = {
         }
 
     }
-}
+};
 
 async function sendChunksAsPublicMsg(public_chunks, interaction, title_message) {
     for (let chunk of public_chunks) {
@@ -158,8 +160,8 @@ function createMessageWithEntries(msgs) {
         let alarm_id = alarm.alarm_id;
         let alarm_params = alarm.alarm_args;
         let alarm_preview = alarm.message.substring(0, 30);
-        let active_alarm = alarm.isActive ? "Active" : "Silenced";
-        let server = (alarm.server_name ?? alarm.guild) ?? "N/A";
+        let active_alarm = alarm.isActive ? 'Active' : 'Silenced';
+        let server = (alarm.server_name ?? alarm.guild) ?? 'N/A';
         let field = {
             name: `ID: ${alarm_id}`,
             value: `\tWith params: ${alarm_params}\nMessage: ${alarm_preview}\n${active_alarm}\nIn server: ${server}`

@@ -1,25 +1,24 @@
-"use strict";
+'use strict';
 const custom_timezones = require('../timezones.json');
 const time_utils = require('../Utils/time_validation');
-const auth = require('./../auth.json');
 const utility_functions = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 
-const TIMEZONE_COMMAND = "timezone";
-const ALL_TIMEZONES_COMMAND = "all";
-const TIMEZONE_NAME_OPT = "timezone_name"
+const TIMEZONE_COMMAND = 'timezone';
+const ALL_TIMEZONES_COMMAND = 'all';
+const TIMEZONE_NAME_OPT = 'timezone_name';
 module.exports = {
     name: 'timezonesinfo',
     description: 'Gets information about timezones',
     usage: '/timezonesinfo\n/timezonesinfo <timezones_name>',
     data: new SlashCommandBuilder()
-        .setName("timezonesinfo")
-        .setDescription("Gets info about timezone(s)")
-        .addSubcommand(option => option.setName(TIMEZONE_COMMAND).setDescription("Information about a specific timezone")
-            .addStringOption(option => option.setName(TIMEZONE_NAME_OPT).setDescription("The timezone")))
-        .addSubcommand(option => option.setName(ALL_TIMEZONES_COMMAND).setDescription("Information about all timezones")),
+        .setName('timezonesinfo')
+        .setDescription('Gets info about timezone(s)')
+        .addSubcommand(option => option.setName(TIMEZONE_COMMAND).setDescription('Information about a specific timezone')
+            .addStringOption(option => option.setName(TIMEZONE_NAME_OPT).setDescription('The timezone')))
+        .addSubcommand(option => option.setName(ALL_TIMEZONES_COMMAND).setDescription('Information about all timezones')),
     async execute(interaction) {
         if (interaction.options.getSubcommand() === ALL_TIMEZONES_COMMAND) {
 
@@ -75,21 +74,21 @@ module.exports = {
                 return;
             }
             let timezone_data = time_utils.get_timezone_by_abreviation(timezone_name);
-            if (timezone_data == undefined) {
+            if (timezone_data === undefined) {
                 interaction.reply(`No data was found for ${timezone_name}. Check all timezones with \`/timezonesinfo\` for more information.`);
                 return;
             }
             let x = new Array();
             let text_for_embed = {
                 name: '\nLocations: ' + timezone_data.locations,
-                value: 'You can also use: ' + timezone_data.utc_offset
-                    + '\nThis is the timezone of ' + timezone_data.example_location
+                value: 'You can also use: ' + timezone_data.utc_offset +
+                    '\nThis is the timezone of ' + timezone_data.example_location
             };
             x.push(text_for_embed);
             x.push({
                 name: 'For more information visit: ',
                 value: `https://www.timeanddate.com/time/zones/${timezone_data.timezone_abbreviation}`,
-            })
+            });
             interaction.user.send({
                 embeds: [{
                     color: 0x90ee90,
@@ -121,4 +120,4 @@ module.exports = {
                 });
         }
     }
-}
+};

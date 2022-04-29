@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
@@ -10,21 +10,68 @@ const utility_functions = require('../Utils/utility_functions');
 const ALARM_ID_FLAG = 'alarm-id';
 const TIMEOUT = 'reactivate-date';
 
+
+function isValidDate(d) {
+    return d instanceof Date && !isNaN(d);
+}
+
+function parseDate(date_args) {
+    let date_tokens = date_args.split('/');
+    if (date_tokens.length === 2 || date_tokens.length === 3) {
+        let day = date_tokens[0];
+        let month = date_tokens[1];
+        let year = new Date().getFullYear();
+
+        if (date_tokens.length === 3) {
+            year = date_tokens[2];
+        }
+
+        let date_stg = `${year}-${month}-${day}`;
+        let d = new Date(date_stg);
+        return d;
+    }
+    return undefined;
+}
+
+async function silenceAlarmWithID(alarm_to_silence, activate) {
+    if (utility_functions.isPrivateAlarm(alarm_to_silence)) {
+        await Private_alarm_model.updateOne(
+            { alarm_id: alarm_to_silence },
+            {
+                isActive: activate
+            }
+        );
+    } else if (utility_functions.isPublicAlarm(alarm_to_silence)) {
+        await Alarm_model.updateOne(
+            { alarm_id: alarm_to_silence },
+            {
+                isActive: activate
+            }
+        );
+    }
+}
+
+async function can_be_silenced(alarm_id, msg) {
+    let guild_id = msg.guild?.id;
+    let alarm = await Alarm_model.findOne({ alarm_id: alarm_id });
+    return alarm.guild === guild_id;
+}
+
 module.exports = {
     name: 'silenceAlarm',
     description: 'Silences the alarm with a given id. If you also pass a date it will activate automatically once that day arrives otherwise it will be silenced until you turn it back on using /activateAlarm <id>',
     usage: '/silenceAlarm <id> <date_to_active_again?>',
     data: new SlashCommandBuilder()
-        .setName("silencealarm")
-        .setDescription("Silences the alarm with a given id")
+        .setName('silencealarm')
+        .setDescription('Silences the alarm with a given id')
         .addStringOption(option => option.setName(ALARM_ID_FLAG).setDescription('The id of the alarm'))
         .addStringOption(option => option.setName(TIMEOUT).setDescription('Date when the alarm will reactivate')),
-    async execute(interaction, cron_list) {
+    async execute(interaction, cron_list, cron) {
         let alarm_to_silence = interaction.options.getString(ALARM_ID_FLAG);
         let timeout = interaction.options.getString(TIMEOUT);
 
 
-        if (alarm_to_silence && alarm_to_silence != null) {
+        if (alarm_to_silence && alarm_to_silence !== null) {
 
             if (utility_functions.isOtaAlarm(alarm_to_silence)) {
                 await interaction.reply('Silence feature is not available for oneTimeAlarms, if you wish to silence a oneTimeAlarm just delete it with `$deleteAlarm ' + alarm_to_silence + '`');
@@ -32,7 +79,7 @@ module.exports = {
             }
 
             if (!(await utility_functions.can_change_alarm(interaction, alarm_to_silence))) {
-                await interaction.reply(`The alarm you selected isn't yours or you aren't administrator on this server therefore you cannot silence it!`);
+                await interaction.reply('The alarm you selected isn\'t yours or you aren\'t administrator on this server therefore you cannot silence it!');
                 return;
             }
 
@@ -97,50 +144,3 @@ module.exports = {
 
     }
 };
-
-
-function isValidDate(d) {
-    return d instanceof Date && !isNaN(d);
-}
-
-function parseDate(date_args) {
-    let date_tokens = date_args.split('/');
-    if (date_tokens.length === 2 || date_tokens.length === 3) {
-        let day = date_tokens[0];
-        let month = date_tokens[1];
-        let year = new Date().getFullYear();
-
-        if (date_tokens.length === 3) {
-            year = date_tokens[2];
-        }
-
-        let date_stg = `${year}-${month}-${day}`;
-        let d = new Date(date_stg);
-        return d;
-    }
-    return undefined;
-}
-
-async function silenceAlarmWithID(alarm_to_silence, activate) {
-    if (utility_functions.isPrivateAlarm(alarm_to_silence)) {
-        await Private_alarm_model.updateOne(
-            { alarm_id: alarm_to_silence },
-            {
-                isActive: activate
-            }
-        );
-    } else if (utility_functions.isPublicAlarm(alarm_to_silence)) {
-        await Alarm_model.updateOne(
-            { alarm_id: alarm_to_silence },
-            {
-                isActive: activate
-            }
-        );
-    }
-}
-
-async function can_be_silenced(alarm_id, msg) {
-    let guild_id = msg.guild?.id;
-    let alarm = await Alarm_model.findOne({ alarm_id: alarm_id });
-    return alarm.guild == guild_id;
-}

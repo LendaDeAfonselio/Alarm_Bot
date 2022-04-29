@@ -1,5 +1,5 @@
-const fs = require("fs");
-const auth = require('./../auth.json');
+'use strict';
+const fs = require('fs');
 const logging = require('../Utils/logging');
 const utility_functions = require('../Utils/utility_functions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -9,17 +9,17 @@ module.exports = {
     description: 'DMs the requiree a list with all the available commands',
     usage: '`/help`',
     data: new SlashCommandBuilder()
-        .setName("help")
+        .setName('help')
         .setDescription('DMs the requiree a list with all the available commands'),
     execute(interaction) {
-        fs.readdir("./commands/", (err, files) => {
-            if (err) logging.logger.error(err);
-            let jsfiles = files.filter(f => f.split(".").pop() === "js");
+        fs.readdir('./commands/', (err, files) => {
+            if (err) {logging.logger.error(err);}
+            let jsfiles = files.filter(f => f.split('.').pop() === 'js');
             if (jsfiles.length <= 0) {
-                interaction.user.send("No commands to load!").catch((err) => {
+                interaction.user.send('No commands to load!').catch((err) => {
                     logging.logger.info(`Can't send reply to user ${interaction.user.id}.`);
                     logging.logger.error(err);
-                });;
+                });
                 return;
             }
             let msg_fields = [];
@@ -29,19 +29,19 @@ module.exports = {
                 let namelist = props.name;
                 let desclist = props.description;
                 let usage = props.usage;
-                msg = `\tDescription - ${desclist} \n\tUsage - ${usage}\n`;
-                field = {
+                let msg = `\tDescription - ${desclist} \n\tUsage - ${usage}\n`;
+                let field = {
                     name: `Command - **${namelist}**`,
                     value: msg
-                }
+                };
                 msg_fields.push(field);
             });
 
-            msg_fields.push(field = {
+            msg_fields.push({
                 name: 'Join our discord server for more information!',
                 value: 'https://discord.gg/zV3xnt8zkA'
             });
-            msg_fields.push(field = {
+            msg_fields.push({
                 name: 'Unlock premium and/or support the alarm creator',
                 value: 'https://ko-fi.com/alarmbot'
             });
@@ -70,7 +70,7 @@ module.exports = {
                 });
                 interaction.reply('Sent instructions via DM');
             } catch (e) {
-                logging.logger.info(`Error trying to get the help command`);
+                logging.logger.info('Error trying to get the help command');
                 logging.logger.error(e);
             }
         });
