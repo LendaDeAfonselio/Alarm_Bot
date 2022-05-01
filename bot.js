@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 // Packages and dependencies
 const { Collection, Client, Intents } = require('discord.js');
 const logging = require('./Utils/logging');
-const deployCommands = require('./deployCommands')
+const deployCommands = require('./deployCommands');
 // configuration files
 const appsettings = require('./appsettings.json'); // on github project this file 
 // is not completed, it does need some 
@@ -19,14 +19,14 @@ const alarm_db = require('./data_access/alarm_index');
 const premium_db = require('./data_access/premium_index');
 
 // Mongo setup
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 let shard_id;
 mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
     if (err) {
         logging.logger.error(err);
     }
     else {
-        logging.logger.info("Connected to the mongodb");
+        logging.logger.info('Connected to the mongodb');
     }
 });
 
@@ -58,18 +58,18 @@ client.once('ready', async () => {
         try {
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id, client);
 
-            if (f == undefined) {
+            if (f === undefined) {
                 await alarm_db.delete_all_alarms_for_guild(guild.id);
             }
             let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild, guild.id, client);
 
-            if (a == undefined) {
+            if (a === undefined) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
 
             let b = await load_alarms.fetchTTSAlarms(cron_list, cron, guild, guild.id, client);
 
-            if (b == undefined) {
+            if (b === undefined) {
                 await alarm_db.delete_allttsalarm_from_guild(guild.id);
             }
 
@@ -79,21 +79,21 @@ client.once('ready', async () => {
         }
     });
 
-    client.user.setActivity("$help to get started!");
+    client.user.setActivity('$help to get started!');
 });
 
 /*************************** Execute Commands ************************/
 client.on('messageCreate', async message => {
     const channelPrefix = auth.prefix;
-    if (!message.content.startsWith(channelPrefix)) return;
-    if (message.author.bot) return;
+    if (!message.content.startsWith(channelPrefix)) { return; }
+    if (message.author.bot) { return; }
     else {
         let args = message.content.slice(auth.prefix.length).split(/ +/);
         let command = args.shift();
         if (command !== undefined) {
             command = command.toLowerCase();
         }
-        if (!client.commands.has(command)) return;
+        if (!client.commands.has(command)) { return; }
         else {
             if (utility_functions.can_send_messages(message)) {
                 try {
@@ -120,7 +120,7 @@ client.on('interactionCreate', async interaction => {
     }
     else {
         const command = client.commands.get(interaction.commandName);
-        if (!command) return;
+        if (!command) { return; }
         else {
             if (utility_functions.can_send_messages(interaction)) {
                 try {
@@ -133,7 +133,7 @@ client.on('interactionCreate', async interaction => {
             } else {
                 interaction.author.send('AlarmBot does not have permission to send messages. Please check AlarmBot permissions and try again.')
                     .catch((err) => {
-                        logging.logger.info(`Can't send reply to message ${args} from user ${interaction.author.id}. And no permissions in the channel...`);
+                        logging.logger.info(`Can't send reply to message ${interaction.commandName}  ${interaction.options}. From user ${interaction.user.id}. And no permissions in the channel...`);
                         logging.logger.error(err);
                     });
             }
@@ -142,37 +142,27 @@ client.on('interactionCreate', async interaction => {
 });
 
 // automatically take care of private alarms, clean old entries in databases, and log basic stats.
-process.on("message", async message => {
-    if (!message.type) return false;
-    if (message.type == "shardId") {
+process.on('message', async message => {
+    if (!message.type) { return false; }
+    if (message.type === 'shardId') {
         logging.logger.info(`The shard id is: ${message.data.shardId} and has ${client.guilds.cache.size} servers`);
-    }
-    if (message.type == "shardId" && message.data && message.data.shardId == 0) {
-        // delete old entries
-        let deletedentries = await alarm_db.delete_all_expired_one_time_alarms();
-        logging.logger.info("Deleted " + deletedentries.deletedCount + " one time alarms");
-        let deletedpremium = await premium_db.delete_all_expired_memberships();
-        logging.logger.info(deletedpremium.deletedCount + " premium memberships have expired");
 
+        if (message.type === 'shardId' && message.data && message.data.shardId === 0) {
+            // delete old entries
+            let deletedentries = await alarm_db.delete_all_expired_one_time_alarms();
+            logging.logger.info('Deleted ' + deletedentries.deletedCount + ' one time alarms');
+            let deletedpremium = await premium_db.delete_all_expired_memberships();
+            logging.logger.info(deletedpremium.deletedCount + ' premium memberships have expired');
+        }
         // fetch private alarms
         shard_id = message.data.shardId;
         await fetchPrivate(message.data.shardId);
 
         // log total guilds every day at midnight
         await logTotalGuildsDaily();
-    };
-});
+    }
 
-// aux function to get all guilds every day
-async function logTotalGuildsDaily() {
-    let scheduledMessage = new cron('0 0 * * *', async () => {
-        let allguilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
-        logging.logger.info("Running in " + allguilds.length + " guilds");
-    }, {
-        scheduled: true
-    });
-    scheduledMessage.start();
-}
+});
 
 
 // If the bot is kicked, delete the alarms
@@ -191,6 +181,17 @@ client.on('guildDelete', async (guild) => {
         logging.logger.error(e);
     }
 });
+
+// aux function to get all guilds every day
+async function logTotalGuildsDaily() {
+    let scheduledMessage = new cron('0 0 * * *', async () => {
+        let allguilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
+        logging.logger.info('Running in ' + allguilds.length + ' guilds');
+    }, {
+        scheduled: true
+    });
+    scheduledMessage.start();
+}
 
 // delete private alarms on bootstrap
 async function fetchPrivate(shardid) {
