@@ -25,7 +25,7 @@ module.exports = {
         strict: 'error',
         'no-var': 'error',
         'dot-notation': 'error',
-        'no-use-before-define': 'error',
+        'no-use-before-define': ['error', { functions: false, classes: true, variables: true }],
         'no-useless-call': 'error',
         'no-with': 'error',
         'operator-linebreak': 'error',
