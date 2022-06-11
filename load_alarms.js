@@ -22,7 +22,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                         utility_functions.send_message_to_default_channel(guild,`Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
                         return false;
                     }
-                    if (channel !== undefined) {
+                    if (channel !== undefined || !utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
                         channel.send(message_stg);
                     } else {
                         logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
@@ -108,7 +108,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
             }
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    if (channel !== undefined) {
+                    if (channel !== undefined || !utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
                         channel.send(message_stg);
                         scheduledMessage.stop();
                         delete cron_list[alarm_id];
