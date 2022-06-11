@@ -24,4 +24,4 @@ shards.on('shardCreate', async (shard) => {
     })
 });
 
-shards.spawn().catch(error => console.error(`[ERROR/SHARD] Shard failed to spawn.\n${error}`));
+shards.spawn().catch(error => logging.logger.error(`[ERROR/SHARD] Shard failed to spawn. Error: ${error}`));
