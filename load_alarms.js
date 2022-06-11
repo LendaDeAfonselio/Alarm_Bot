@@ -19,7 +19,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                 try {
                     let channel = await guild.channels.cache.get(channel_id);
                     if (!utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
-                        utility_functions.send_message_to_default_channel(guild,`Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
+                        utility_functions.send_message_to_default_channel(guild, `Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
                         return false;
                     }
                     if (channel !== undefined || !utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
@@ -35,7 +35,14 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
             }, {
                 scheduled: true
             });
-            scheduledMessage.start();
+
+            try {
+                scheduledMessage.start();
+            }
+            catch (err) {
+                logging.logger.error(`Error starting cron for alarm ${alarm_id}: ${err}`);
+            }
+
             if (!alarm.isActive) {
                 // it is not active
                 scheduledMessage.stop();
@@ -103,7 +110,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
             let channel_id = alarm.channel;
             let channel = await guild.channels.cache.get(channel_id);
             if (!utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
-                utility_functions.send_message_to_default_channel(guild,`Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
+                utility_functions.send_message_to_default_channel(guild, `Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
                 return false;
             }
             let scheduledMessage = new cron(crono, async () => {
@@ -179,7 +186,7 @@ async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
                 try {
                     let channel = await guild.channels.cache.get(channel_id);
                     if (!utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
-                        utility_functions.send_message_to_default_channel(guild,`Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
+                        utility_functions.send_message_to_default_channel(guild, `Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
                         return false;
                     }
                     if (channel !== undefined) {
