@@ -20,8 +20,14 @@ shards.on('shardCreate', async (shard) => {
         logging.logger.info(a);
         logging.logger.info(b);
         shard.send({ type: "shardId", data: { shardId: shard.id } });
-
-    })
+    });
+    shard.on('death', () => {
+        logging.logger.error(`RIP Bozo! Shard ${shard.id}`);
+    });
+    shard.on('error', (err) => {
+        logging.logger.error(`Error in  ${shard.id} with : ${err} `)
+        shard.respawn()
+    });
 });
 
-shards.spawn().catch(error => logging.logger.error(`[ERROR/SHARD] Shard failed to spawn. Error: ${error}`));
+shards.spawn('auto', 15000).catch(error => logging.logger.error(`[ERROR/SHARD] Shard failed to spawn. Error: ${error}`));
