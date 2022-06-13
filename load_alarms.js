@@ -22,7 +22,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                         utility_functions.send_message_to_default_channel(guild, `Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
                         return false;
                     }
-                    if (channel !== undefined || !utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
+                    if (channel && utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
                         channel.send(message_stg);
                     } else {
                         logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
@@ -32,7 +32,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                 catch (err) {
                     logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}.`);
 
-                    if (err.message && err.message.contains("GUILD_CHANNEL_RESOLVE")) {
+                    if (err.code && err.code.includes("GUILD_CHANNEL_RESOLVE")) {
                         await alarm_db.delete_alarm_with_id(alarm_id);
                         logging.logger.error(`Deleted alarm ${alarm_id} when loading due to ${err}`);
                     }
@@ -122,7 +122,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
             }
             let scheduledMessage = new cron(crono, async () => {
                 try {
-                    if (channel !== undefined || !utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
+                    if (channel && utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
                         channel.send(message_stg);
                         scheduledMessage.stop();
                         delete cron_list[alarm_id];
@@ -207,7 +207,7 @@ async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
                 }
                 catch (err) {
                     logging.logger.error(`TTS Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
-                    if (err.message && err.message.contains("GUILD_CHANNEL_RESOLVE")) {
+                    if (err.code && err.code.includes("GUILD_CHANNEL_RESOLVE")) {
                         await alarm_db.delete_ttsAlarm_with_id(alarm_id);
                         logging.logger.error(`Deleted TTS alarm ${alarm_id} when loading due to ${err}`);
                     }
