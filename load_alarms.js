@@ -34,7 +34,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
 
                     if (err.code && err.code.includes("GUILD_CHANNEL_RESOLVE")) {
                         await alarm_db.delete_alarm_with_id(alarm_id);
-                        logging.logger.error(`Deleted alarm ${alarm_id} when loading due to ${err}`);
+                        logging.logger.info(`Deleted alarm ${alarm_id} when loading due to ${err}`);
                     }
                     cron_list[alarm_id].stop();
                     delete cron_list[alarm_id];
@@ -209,7 +209,7 @@ async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
                     logging.logger.error(`TTS Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
                     if (err.code && err.code.includes("GUILD_CHANNEL_RESOLVE")) {
                         await alarm_db.delete_ttsAlarm_with_id(alarm_id);
-                        logging.logger.error(`Deleted TTS alarm ${alarm_id} when loading due to ${err}`);
+                        logging.logger.info(`Deleted TTS alarm ${alarm_id} when loading due to ${err}`);
                     }
                     cron_list[alarm_id].stop();
                     delete cron_list[alarm_id];
