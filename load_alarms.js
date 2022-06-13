@@ -30,7 +30,14 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                     }
                 }
                 catch (err) {
-                    logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
+                    logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}.`);
+
+                    if (err.message && err.message.contains("GUILD_CHANNEL_RESOLVE")) {
+                        await alarm_db.delete_alarm_with_id(alarm_id);
+                        logging.logger.error(`Deleted alarm ${alarm_id} when loading due to ${err}`);
+                    }
+                    cron_list[alarm_id].stop();
+                    delete cron_list[alarm_id];
                 }
             }, {
                 scheduled: true
@@ -199,7 +206,13 @@ async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
                     }
                 }
                 catch (err) {
-                    logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
+                    logging.logger.error(`TTS Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
+                    if (err.message && err.message.contains("GUILD_CHANNEL_RESOLVE")) {
+                        await alarm_db.delete_ttsAlarm_with_id(alarm_id);
+                        logging.logger.error(`Deleted TTS alarm ${alarm_id} when loading due to ${err}`);
+                    }
+                    cron_list[alarm_id].stop();
+                    delete cron_list[alarm_id];
                 }
             }, {
                 scheduled: true
