@@ -156,12 +156,12 @@ function compareIgnoringCase(stg1, stg2) {
     return stg1.toUpperCase() === stg2.toUpperCase();
 }
 
-function send_message_to_default_channel(guild, message) {
+async function send_message_to_default_channel(guild, message) {
     const channel = guild.channels.cache.find(
         (c) => c.type === "text" && c.permissionsFor(guild.me).has("SEND_MESSAGES")
     );
     if (channel) {
-        channel.send(message);
+        await channel.send(message);
     } else {
         logging.logger.error(`Impossible to send message to guild ${guild.id}`);
     }
