@@ -66,53 +66,53 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
     return isDigit != null && num >= min && num <= max;
 }
 
-function validate_alarm_parameters(msg, cron_stg, message_stg) {
+async function validate_alarm_parameters(msg, cron_stg, message_stg) {
     let cron_params = cron_stg.split(" ");
     if (message_stg.length <= 3) {
-        msg.channel.send('The message is to short! Use at least 3 characters');
+        await msg.channel.send('The message is to short! Use at least 3 characters');
         return false;
     }
 
     if (message_stg.length > 350) { // message is too long
-        msg.channel.send('The message is too long, please trim it down!');
+        await msg.channel.send('The message is too long, please trim it down!');
         return false;
     }
 
     if (cron_params.length < 5) {
-        msg.channel.send('Not enough parameters were passed, try `$alarmHelp` for more information!');
+        await msg.channel.send('Not enough parameters were passed, try `$alarmHelp` for more information!');
         return false;
     }
     let mins = cron_params[0];
     if (!isAValidRangeGroupOrNumber(mins, 0, 59)) {
-        msg.channel.send("The minute parameter is invalid. This value must be between 0 and 59.\nTry `$alarmHelp` for more information!");
+        await msg.channel.send("The minute parameter is invalid. This value must be between 0 and 59.\nTry `$alarmHelp` for more information!");
         return false;
     }
     if (small_time_interval(mins)) {
-        msg.channel.send("The minute parameter you sent is susceptible to spam. Only groups of 5 members or less and digits are allowed to avoid spam.");
+        await msg.channel.send("The minute parameter you sent is susceptible to spam. Only groups of 5 members or less and digits are allowed to avoid spam.");
         return false;
     }
 
     let hours = cron_params[1];
     if (!isAValidRangeGroupOrNumber(hours, 0, 23)) {
-        msg.channel.send("The hour parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!");
+        await msg.channel.send("The hour parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!");
         return false;
     }
 
     let month_day = cron_params[2];
     if (!isAValidRangeGroupOrNumber(month_day, 1, 31)) {
-        msg.channel.send("The day of the month parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!");
+        await msg.channel.send("The day of the month parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!");
         return false;
     }
 
     let month = cron_params[3];
     if (!isAValidRangeGroupOrNumber(month, 0, 11)) {
-        msg.channel.send("The month parameter is invalid! This value must be between 0 and 11.\nTry `$alarmHelp` for more information!");
+        await msg.channel.send("The month parameter is invalid! This value must be between 0 and 11.\nTry `$alarmHelp` for more information!");
         return false;
     }
 
     let weekday = cron_params[4];
     if (!isAValidRangeGroupOrNumber(weekday, 0, 6)) {
-        msg.channel.send("The weekday parameter is invalid! This value must be between 0 (Sunday) and 6 (Saturday).\nTry `$alarmHelp` for more information!");
+        await msg.channel.send("The weekday parameter is invalid! This value must be between 0 (Sunday) and 6 (Saturday).\nTry `$alarmHelp` for more information!");
         return false;
     }
 

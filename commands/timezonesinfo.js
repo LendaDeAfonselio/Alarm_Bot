@@ -31,18 +31,18 @@ module.exports = {
             let chunks = utility_functions.chunkArray(list_timezones, 20);
 
             for (let chunk of chunks) {
-                msg.author.send({
+                await msg.author.send({
                     embed: {
                         color: 0x0099ff,
                         title: 'Here are all the timezones supported:',
                         fields: chunk,
                         timestamp: new Date(),
                     }
-                }).catch((err) => {
+                }).catch(async (err) => {
                     logging.logger.info(`Can't send timezone message to user ${msg.author.id}`);
                     logging.logger.error(err);
                     if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                        msg.channel.send({
+                        await msg.channel.send({
                             embed: {
                                 color: 0x0099ff,
                                 title: 'Here are all the timezones supported:',
@@ -57,12 +57,12 @@ module.exports = {
             let timezone_name = args[0];
             let timezone_data = time_utils.get_timezone_by_abreviation(timezone_name);
             if (timezone_data == undefined) {
-                msg.author.send(`No data was found for ${timezone_name}. Check all timezones with ${auth.prefix + 'timezonesinfo'} for more information.`)
-                    .catch((err) => {
+                await msg.author.send(`No data was found for ${timezone_name}. Check all timezones with ${auth.prefix + 'timezonesinfo'} for more information.`)
+                    .catch(async (err) => {
                         logging.logger.info(`Can't send private message to user ${msg.author.id}.`);
                         logging.logger.error(err);
                         if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                            msg.channel.send(`No data was found for ${timezone_name}. Check all timezones with ${auth.prefix + 'timezonesinfo'} for more information.`)
+                            await msg.channel.send(`No data was found for ${timezone_name}. Check all timezones with ${auth.prefix + 'timezonesinfo'} for more information.`)
                         }
                     });
                 return;
@@ -78,7 +78,7 @@ module.exports = {
                 name: 'For more information visit: ',
                 value: `https://www.timeanddate.com/time/zones/${timezone_data.timezone_abbreviation}`,
             })
-            msg.author.send({
+            await msg.author.send({
                 embed: {
                     color: 0x90ee90,
                     title: 'Details about ' + timezone_data.timezone_abbreviation,
@@ -88,11 +88,11 @@ module.exports = {
                         text: 'If this example does not yield the desired results try using ' + timezone_data.utc_offset,
                     },
                 }
-            }).catch((err) => {
+            }).catch(async (err) => {
                 logging.logger.info(`Can't send private message to user ${msg.author.id}.`);
                 logging.logger.error(err);
                 if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                    msg.channel.send({
+                    await msg.channel.send({
                         embed: {
                             color: 0x90ee90,
                             title: 'Details about ' + timezone_data.timezone_abbreviation,

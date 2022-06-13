@@ -8,12 +8,12 @@ module.exports = {
     description: 'DMs the requiree a list with all the available commands',
     usage: auth.prefix + 'help',
 
-    execute(message, args, client, cron_list) {
-        fs.readdir("./commands/", (err, files) => {
+    async execute(message, args, client, cron_list) {
+        fs.readdir("./commands/", async (err, files) => {
             if (err) logging.logger.error(err);
             let jsfiles = files.filter(f => f.split(".").pop() === "js");
             if (jsfiles.length <= 0) {
-                message.author.send("No commands to load!").catch((err) => {
+                await message.author.send("No commands to load!").catch((err) => {
                     logging.logger.info(`Can't send reply to user ${message.author.id}.`);
                     logging.logger.error(err);
                 });;
@@ -44,18 +44,18 @@ module.exports = {
             });
             // sends dm
             try {
-                message.author.send({
+                await message.author.send({
                     embed: {
                         color: 0xff80d5,
                         title: 'A list of my commands',
                         fields: msg_fields,
                         timestamp: new Date()
                     }
-                }).catch((err) => {
+                }).catch(async (err) => {
                     logging.logger.info(`Can't send reply to help from user ${message.author.id}.`);
                     logging.logger.error(err);
                     if (message.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(message, message.channel)) {
-                        message.channel.send({
+                        await message.channel.send({
                             embed: {
                                 color: 0xff80d5,
                                 title: 'A list of my commands',

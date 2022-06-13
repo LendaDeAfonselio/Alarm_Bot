@@ -30,4 +30,4 @@ shards.on('shardCreate', async (shard) => {
     });
 });
 
-shards.spawn('auto', 15000).catch(error => logging.logger.error(`[ERROR/SHARD] Shard failed to spawn. Error: ${error}`));
+shards.spawn('auto', 20000).catch(error => logging.logger.error(`[ERROR/SHARD] Shard failed to spawn. Error: ${error}`));

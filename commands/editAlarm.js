@@ -150,11 +150,11 @@ module.exports = {
             }
             let alarm_id = args[1];
             if (alarm_id.length <= 8) {
-                msg.channel.send(`The id you entered is to short. Please try a larger regex...`);
+               await msg.channel.send(`The id you entered is to short. Please try a larger regex...`);
                 return;
             }
             if (!(await utility_functions.can_change_alarm(msg, alarm_id))) {
-                msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
+               await msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
                 return;
             }
             let message_stg = args.slice(2, args.length).join(' ');
@@ -162,7 +162,7 @@ module.exports = {
             let channel_discord;
             ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 2));
             if (!utility_functions.can_send_messages_to_ch(msg, channel_discord)) {
-                msg.channel.send(`Cannot setup the alarm in channel ${channel} because the bot does not have permission to send messages to it.`)
+               await msg.channel.send(`Cannot setup the alarm in channel ${channel} because the bot does not have permission to send messages to it.`)
                 return;
             }
             if (channel_discord !== undefined) {
@@ -179,15 +179,15 @@ module.exports = {
                 let combination = public_alarms.concat(private_alarms);
                 await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id, guildId, msg.author.id);
                 editCronForAlarm(cron, cron_list, message_stg, channel_discord, msg, combination);
-                msg.channel.send(`Updated the message for ${combination.length} alarms that contain \`${alarm_id}\` in the id`);
+               await msg.channel.send(`Updated the message for ${combination.length} alarms that contain \`${alarm_id}\` in the id`);
             } else {
-                msg.channel.send('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
+               await msg.channel.send('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
             }
         } else if (args.length >= 8 && utility_functions.compareIgnoringCase(args[0], "-c") &&
             !utility_functions.compareIgnoringCase(args[1], "-m")) {
             let alarm_id = args[1];
             if (!(await utility_functions.can_change_alarm(msg, alarm_id))) {
-                msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
+               await msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
                 return;
             }
             let timezone = args[2];
@@ -195,15 +195,15 @@ module.exports = {
             let guild_id = msg.guild?.id;
             let alarm = await getAlarmById(alarm_id, guild_id);
             if (alarm == null) {
-                msg.channel.send(`No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.`);
+               await msg.channel.send(`No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.`);
                 return;
             }
             let difference = time_utils.get_offset_difference(timezone);
             if (difference === undefined) {
-                msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
+               await msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
                 return;
             }
-            else if (time_utils.validate_alarm_parameters(msg, crono, alarm.message)) {
+            else if (await time_utils.validate_alarm_parameters(msg, crono, alarm.message)) {
                 crono = time_utils.updateParams(difference, crono);
                 let channel;
 
@@ -221,9 +221,9 @@ module.exports = {
                 if (channel !== undefined) {
                     await editAlarmCronArgsOnDatabase(crono, alarm_id);
                     updateCronWithParamsAndMessage(cron, cron_list, alarm_id, crono, channel, alarm.message);
-                    msg.channel.send(`Sucessfully update the alarm with id \`${alarm_id}\` with the following parameters: \`${crono}\` `);
+                   await msg.channel.send(`Sucessfully update the alarm with id \`${alarm_id}\` with the following parameters: \`${crono}\` `);
                 } else {
-                    msg.channel.send('Error setting up the alarm, please check if you are in the correct server to perform this operation');
+                   await msg.channel.send('Error setting up the alarm, please check if you are in the correct server to perform this operation');
                     return;
                 }
             }
@@ -232,14 +232,14 @@ module.exports = {
             utility_functions.compareIgnoringCase(args[1], "-m")) {
             let alarm_id = args[2];
             if (!(await utility_functions.can_change_alarm(msg, alarm_id))) {
-                msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
+               await msg.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
                 return;
             }
             let guild_id = msg.guild ? msg.guild.id : undefined;
             let alarm = await getAlarmById(alarm_id, guild_id);
 
             if (alarm == null) {
-                msg.channel.send(`No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.`);
+               await msg.channel.send(`No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.`);
                 return;
             }
             let timezone = args[3];
@@ -248,24 +248,24 @@ module.exports = {
 
             let difference = time_utils.get_offset_difference(timezone);
             if (difference === undefined) {
-                msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
+               await msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
                 return;
             }
-            else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
+            else if (await time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
                 let channel = args.pop();
                 let channel_discord;
                 ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 9));
                 if (channel_discord === undefined) {
-                    msg.channel.send('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
+                   await msg.channel.send('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
                     return;
                 }
                 crono = time_utils.updateParams(difference, crono);
                 await editAlarmCronAndMessageOnDatabase(message_stg, crono, alarm_id, channel_discord, guild_id);
                 updateCronWithParamsAndMessage(cron, cron_list, alarm_id, crono, channel_discord, message_stg);
-                msg.channel.send(`Sucessfully update the alarm with id \`${alarm_id}\` with parameters: \`${crono}\` and message: \`${message_stg}\` `);
+               await msg.channel.send(`Sucessfully update the alarm with id \`${alarm_id}\` with parameters: \`${crono}\` and message: \`${message_stg}\` `);
             }
         } else {
-            msg.channel.send('Incorrect usage of the command\n' + 'Usage:\n' + this.usage)
+           await msg.channel.send('Incorrect usage of the command\n' + 'Usage:\n' + this.usage)
         }
     }
 }

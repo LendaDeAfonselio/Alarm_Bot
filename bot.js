@@ -94,7 +94,8 @@ client.on('message', async message => {
         else {
             if (utility_functions.can_send_messages(message)) {
                 try {
-                    await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
+                    let executable = client.commands.get(command);
+                    await executable.execute(message, args, client, cron, cron_list, mongoose);
                 } catch (error) {
                     logging.logger.error(`An error has occured while executing the following command: ${message.content}. Error: ${error}`);
                     message.reply('There was an error trying to execute that command!');

@@ -25,7 +25,9 @@ function isTTSAlarm(alarm_id) {
     return alarm_id.startsWith(auth.tts_alarm_prefix);
 }
 
-
+function isString(input) {
+    return typeof input === 'string' && Object.prototype.toString.call(input) === '[object String]'
+}
 /**
  * Checks if an user can create a public alarm
  * @param {String} user_id  - the id of user
@@ -156,12 +158,12 @@ function compareIgnoringCase(stg1, stg2) {
     return stg1.toUpperCase() === stg2.toUpperCase();
 }
 
-function send_message_to_default_channel(guild, message) {
+async function send_message_to_default_channel(guild, message) {
     const channel = guild.channels.cache.find(
         (c) => c.type === "text" && c.permissionsFor(guild.me).has("SEND_MESSAGES")
     );
     if (channel) {
-        channel.send(message);
+        await channel.send(message);
     } else {
         logging.logger.error(`Impossible to send message to guild ${guild.id}`);
     }
@@ -193,6 +195,9 @@ function deleteFromCronList(cron_list, alarm) {
 }
 
 function can_send_embeded(msg) {
+    if (!msg || !msg.channel || !msg.guild || !msg.guild.me) {
+        return false;
+    }
     let ch = msg.channel;
     let permission = msg.guild.me.permissionsIn(ch);
     return permissions_include(permission, Permissions.FLAGS.EMBED_LINKS);
@@ -200,28 +205,41 @@ function can_send_embeded(msg) {
 
 
 function can_send_tts_messages(msg) {
+    if (!msg || !msg.channel || !msg.guild || !msg.guild.me) {
+        return false;
+    }
     let ch = msg.channel;
     let permission = msg.guild.me.permissionsIn(ch);
     return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
 }
 
 function can_send_messages(msg) {
+    if (!msg || !msg.channel || !msg.guild || !msg.guild.me) {
+        return false;
+    }
     let ch = msg.channel;
     let permission = msg.guild.me.permissionsIn(ch);
     return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
 }
 
 function can_send_messages_to_ch(msg, ch) {
+    if (!ch || !msg || !msg.guild || !msg.guild.me) {
+        return false;
+    }
     let permission = msg.guild.me.permissionsIn(ch);
     return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
 }
 function can_send_ttsmessages_to_ch(msg, ch) {
+    if (!ch || !msg || !msg.guild || !msg.guild.me) {
+        return false;
+    }
     let permission = msg.guild.me.permissionsIn(ch);
     return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
 }
 
 function permissions_include(permissions, perm) {
-    return permissions.has(Permissions.FLAGS.VIEW_CHANNEL) && permissions.has(perm);
+
+    return permissions && permissions.has(Permissions.FLAGS.VIEW_CHANNEL) && permissions.has(perm);
 }
 
 function can_send_messages_to_ch_using_guild(guild, ch) {
@@ -254,5 +272,6 @@ module.exports = {
     can_send_messages: can_send_messages,
     can_send_messages_to_ch: can_send_messages_to_ch,
     can_send_ttsmessages_to_ch: can_send_ttsmessages_to_ch,
-    can_send_messages_to_ch_using_guild: can_send_messages_to_ch_using_guild
+    can_send_messages_to_ch_using_guild: can_send_messages_to_ch_using_guild,
+    isString: isString
 }

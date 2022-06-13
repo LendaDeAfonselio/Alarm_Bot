@@ -32,7 +32,7 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
 
 async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone, isPrivate, message, discord_channel) {
     ota.start();
-    msg.channel.send(`Alarm for ${data_stg} (${timezone}) has been setup`);
+   await msg.channel.send(`Alarm for ${data_stg} (${timezone}) has been setup`);
     let alarm_user = msg.author.id;
     let this_alarm_id = Math.random().toString(36).substring(4);
     let alarm_id = `${auth.one_time_prefix}_${this_alarm_id}`;
@@ -86,10 +86,10 @@ function createOneTimeCron(cron, d, message, channel_discord) {
     return undefined;
 }
 
-function createPrivateOneTimeCron(msg, cron, d, message) {
+async function createPrivateOneTimeCron(msg, cron, d, message) {
     try {
-        let ota = new cron(d, () => {
-            msg.author.send(message).catch((err) => {
+        let ota = new cron(d, async () => {
+            await msg.author.send(message).catch((err) => {
                 logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.author.id}.`);
                 logging.logger.error(err);
                 if (msg.channel.type !== 'dm' && utils.can_send_messages_to_ch(msg, msg.channel)) {
@@ -115,7 +115,7 @@ module.exports = {
             if (args.length > 1) {
                 let isPrivate = args[0].toLowerCase() === '-p';
                 if (isPrivate && args.length < 4 || !isPrivate && args.length < 3) {
-                    msg.channel.send('Insuficient arguments were passed for this alarm!\n'
+                   await msg.channel.send('Insuficient arguments were passed for this alarm!\n'
                         + 'Usage: `' + this.usage + '`\n'
                         + 'Try `$help` for more information!');
                 }
@@ -126,13 +126,13 @@ module.exports = {
                     if (!isPrivate) {
                         let canCreate = await utils.can_create_ota_alarm(msg.author.id, msg.guild?.id);
                         if (!canCreate) {
-                            msg.channel.send(auth.limit_alarm_message);
+                           await msg.channel.send(auth.limit_alarm_message);
                             return;
                         }
                         let timezone = args[0];
                         let difference = time_utils.get_offset_difference(timezone);
                         if (difference === undefined) {
-                            msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
+                           await msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
                         } else {
                             hour_min_args = args[1];
                             if (args[2].includes('/') && args[2].length >= 3 && args[2].length <= 10) {
@@ -148,20 +148,20 @@ module.exports = {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
                                         if (!utils.can_send_messages_to_ch(msg, channel_discord)) {
-                                            msg.channel.send(`Cannot setup the alarm in that channel because the bot does not have permission to send messages to it.`)
+                                           await msg.channel.send(`Cannot setup the alarm in that channel because the bot does not have permission to send messages to it.`)
                                             return;
                                         }
                                         let ota = createOneTimeCron(cron, d, message, channel_discord);
                                         if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
+                                            await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
                                         } else {
-                                            msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
+                                           await msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
                                         }
                                     } else {
-                                        msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                                       await msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                   await msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
                                         + 'Try `$help` for more information!');
                                 }
                             } else {
@@ -181,21 +181,21 @@ module.exports = {
                                         let channel_discord;
                                         ({ channel_discord, message } = extract_discord_channel(args, msg, message));
                                         if (!utils.can_send_messages_to_ch(msg, channel_discord)) {
-                                            msg.channel.send(`Cannot setup the alarm to specified channel because the bot does not have permission to send messages to it.`)
+                                           await msg.channel.send(`Cannot setup the alarm to specified channel because the bot does not have permission to send messages to it.`)
                                             return;
                                         }
                                         let ota = createOneTimeCron(cron, d, message, channel_discord);
 
                                         if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
+                                            await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
                                         } else {
-                                            msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
+                                           await msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
                                         }
                                     } else {
-                                        msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                                       await msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                   await msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
                                         + 'Try `$help` for more information!');
                                 }
                             }
@@ -203,13 +203,13 @@ module.exports = {
                     } else {
                         let create = await utils.can_create_ota_alarm(msg.author.id, undefined);
                         if (!create) {
-                            msg.channel.send('You or this server have reached the maximum ammount of private one time alarms! Use `$premium` to find out how to get more alarms.');
+                           await msg.channel.send('You or this server have reached the maximum ammount of private one time alarms! Use `$premium` to find out how to get more alarms.');
                             return;
                         }
                         let timezone = args[1];
                         let difference = time_utils.get_offset_difference(timezone);
                         if (difference === undefined) {
-                            msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
+                           await msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
                         }
                         else {
                             if (args[3].includes('/') && args[3].length >= 3 && args[3].length <= 10) {
@@ -223,13 +223,13 @@ module.exports = {
                                     let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     let now = new Date();
                                     if (d > now) {
-                                        let ota = createPrivateOneTimeCron(msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
+                                        let ota = await createPrivateOneTimeCron(msg, cron, d, message);
+                                        await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
                                     } else {
-                                        msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                                       await msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                   await msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
                                         + 'Try `$help` for more information!');
                                 }
                             } else {
@@ -246,12 +246,12 @@ module.exports = {
                                     let now = new Date();
                                     if (d > now) {
                                         let ota = createPrivateOneTimeCron(msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
+                                        await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
                                     } else {
-                                        msg.channel.send(`The date you entered:${params_stg} already happened!`);
+                                       await msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
                                 } else {
-                                    msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
+                                   await msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
                                         + 'Try `$help` for more information!');
                                 }
                             }
@@ -259,12 +259,12 @@ module.exports = {
                     }
                 }
             } else {
-                msg.channel.send('No arguments were passed for this alarm!\n'
+               await msg.channel.send('No arguments were passed for this alarm!\n'
                     + 'Usage: `' + this.usage + '`\n'
                     + 'Try `$help` for more information!');
             }
         } else {
-            msg.channel.send('You do not have permissions to set that alarm! Ask for the admins on your server to create and (then) give you the `Alarming` role!');
+           await msg.channel.send('You do not have permissions to set that alarm! Ask for the admins on your server to create and (then) give you the `Alarming` role!');
         }
     }
 }
