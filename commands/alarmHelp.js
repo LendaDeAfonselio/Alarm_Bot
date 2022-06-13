@@ -7,7 +7,7 @@ module.exports = {
     description: 'Sends a message with a set of examples on how to use the parameters',
     usage: auth.prefix + 'alarmHelp',
 
-    execute(message, args, client, cron_list) {
+    async execute(message, args, client, cron_list) {
         let msg_fields = [];
         let paramsOrder = {
             name: 'Parameter order',
@@ -64,7 +64,7 @@ module.exports = {
 
         // sends the message
         try {
-            message.author.send({
+            await message.author.send({
                 embed: {
                     color: 0xff80d5,
                     title: 'Examples of usage',
@@ -75,7 +75,7 @@ module.exports = {
                 logging.logger.info(`Can't send reply to message user ${message.author.id}.`);
                 logging.logger.error(err);
                 if (message.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(message, message.channel)) {
-                    message.channel.send({
+                    await message.channel.send({
                         embed: {
                             color: 0xff80d5,
                             title: 'Examples of usage',

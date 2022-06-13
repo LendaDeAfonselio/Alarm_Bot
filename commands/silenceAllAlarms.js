@@ -32,11 +32,11 @@ module.exports = {
                             isActive: false
                         }
                     );
-                    msg.channel.send(`Sucesfully silenced ${x.length} private alarms.`);
+                   await msg.channel.send(`Sucesfully silenced ${x.length} private alarms.`);
 
                 } else if (flag === '-a') {
                     if (msg.channel.type === 'dm') {
-                        msg.channel.send('Can only silence public alarms in a server, otherwise the bot does not know which alarms to silence.');
+                       await msg.channel.send('Can only silence public alarms in a server, otherwise the bot does not know which alarms to silence.');
                         return;
                     }
                     let x = await Alarm_model.find(
@@ -50,19 +50,19 @@ module.exports = {
                         { isActive: true, guild: msg.guild.id, user_id: alarm_user },
                         { isActive: false }
                     );
-                    msg.channel.send(`Sucesfully silenced ${x.length} alarms.`);
+                   await msg.channel.send(`Sucesfully silenced ${x.length} alarms.`);
                 } else {
-                    msg.channel.send(`The flag you have provided: ${flag} is invalid. Try silenceAllAlarms -p to silent all of your private alarms or -a to silent all of your alarms in this server.`);
+                   await msg.channel.send(`The flag you have provided: ${flag} is invalid. Try silenceAllAlarms -p to silent all of your private alarms or -a to silent all of your alarms in this server.`);
                 }
 
             } catch (e) {
                 logging.logger.info(`Error silencing all alarm ${flag}`);
                 logging.logger.error(e);
-                msg.channel.send(`Error silencing all alarms`);
+               await msg.channel.send(`Error silencing all alarms`);
             }
         }
         else {
-            msg.channel.send(`No arguments were passed to execute this command.\n`
+           await msg.channel.send(`No arguments were passed to execute this command.\n`
                 + 'Usage: ' + this.usage);
         }
     }

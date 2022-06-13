@@ -34,7 +34,7 @@ module.exports = {
 
 
             for (let chunk of chunks) {
-                msg.channel.send(chunk);
+               await msg.channel.send(chunk);
             }
 
             id_stg = '**Private Alarms**:\n';
@@ -52,13 +52,13 @@ module.exports = {
 
             try {
                 for (let chunk of chunks) {
-                    msg.author.send(chunk);
+                    await msg.author.send(chunk);
                 }
             } catch (err) {
                 logging.logger.info(`Can't send reply to message ${args} from user ${msg.author.id}.`);
                 logging.logger.error(err);
                 if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                   await msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
                 }
             }
             return;
@@ -84,7 +84,7 @@ module.exports = {
         let tts_chunks = utility.chunkArray(tts_alarms, 20);
 
         if (general_alarms.length <= 0 && tts_alarms.length <= 0) {
-            msg.channel.send('You do not have alarms in this server!');
+           await msg.channel.send('You do not have alarms in this server!');
         }
 
         // send public alarms
@@ -94,7 +94,7 @@ module.exports = {
 
         // send private alarms
         for (let chunk of private_chunks) {
-            msg.author.send({
+            await msg.author.send({
                 embed: {
                     color: 0x5CFF5C,
                     title: "Your private alarms are:",
@@ -105,13 +105,13 @@ module.exports = {
                 logging.logger.info(`Can't send reply to myalarms message from user ${msg.author.id}.`);
                 logging.logger.error(err);
                 if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                   await msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
                 }
             });
         }
 
         for (let chunk of private_chunks2) {
-            msg.author.send({
+            await msg.author.send({
                 embed: {
                     color: 0xcc1100,
                     title: "Your private one time alarms alarms are:",
@@ -120,7 +120,7 @@ module.exports = {
                 }
             }).catch((err) => {
                 if (msg.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(msg, msg.channel)) {
-                    msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
+                   await msg.channel.send('Unable to send you the private alarms via DM. Check your permissions!');
                 }
             });
         }
@@ -131,7 +131,7 @@ module.exports = {
 function sendChunksAsPublicMsg(public_chunks, msg, title_message) {
     for (let chunk of public_chunks) {
         if (utility_functions.can_send_embeded(msg)) {
-            msg.channel.send({
+           await msg.channel.send({
                 embed: {
                     color: 0xff80d5,
                     title: title_message,
@@ -140,7 +140,7 @@ function sendChunksAsPublicMsg(public_chunks, msg, title_message) {
                 }
             });
         } else {
-            msg.channel.send('Embeded messages are disallowed for this server. Try turning them on or use `$myalarms -id`.');
+           await msg.channel.send('Embeded messages are disallowed for this server. Try turning them on or use `$myalarms -id`.');
         }
     }
 }

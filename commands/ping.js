@@ -3,7 +3,7 @@ module.exports = {
   name: 'ping',
   description: 'Ping!',
   usage: 'ping',
-  execute(msg, args, client, cron, cron_list, mongoose) {
-    msg.channel.send('pong');
+  async execute(msg, args, client, cron, cron_list, mongoose) {
+   await msg.channel.send('pong');
   },
 };

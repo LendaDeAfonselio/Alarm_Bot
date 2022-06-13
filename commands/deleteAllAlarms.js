@@ -29,18 +29,18 @@ module.exports = {
                             cron_list[i.alarm_id].stop();
                             delete cron_list[i.alarm_id];
                         });
-                        msg.channel.send(`Sucessfully deleted ${x.deletedCount} alarms.`);
+                       await msg.channel.send(`Sucessfully deleted ${x.deletedCount} alarms.`);
                     } else {
-                        msg.channel.send('No private alarm found for your user, only private `oneTimeAlarm`s will be deleted. Try `myAlarms` to check your alarms.');
+                       await msg.channel.send('No private alarm found for your user, only private `oneTimeAlarm`s will be deleted. Try `myAlarms` to check your alarms.');
                     }
                 } catch (e) {
                     logging.logger.error(e);
-                    msg.channel.send(`Error deleting your private alarms...`);
+                   await msg.channel.send(`Error deleting your private alarms...`);
                 }
             }
             else if (flag.toLowerCase() === '-a') {
                 if (msg.channel.type === 'dm') {
-                    msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
+                   await msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
                     return;
                 }
                 try {
@@ -64,14 +64,14 @@ module.exports = {
                                 delete cron_list[i.alarm_id];
                             }
                         });
-                        msg.channel.send(`Sucessfully deleted ${y.deletedCount} alarms.`);
+                       await msg.channel.send(`Sucessfully deleted ${y.deletedCount} alarms.`);
                     } else {
-                        msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
+                       await msg.channel.send('No alarm found for you in this server. Try `myAlarms` to check your alarms');
                     }
                 } catch (e) {
                     logging.logger.info(`Error deleting alarms for user:${alarm_user} with params ${flag}`);
                     logging.logger.error(e);
-                    msg.channel.send(`Error deleting your alarms...`);
+                   await msg.channel.send(`Error deleting your alarms...`);
                 }
             }
             else if (flag.toLowerCase() === '-op') {
@@ -83,12 +83,12 @@ module.exports = {
                     }
                 });
                 let f = await alarm_db.delete_all_private_oneTimeAlarm_from_user(alarm_user);
-                msg.channel.send(`Sucessfully deleted ${f.deletedCount} alarms.`);
+               await msg.channel.send(`Sucessfully deleted ${f.deletedCount} alarms.`);
 
             }
             else if (flag.toLowerCase() === '-oa') {
                 if (msg.channel.type === 'dm') {
-                    msg.channel.send('Can only delete public one time alarms in a server, otherwise the bot does not know which alarms to delete.');
+                   await msg.channel.send('Can only delete public one time alarms in a server, otherwise the bot does not know which alarms to delete.');
                     return;
                 }
                 let als = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, false, msg.guild.id);
@@ -99,16 +99,16 @@ module.exports = {
                     }
                 });
                 let n = await alarm_db.delete_all_public_oneTimeAlarm_from_user(alarm_user, msg.guild.id);
-                msg.channel.send(`Sucessfully deleted ${n.deletedCount} alarms.`);
+               await msg.channel.send(`Sucessfully deleted ${n.deletedCount} alarms.`);
             } else if (flag.toLowerCase() == '-tts') {
                 if (msg.channel.type === 'dm') {
-                    msg.channel.send('Can only delete tts alarms in a server, otherwise the bot does not know which alarms to delete.');
+                   await msg.channel.send('Can only delete tts alarms in a server, otherwise the bot does not know which alarms to delete.');
                     return;
                 }
                 let tts_alarms = await alarm_db.get_all_ttsalarms_from_user_and_guild(alarm_user, msg.guild.id);
                 tts_alarms.find((i) => { utility_functions.deleteFromCronList(cron_list, i) });
                 let num_del_tts = await alarm_db.delete_all_ttsAlarm_from_user(alarm_user, msg.guild.id);
-                msg.channel.send(`Sucessfully deleted ${num_del_tts.deletedCount} tts alarms.`);
+               await msg.channel.send(`Sucessfully deleted ${num_del_tts.deletedCount} tts alarms.`);
             }
         } else {
             let stg = "You did not specify what alarms you wish to delete.\n"
@@ -117,7 +117,7 @@ module.exports = {
                 + "`:deleteAllAlarms -tts` deletes **YOUR** TTS alarms for this server.\n"
                 + "`:deleteAllAlarms -oa` deletes **YOUR** one time alarms in the server you are using.\n"
                 + "`:deleteAllAlarms -op` deletes your private one time alarms";
-            msg.channel.send(stg.replace(/:/g, auth.prefix));
+           await msg.channel.send(stg.replace(/:/g, auth.prefix));
         }
     }
 };

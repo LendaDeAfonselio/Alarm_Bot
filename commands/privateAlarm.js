@@ -18,7 +18,7 @@ module.exports = {
     async execute(msg, args, client, cron, cron_list, mongoose) {
         let canCreate = await gen_utils.can_create_private_alarm(msg.author.id);
         if (!canCreate) {
-            msg.channel.send('You have reached the maximum ammount of private alarms! Use `$premium` to discover how to get more alarms');
+           await msg.channel.send('You have reached the maximum ammount of private alarms! Use `$premium` to discover how to get more alarms');
             return;
         }
         if (args.length > 6) {
@@ -28,7 +28,7 @@ module.exports = {
             let message_stg = args.slice(6, args.length).join(' ');
             let difference = time_utils.get_offset_difference(timezone);
             if (difference === undefined) {
-                msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
+               await msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
             }
             if (utils.validate_alarm_parameters(msg, crono, message_stg)) {
                 crono = time_utils.updateParams(difference, crono);
@@ -39,7 +39,7 @@ module.exports = {
 
                     let scheduledMessage = new cron(crono, () => {
                         try {
-                            msg.author.send(message_stg).catch((err) => {
+                            await msg.author.send(message_stg).catch((err) => {
                                 logging.logger.info(`Can't send private message to user ${msg.author.id}. ${alarm_id}.`);
                                 logging.logger.error(err);
                                 if (msg.channel.type !== 'dm' && gen_utils.can_send_messages_to_ch(msg, msg.channel)) {
@@ -69,7 +69,7 @@ module.exports = {
                     });
                     newAlarm.save()
                         .then((result) => {
-                            msg.author.send({
+                            await msg.author.send({
                                 embed: {
                                     title: `Alarm ${alarm_id} with message: ${message_stg} was sucessfully saved with params: ${crono} and message ${message_stg}`,
                                     color: 2447003,
@@ -90,11 +90,11 @@ module.exports = {
                 } catch (err) {
                     logging.logger.info(`Error adding a private alarm with params:${msg}`);
                     logging.logger.error(err);
-                    msg.channel.send(`Error adding the alarm with params: ${crono}, with message ${msg}. Try verifying if there are enough arguments and if they are correct.`);
+                   await msg.channel.send(`Error adding the alarm with params: ${crono}, with message ${msg}. Try verifying if there are enough arguments and if they are correct.`);
                 }
             }
         } else {
-            msg.channel.send('Insuficient parameters were passed.\n'
+           await msg.channel.send('Insuficient parameters were passed.\n'
                 + 'Usage ' + this.usage);
         }
     }
