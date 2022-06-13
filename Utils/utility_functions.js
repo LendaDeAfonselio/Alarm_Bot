@@ -25,7 +25,9 @@ function isTTSAlarm(alarm_id) {
     return alarm_id.startsWith(auth.tts_alarm_prefix);
 }
 
-
+function isString(input) {
+    return typeof input === 'string' && Object.prototype.toString.call(input) === '[object String]'
+}
 /**
  * Checks if an user can create a public alarm
  * @param {String} user_id  - the id of user
@@ -270,5 +272,6 @@ module.exports = {
     can_send_messages: can_send_messages,
     can_send_messages_to_ch: can_send_messages_to_ch,
     can_send_ttsmessages_to_ch: can_send_ttsmessages_to_ch,
-    can_send_messages_to_ch_using_guild: can_send_messages_to_ch_using_guild
+    can_send_messages_to_ch_using_guild: can_send_messages_to_ch_using_guild,
+    isString: isString
 }

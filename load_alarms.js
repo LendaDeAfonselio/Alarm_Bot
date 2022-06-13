@@ -32,7 +32,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                 catch (err) {
                     logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}.`);
 
-                    if (err.code && err.code.includes("GUILD_CHANNEL_RESOLVE")) {
+                    if (err.code && err.code.toString().includes("GUILD_CHANNEL_RESOLVE")) {
                         await alarm_db.delete_alarm_with_id(alarm_id);
                         logging.logger.info(`Deleted alarm ${alarm_id} when loading due to ${err}`);
                     }
