@@ -25,7 +25,8 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                     if (channel && utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
                         await channel.send(message_stg);
                     } else {
-                        logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
+                        await alarm_db.delete_alarm_with_id(alarm_id);
+                        logging.logger.info(`${alarm_id} from the DB was deleted because the channel ${channel_id} was not found`);
                         return false;
                     }
                 }
@@ -117,7 +118,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
             let channel_id = alarm.channel;
             let channel = await guild.channels.cache.get(channel_id);
             if (!utility_functions.can_send_messages_to_ch_using_guild(guild, channel)) {
-               await utility_functions.send_message_to_default_channel(guild, `Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
+                await utility_functions.send_message_to_default_channel(guild, `Cannot setup the alarm in channel ${channel_id} because the bot does not have permission to send messages to it.`);
                 return false;
             }
             let scheduledMessage = new cron(crono, async () => {
@@ -127,7 +128,8 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
                         scheduledMessage.stop();
                         delete cron_list[alarm_id];
                     } else {
-                        logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
+                        await alarm_db.delete_alarm_with_id(alarm_id);
+                        logging.logger.info(`${alarm_id} from the DB was deleted because the channel ${channel_id} was not found`);
                         return false;
                     }
                 }
@@ -201,7 +203,8 @@ async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
                             tts: true
                         });
                     } else {
-                        logging.logger.info(`${alarm_id} from the DB is not usable because the channel ${channel_id} was not found`);
+                        await alarm_db.delete_alarm_with_id(alarm_id);
+                        logging.logger.info(`${alarm_id} from the DB was deleted because the channel ${channel_id} was not found`);
                         return false;
                     }
                 }
