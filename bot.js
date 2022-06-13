@@ -23,7 +23,7 @@ const mongoose = require("mongoose");
 let shard_id;
 mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
     if (err) {
-        logging.logger.error(err);
+        logging.logger.error(`Error connecting to MONGODB: ${err}`);
     }
     else {
         logging.logger.info("Connected to the mongodb");
@@ -72,8 +72,7 @@ client.once('ready', async () => {
             }
 
         } catch (e) {
-            logging.logger.info(`Error booting up the alarms for guild: ${guild.id}`);
-            logging.logger.error(e);
+            logging.logger.error(`Error booting up the alarms for guild ${guild.id}. ${e}`);
         }
     });
 
@@ -97,16 +96,9 @@ client.on('message', async message => {
                 try {
                     await client.commands.get(command).execute(message, args, client, cron, cron_list, mongoose);
                 } catch (error) {
-                    logging.logger.info(`An error has occured while executing the following command: ${message.content}`);
-                    logging.logger.error(error);
+                    logging.logger.error(`An error has occured while executing the following command: ${message.content}. Error: ${error}`);
                     message.reply('There was an error trying to execute that command!');
                 }
-            } else {
-                message.author.send('AlarmBot does not have permission to send messages. Please check AlarmBot permissions and try again.')
-                    .catch((err) => {
-                        logging.logger.info(`Can't send reply to message ${args} from user ${message.author.id}. And no permissions in the channel...`);
-                        logging.logger.error(err);
-                    });
             }
         }
     }
@@ -158,8 +150,7 @@ client.on('guildDelete', async (guild) => {
         logging.logger.info(`Sucessfully deleted ${results1.deletedCount} alarms that were being used in guild ${guild.id}`);
 
     } catch (e) {
-        logging.logger.info(`An error has occured while trying to delete the alarms for guild ${guild.id}`);
-        logging.logger.error(e);
+        logging.logger.error(`An error has occured while trying to delete the alarms for guild ${guild.id}. Error: ${e}`);
     }
 });
 

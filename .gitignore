@@ -105,3 +105,4 @@ dist
 .eslintrc.js
 TASK.TODO
 temp.json
+package-lock.json
