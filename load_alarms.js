@@ -26,6 +26,8 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                         await channel.send(message_stg);
                     } else {
                         await alarm_db.delete_alarm_with_id(alarm_id);
+                        cron_list[alarm_id].stop();
+                        delete cron_list[alarm_id];
                         logging.logger.info(`${alarm_id} from the DB was deleted because the channel ${channel_id} was not found`);
                         return false;
                     }
@@ -129,6 +131,8 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
                         delete cron_list[alarm_id];
                     } else {
                         await alarm_db.delete_alarm_with_id(alarm_id);
+                        cron_list[alarm_id].stop();
+                        delete cron_list[alarm_id];
                         logging.logger.info(`${alarm_id} from the DB was deleted because the channel ${channel_id} was not found`);
                         return false;
                     }
@@ -204,6 +208,8 @@ async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
                         });
                     } else {
                         await alarm_db.delete_alarm_with_id(alarm_id);
+                        cron_list[alarm_id].stop();
+                        delete cron_list[alarm_id];
                         logging.logger.info(`${alarm_id} from the DB was deleted because the channel ${channel_id} was not found`);
                         return false;
                     }
