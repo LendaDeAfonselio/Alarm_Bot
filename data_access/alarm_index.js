@@ -236,6 +236,10 @@ async function delete_private_alarm_with_id(a_id) {
     return await Private_alarm_model.deleteOne({ alarm_id: a_id });
 }
 
+async function delete_alarm_with_id(a_id) {
+    return await Alarm_model.deleteOne({ alarm_id: a_id });
+}
+
 async function delete_all_alarms_for_guild(guild_id) {
     return await Alarm_model.deleteMany({ guild: guild_id });
 }
@@ -290,6 +294,7 @@ module.exports = {
     delete_all_alarms_for_guild: delete_all_alarms_for_guild,
     delete_all_pubota_alarms_for_guild: delete_all_pubota_alarms_for_guild,
     delete_private_alarm_with_id: delete_private_alarm_with_id,
+    delete_alarm_with_id: delete_alarm_with_id,
     get_all_alarms_from_guild: get_all_alarms_from_guild,
     get_all_otas_from_guild: get_all_otas_from_guild,
     get_all_alarms_from_user_and_guild: get_all_alarms_from_user_and_guild,

@@ -21,15 +21,13 @@ module.exports = {
                 if (cron_list[alarm_to_delete] !== undefined) {
                     try {
                         if (utility_functions.isPrivateAlarm(alarm_to_delete)) {
-                            await Private_alarm_model.deleteOne(
-                                { alarm_id: alarm_to_delete }
-                            );
+                            await db_alarms.delete_private_alarm_with_id(alarm_to_delete);
                         } else if (utility_functions.isPublicAlarm(alarm_to_delete)) {
                             if (msg.channel.type === 'dm') {
                                 msg.channel.send('Can only delete public alarms in a server, otherwise the bot does not know which alarms to delete.');
                                 return;
                             }
-                            await Alarm_model.deleteOne({ alarm_id: alarm_to_delete });
+                            await db_alarms.delete_alarm_with_id(alarm_to_delete);
                         } else if (utility_functions.isOtaAlarm(alarm_to_delete)) {
                             await db_alarms.delete_oneTimeAlarm_with_id(alarm_to_delete);
                         } else if (utility_functions.isTTSAlarm(alarm_to_delete)) {
