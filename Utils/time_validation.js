@@ -68,8 +68,8 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
 
 function validate_alarm_parameters(msg, cron_stg, message_stg) {
     let cron_params = cron_stg.split(" ");
-    if (message_stg.length === 0) {
-        msg.channel.send('The message is empty! Please insert a message before proceding!');
+    if (message_stg.length <= 3) {
+        msg.channel.send('The message is to short! Use at least 3 characters');
         return false;
     }
 
