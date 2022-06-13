@@ -203,7 +203,7 @@ module.exports = {
                await msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
                 return;
             }
-            else if (time_utils.validate_alarm_parameters(msg, crono, alarm.message)) {
+            else if (await time_utils.validate_alarm_parameters(msg, crono, alarm.message)) {
                 crono = time_utils.updateParams(difference, crono);
                 let channel;
 
@@ -251,7 +251,7 @@ module.exports = {
                await msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
                 return;
             }
-            else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
+            else if (await time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
                 let channel = args.pop();
                 let channel_discord;
                 ({ channel_discord, message_stg } = extractChannelAndMessage(channel, msg, message_stg, args, 9));

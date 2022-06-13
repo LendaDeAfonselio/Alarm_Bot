@@ -86,9 +86,9 @@ function createOneTimeCron(cron, d, message, channel_discord) {
     return undefined;
 }
 
-function createPrivateOneTimeCron(msg, cron, d, message) {
+async function createPrivateOneTimeCron(msg, cron, d, message) {
     try {
-        let ota = new cron(d, () => {
+        let ota = new cron(d, async () => {
             await msg.author.send(message).catch((err) => {
                 logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.author.id}.`);
                 logging.logger.error(err);
@@ -153,7 +153,7 @@ module.exports = {
                                         }
                                         let ota = createOneTimeCron(cron, d, message, channel_discord);
                                         if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
+                                            await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
                                         } else {
                                            await msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
                                         }
@@ -187,7 +187,7 @@ module.exports = {
                                         let ota = createOneTimeCron(cron, d, message, channel_discord);
 
                                         if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
+                                            await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
                                         } else {
                                            await msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
                                         }
@@ -223,8 +223,8 @@ module.exports = {
                                     let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
                                     let now = new Date();
                                     if (d > now) {
-                                        let ota = createPrivateOneTimeCron(msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
+                                        let ota = await createPrivateOneTimeCron(msg, cron, d, message);
+                                        await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
                                     } else {
                                        await msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }
@@ -246,7 +246,7 @@ module.exports = {
                                     let now = new Date();
                                     if (d > now) {
                                         let ota = createPrivateOneTimeCron(msg, cron, d, message);
-                                        setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
+                                        await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
                                     } else {
                                        await msg.channel.send(`The date you entered:${params_stg} already happened!`);
                                     }

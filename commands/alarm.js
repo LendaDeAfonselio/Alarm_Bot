@@ -32,7 +32,7 @@ module.exports = {
                 if (difference === undefined) {
                    await msg.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
                 }
-                else if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
+                else if (await time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
                     var channel = args.pop();
                     var hasSpecifiedChannel = channel_regex.test(channel);
                     let channel_discord = msg.channel;
@@ -79,7 +79,7 @@ module.exports = {
                                 timestamp: Date.now(),
                             });
                             newAlarm.save()
-                                .then((result) => {
+                                .then(async (result) => {
                                     if (utility_functions.can_send_embeded(msg)) {
                                        await msg.channel.send({
                                             embed: {

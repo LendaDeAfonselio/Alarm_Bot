@@ -47,7 +47,7 @@ module.exports = {
             return;
         }
 
-        if (time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
+        if (await time_utils.validate_alarm_parameters(msg, crono, message_stg)) {
             var channel = args.pop();
             var hasSpecifiedChannel = channel_regex.test(channel);
             let channel_discord = msg.channel;

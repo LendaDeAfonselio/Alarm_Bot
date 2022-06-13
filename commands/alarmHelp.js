@@ -71,7 +71,7 @@ module.exports = {
                     fields: msg_fields,
                     timestamp: new Date()
                 }
-            }).catch((err) => {
+            }).catch(async (err) => {
                 logging.logger.info(`Can't send reply to message user ${message.author.id}.`);
                 logging.logger.error(err);
                 if (message.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(message, message.channel)) {

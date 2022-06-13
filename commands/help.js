@@ -8,8 +8,8 @@ module.exports = {
     description: 'DMs the requiree a list with all the available commands',
     usage: auth.prefix + 'help',
 
-    execute(message, args, client, cron_list) {
-        fs.readdir("./commands/", (err, files) => {
+    async execute(message, args, client, cron_list) {
+        fs.readdir("./commands/", async (err, files) => {
             if (err) logging.logger.error(err);
             let jsfiles = files.filter(f => f.split(".").pop() === "js");
             if (jsfiles.length <= 0) {
@@ -51,7 +51,7 @@ module.exports = {
                         fields: msg_fields,
                         timestamp: new Date()
                     }
-                }).catch((err) => {
+                }).catch(async (err) => {
                     logging.logger.info(`Can't send reply to help from user ${message.author.id}.`);
                     logging.logger.error(err);
                     if (message.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(message, message.channel)) {
