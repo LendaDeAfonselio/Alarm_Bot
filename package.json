@@ -1,17 +1,14 @@
 {
   "dependencies": {
-    "@discordjs/builders": "^0.12.0",
-    "@discordjs/rest": "^0.3.0",
     "cron": "^1.8.2",
-    "discord-api-types": "^0.31.0",
-    "discord.js": "^13.6.0",
+    "discord.js": "^12.5.3",
     "file-system": "^2.2.2",
     "jslint": "^0.12.1",
-    "mongoose": "^5.13.14",
-    "timezones.json": "^1.6.1",
-    "winston": "^3.7.2"
+    "mongoose": "^5.11.13",
+    "timezones.json": "^1.5.2",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "eslint": "^7.29.0"
   }
 }

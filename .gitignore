@@ -104,3 +104,4 @@ dist
 .tern-port
 TASK.TODO
 temp.json
+package-lock.json
