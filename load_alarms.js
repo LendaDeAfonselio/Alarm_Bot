@@ -1,3 +1,4 @@
+'use strict';
 const Alarm_model = require('./models/alarm_model');
 const Private_alarm_model = require('./models/private_alarm_model');
 const One_Time_Alarm_model = require('./models/one_time_alarm_model');
@@ -9,7 +10,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
     let shard_guilds = Array.from(client.guilds.cache.keys());
     if (shard_guilds.includes(guild_id)) {
         let alarms = await Alarm_model.find({ guild: guild_id });
-        for (alarm of alarms) {
+        for (const alarm of alarms) {
             let message_stg = alarm.message;
             let crono = alarm.alarm_args;
             let alarm_id = alarm.alarm_id;
@@ -35,7 +36,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
                 catch (err) {
                     logging.logger.error(`Alarm with id ${alarm_id} failed to go off. Error: ${err}.`);
 
-                    if (err.code && err.code.toString().includes("GUILD_CHANNEL_RESOLVE")) {
+                    if (err.code && err.code.toString().includes('GUILD_CHANNEL_RESOLVE')) {
                         await alarm_db.delete_alarm_with_id(alarm_id);
                         logging.logger.info(`Deleted alarm ${alarm_id} when loading due to ${err}`);
                     }
@@ -66,7 +67,7 @@ async function fetchAlarmsforGuild(cron_list, cron, guild, guild_id, client) {
 
 async function fetchPrivateAlarms(cron_list, cron, client, shardid) {
     let alarms = await Private_alarm_model.find();
-    for (alarm of alarms) {
+    for (const alarm of alarms) {
         let message_stg = alarm.message;
         let crono = alarm.alarm_args;
         let alarm_id = alarm.alarm_id;
@@ -109,7 +110,7 @@ async function fetchOTAsforGuild(cron_list, cron, guild, guild_id, client) {
     if (shard_guilds.includes(guild_id)) {
         let current = new Date();
         let alarms = await One_Time_Alarm_model.find({ guild: guild_id, isPrivate: false });
-        for (alarm of alarms) {
+        for (const alarm of alarms) {
             let alarm_id = alarm.alarm_id;
             let crono = alarm.alarm_date;
             if (current > crono) {
@@ -153,7 +154,7 @@ async function fetchPrivateOTAs(cron_list, cron, client, shardid) {
 
     let current = new Date();
     let alarms = await One_Time_Alarm_model.find({ isPrivate: true });
-    for (alarm of alarms) {
+    for (const alarm of alarms) {
 
         let alarm_id = alarm.alarm_id;
         let crono = alarm.alarm_date;
@@ -189,7 +190,7 @@ async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
     let shard_guilds = Array.from(client.guilds.cache.keys());
     if (shard_guilds.includes(guild_id)) {
         let alarms = await alarm_db.get_all_ttsAlarms_for_guild(guild_id);
-        for (alarm of alarms) {
+        for (const alarm of alarms) {
             let message_stg = alarm.message;
             let crono = alarm.alarm_args;
             let alarm_id = alarm.alarm_id;
@@ -216,7 +217,7 @@ async function fetchTTSAlarms(cron_list, cron, guild, guild_id, client) {
                 }
                 catch (err) {
                     logging.logger.error(`TTS Alarm with id ${alarm_id} failed to go off. Error: ${err}`);
-                    if (err.code && err.code.includes("GUILD_CHANNEL_RESOLVE")) {
+                    if (err.code && err.code.includes('GUILD_CHANNEL_RESOLVE')) {
                         await alarm_db.delete_ttsAlarm_with_id(alarm_id);
                         logging.logger.info(`Deleted TTS alarm ${alarm_id} when loading due to ${err}`);
                     }
