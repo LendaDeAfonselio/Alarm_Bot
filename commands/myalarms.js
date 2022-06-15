@@ -9,7 +9,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const logging = require('../Utils/logging');
 
 const optionFlag = 'id-only';
-
+const allInfoFlag = 'all-info';
 module.exports = {
     name: 'myAlarms',
     description: 'Fetches all of your alarms.\n`myAlarms -id` sends a non embed message with the ids for easier copy/pasting on phone.',
@@ -17,9 +17,10 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('myalarms')
         .setDescription('Fetches all alarms')
-        .addStringOption(option => option.setName(optionFlag).setDescription('The message only contains the id of the alarms when assigning yes to this field')),
+        .addSubcommand(option => option.setName(optionFlag).setDescription('The message only contains the id of the alarms when assigning yes to this field'))
+        .addSubcommand(option => option.setName(allInfoFlag).setDescription('Contains all info')),
     async execute(interaction) {
-        let flag = interaction.options.getString(optionFlag);
+        let flag = interaction.options.getSubcommand();
         let guild_id = interaction.channel.type === 'dm' ? '' : interaction.guild?.id;
 
         let results_pub = await db_alarms.get_all_alarms_from_user_and_guild(interaction.user.id, guild_id);
@@ -28,7 +29,7 @@ module.exports = {
         let results_ota_priv = await db_alarms.get_all_oneTimeAlarm_from_user(interaction.user.id, true, interaction.guild?.id);
         let results_tts = await db_alarms.get_all_ttsalarms_from_user_and_guild(interaction.user.id, guild_id);
 
-        if (flag && flag !== '' && utility_functions.compareIgnoringCase(flag, 'yes')) {
+        if (flag && flag === optionFlag) {
             let id_stg = '**Public Alarms**:\n';
             results_pub.forEach(alarm => {
                 id_stg += `${alarm.alarm_id}\n`;
