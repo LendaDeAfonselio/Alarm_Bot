@@ -43,13 +43,13 @@ module.exports = {
             return;
         }
         if (utils.hasAlarmRole(interaction, auth.alarm_role_name) || utils.isAdministrator(interaction)) {
-            let timezone = interaction.options.getString(TIMEZOME_PARAM);
-            let minute = interaction.options.getString(MINUTE_PARAM);
-            let hour = interaction.options.getString(HOUR_PARAM);
-            let day_of_the_month = interaction.options.getString(DAY_OF_MONTH_PARAM);
-            let month = interaction.options.getString(MONTH_PARAM);
-            let weekday = interaction.options.getString(WEEKDAY_PARAM);
-            let message_stg = interaction.options.getString(MESSAGE_PARAM);
+            const timezone = interaction.options.getString(TIMEZOME_PARAM);
+            const minute = interaction.options.getString(MINUTE_PARAM);
+            const hour = interaction.options.getString(HOUR_PARAM);
+            const day_of_the_month = interaction.options.getString(DAY_OF_MONTH_PARAM);
+            const month = interaction.options.getString(MONTH_PARAM);
+            const weekday = interaction.options.getString(WEEKDAY_PARAM);
+            const message_stg = interaction.options.getString(MESSAGE_PARAM);
 
             if (!timezone || !minute || !hour || !day_of_the_month || !month || !weekday || !message_stg) {
                 await interaction.reply({ content: 'You forgot to provide some parameter. You must assign value to all parameters except `channel`, that is optional', ephemeral: true });
