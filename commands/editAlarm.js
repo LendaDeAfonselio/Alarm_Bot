@@ -3,6 +3,9 @@
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { Client, Intents } = require('discord.js');
+
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
 const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
@@ -123,47 +126,76 @@ function checkIfUpdated(updateObject, alarm_id_to_change, new_cron, new_message)
     return 0;
 }
 
-function extractChannelAndMessage(channel, msg, message_stg, args, startIndex) {
-    let hasSpecifiedChannel = utility_functions.isAChannel(channel);
-    let channel_discord = msg.channel;
-    if (hasSpecifiedChannel) {
-        channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
-        message_stg = args.slice(startIndex, args.length).join(' ');
-    }
-    return { channel_discord, message_stg };
-}
+const MESSAGE_COMMAND = 'edit-message';
+const CRON_COMMAND = 'edit-cron';
+const MESSAGE_CRON_COMMAND = 'edit-message-cron';
+const ALARM_ID_ARG = 'alarm-id';
+const TIMEZOME_PARAM = 'timezone';
+const MINUTE_PARAM = 'minute';
+const HOUR_PARAM = 'hour';
+const DAY_OF_MONTH_PARAM = 'day_of_the_month';
+const MONTH_PARAM = 'month';
+const WEEKDAY_PARAM = 'weekday';
+const MESSAGE_PARAM = 'message';
+const CHANNEL_PARAM = 'channel';
 
 module.exports = {
     name: name_command,
-    description: 'Allows the user to edit the alarm. Use the following flags:\n' +
-        '`-m` - Allows the user to alter the message and, if applies, the channel to which the message is sent.\n' +
-        '`-c` - Allows the user to alter the cron parameters.\n' +
-        'You can combine both flags to change the parameter and message at the same time',
-    usage: auth.prefix + name_command + ' -m <alarm_id_regex> <message> <channel?>\nOr:\t' +
-        auth.prefix + name_command + ' -c <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday>\nOr:\t' +
-        auth.prefix + name_command + ' -c -m <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>\n',
+    description: 'Allows the user to edit the alarm. Use the following options:\n' +
+        '`-m` - Allows the user to alter the message and the channel to which the message is sent in the alarm (if applicable).\n' +
+        '`-c` - Allows the user to alter the cron parameters.\n',
+    usage: `/${name_command} -m <alarm_id_regex> <message> <channel?>\nOr:\t` +
+        `/${name_command} -c <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday>\nOr:\t` +
+        `/${name_command} -c -m <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>\n`,
     data: new SlashCommandBuilder()
         .setName(name_command)
-        .setDescription('Allows the user to edit the alarm.'),
-    async execute(interaction, cron, cron_list, client) {
-        if (args.length >= 3 && utility_functions.compareIgnoringCase(args[0], "-m")) {
-            let guildId;
+        .setDescription('Allows the user to edit the alarm.')
+        .addSubcommand(option => option.setName(MESSAGE_COMMAND).setDescription('Changes the message for the alarm')
+            .addStringOption(option => option.setName(ALARM_ID_ARG).setDescription('The alarm id'))
+            .addStringOption(option => option.setName(MESSAGE_PARAM).setDescription('The message to be sent'))
+            .addChannelOption(option => option.setName(CHANNEL_PARAM).setDescription('The channel for which the alarm will be sent (optional)')))
+        .addSubcommand(option => option.setName(CRON_COMMAND).setDescription('Changes the cron for the alarm')
+            .addStringOption(option => option.setName(ALARM_ID_ARG).setDescription('The alarm id'))
+            .addStringOption(option => option.setName(TIMEZOME_PARAM).setDescription('The timezone the alarm will follow'))
+            .addStringOption(option => option.setName(MINUTE_PARAM).setDescription('The minute in which the alarm goes off'))
+            .addStringOption(option => option.setName(HOUR_PARAM).setDescription('The hour in which the alarm goes off, * for every hour'))
+            .addStringOption(option => option.setName(DAY_OF_MONTH_PARAM).setDescription('The day of the month in which the alarm goes off, * for every day'))
+            .addStringOption(option => option.setName(MONTH_PARAM).setDescription('The month in which the alarm goes off, * for every month'))
+            .addStringOption(option => option.setName(WEEKDAY_PARAM).setDescription('The weekday in which the alarm goes off, * for every weekday')))
+        .addSubcommand(option => option.setName(MESSAGE_CRON_COMMAND).setDescription('Changes the cron and message for the alarm')
+            .addStringOption(option => option.setName(ALARM_ID_ARG).setDescription('The alarm id'))
+            .addStringOption(option => option.setName(TIMEZOME_PARAM).setDescription('The timezone the alarm will follow'))
+            .addStringOption(option => option.setName(MINUTE_PARAM).setDescription('The minute in which the alarm goes off'))
+            .addStringOption(option => option.setName(HOUR_PARAM).setDescription('The hour in which the alarm goes off, * for every hour'))
+            .addStringOption(option => option.setName(DAY_OF_MONTH_PARAM).setDescription('The day of the month in which the alarm goes off, * for every day'))
+            .addStringOption(option => option.setName(MONTH_PARAM).setDescription('The month in which the alarm goes off, * for every month'))
+            .addStringOption(option => option.setName(WEEKDAY_PARAM).setDescription('The weekday in which the alarm goes off, * for every weekday'))
+            .addStringOption(option => option.setName(MESSAGE_PARAM).setDescription('The message to be sent'))
+            .addChannelOption(option => option.setName(CHANNEL_PARAM).setDescription('The channel for which the alarm will be sent (optional)'))),
+    async execute(interaction, cron, cron_list) {
+        const subCommand = interaction.options.getSubcommand();
+        if (subCommand === MESSAGE_COMMAND) {
+            const message_stg = interaction.options.getString(MESSAGE_PARAM);
+            const alarm_id = interaction.options.getString(ALARM_ID_ARG);
+            const channelParam = interaction.options.getChannel(CHANNEL_PARAM);
+            const hasSpecifiedChannel = channelParam !== null;
+            let channel_discord = interaction.channel;
+            const guildId = interaction.guild ? interaction.guild.id : undefined;
 
-            let alarm_id = args[1];
+            if (hasSpecifiedChannel) {
+                channel_discord = channelParam;
+            }
             if (alarm_id.length <= 8) {
-                interaction.channel.send(`The id you entered is to short. Please try a larger regex...`);
+                await interaction.reply('The id you entered is to short. Please try a larger regex...');
                 return;
             }
             if (!(await utility_functions.can_change_alarm(interaction, alarm_id))) {
-                interaction.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
+                await interaction.reply('The alarm you selected is not yours or you aren\'t administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.');
                 return;
             }
-            let message_stg = args.slice(2, args.length).join(' ');
-            let channel = args.pop();
-            let channel_discord;
-            ({ channel_discord, message_stg } = extractChannelAndMessage(channel, interaction, message_stg, args, 2));
+
             if (!utility_functions.can_send_messages_to_ch(interaction, channel_discord)) {
-                interaction.channel.send(`Cannot setup the alarm in channel ${channel} because the bot does not have permission to send messages to it.`)
+                await interaction.reply(`Cannot setup the alarm in channel ${channelParam} because the bot does not have permission to send messages to it.`);
                 return;
             }
             if (channel_discord !== undefined) {
@@ -176,28 +208,32 @@ module.exports = {
                 let combination = public_alarms.concat(private_alarms);
                 await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id, guildId, interaction.author.id);
                 editCronForAlarm(cron, cron_list, message_stg, channel_discord, interaction, combination);
-                interaction.channel.send(`Updated the message for ${combination.length} alarms that contain \`${alarm_id}\` in the id`);
+                await interaction.reply(`Updated the message for ${combination.length} alarms that contain \`${alarm_id}\` in the id`);
             } else {
-                interaction.channel.send('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
+                await interaction.reply('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
             }
-        } else if (args.length >= 8 && utility_functions.compareIgnoringCase(args[0], "-c") &&
-            !utility_functions.compareIgnoringCase(args[1], "-m")) {
-            let alarm_id = args[1];
+        } else if (subCommand === CRON_COMMAND) {
+            const timezone = interaction.options.getString(TIMEZOME_PARAM);
+            const minute = interaction.options.getString(MINUTE_PARAM);
+            const hour = interaction.options.getString(HOUR_PARAM);
+            const day_of_the_month = interaction.options.getString(DAY_OF_MONTH_PARAM);
+            const month = interaction.options.getString(MONTH_PARAM);
+            const weekday = interaction.options.getString(WEEKDAY_PARAM);
+            const alarm_id = interaction.options.getString(ALARM_ID_ARG);
             if (!(await utility_functions.can_change_alarm(interaction, alarm_id))) {
-                interaction.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
+                await interaction.reply({ ephemeral: true, content: 'The alarm you selected is not yours or you aren\'t administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.' });
                 return;
             }
-            let timezone = args[2];
-            let crono = args.slice(3, 8).join(' ');
+            let crono = `${minute} ${hour} ${day_of_the_month} ${month} ${weekday}`;
             let guild_id = interaction.guild?.id;
             let alarm = await getAlarmById(alarm_id, guild_id);
             if (alarm === null) {
-                interaction.channel.send(`No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.`);
+                await interaction.reply({ ephemeral: true, content: `No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.` });
                 return;
             }
             let difference = time_utils.get_offset_difference(timezone);
             if (difference === undefined) {
-                interaction.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
+                await interaction.reply({ ephemeral: true, content: 'The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information' });
                 return;
             }
             else if (time_utils.validate_alarm_parameters(interaction, crono, alarm.message)) {
@@ -218,51 +254,59 @@ module.exports = {
                 if (channel !== undefined) {
                     await editAlarmCronArgsOnDatabase(crono, alarm_id);
                     updateCronWithParamsAndMessage(cron, cron_list, alarm_id, crono, channel, alarm.message);
-                    interaction.channel.send(`Sucessfully update the alarm with id \`${alarm_id}\` with the following parameters: \`${crono}\` `);
+                    await interaction.reply(`Sucessfully update the alarm with id \`${alarm_id}\` with the following parameters: \`${crono}\` `);
                 } else {
-                    interaction.channel.send('Error setting up the alarm, please check if you are in the correct server to perform this operation');
+                    await interaction.reply({ ephemeral: true, content: 'Error setting up the alarm, please check if you are in the correct server to perform this operation' });
                     return;
                 }
             }
-        } else if (args.length >= 10 &&
-            utility_functions.compareIgnoringCase(args[0], "-c") &&
-            utility_functions.compareIgnoringCase(args[1], "-m")) {
-            let alarm_id = args[2];
+        } else if (subCommand === MESSAGE_CRON_COMMAND) {
+            const timezone = interaction.options.getString(TIMEZOME_PARAM);
+            const minute = interaction.options.getString(MINUTE_PARAM);
+            const hour = interaction.options.getString(HOUR_PARAM);
+            const day_of_the_month = interaction.options.getString(DAY_OF_MONTH_PARAM);
+            const month = interaction.options.getString(MONTH_PARAM);
+            const weekday = interaction.options.getString(WEEKDAY_PARAM);
+            const message_stg = interaction.options.getString(MESSAGE_PARAM);
+            const alarm_id = interaction.options.getString(ALARM_ID_ARG);
+            const channelParam = interaction.options.getChannel(CHANNEL_PARAM);
+            const hasSpecifiedChannel = channelParam !== null;
+            let channel_discord = interaction.channel;
+            if (hasSpecifiedChannel) {
+                channel_discord = channelParam;
+            }
+            let crono = `${minute} ${hour} ${day_of_the_month} ${month} ${weekday}`;
+
             if (!(await utility_functions.can_change_alarm(interaction, alarm_id))) {
-                interaction.channel.send(`The alarm you selected is not yours or you aren't administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.`)
+                await interaction.reply({ ephemeral: true, content: 'The alarm you selected is not yours or you aren\'t administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.' });
                 return;
             }
             let guild_id = interaction.guild ? interaction.guild.id : undefined;
             let alarm = await getAlarmById(alarm_id, guild_id);
 
             if (alarm === null) {
-                interaction.channel.send(`No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.`);
+                await interaction.reply({ ephemeral: true, content: `No alarm found with for id ${alarm_id}. For techinical reasons you can only edit private alarms or alarms set in this server. Check if that is a possible cause for failure.` });
                 return;
             }
-            let timezone = args[3];
-            let crono = args.slice(4, 9).join(' ');
-            let message_stg = args.slice(9, args.length).join(' ');
 
             let difference = time_utils.get_offset_difference(timezone);
             if (difference === undefined) {
-                interaction.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
+                await interaction.reply({ ephemeral: true, content: 'The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information' });
                 return;
             }
             else if (time_utils.validate_alarm_parameters(interaction, crono, message_stg)) {
-                let channel = args.pop();
-                let channel_discord;
-                ({ channel_discord, message_stg } = extractChannelAndMessage(channel, interaction, message_stg, args, 9));
+
                 if (channel_discord === undefined) {
-                    interaction.channel.send('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
+                    await interaction.reply({ ephemeral: true, content: 'It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!' });
                     return;
                 }
                 crono = time_utils.updateParams(difference, crono);
                 await editAlarmCronAndMessageOnDatabase(message_stg, crono, alarm_id, channel_discord, guild_id);
                 updateCronWithParamsAndMessage(cron, cron_list, alarm_id, crono, channel_discord, message_stg);
-                interaction.channel.send(`Sucessfully update the alarm with id \`${alarm_id}\` with parameters: \`${crono}\` and message: \`${message_stg}\` `);
+                await interaction.reply(`Sucessfully update the alarm with id \`${alarm_id}\` with parameters: \`${crono}\` and message: \`${message_stg}\` `);
             }
         } else {
-            interaction.channel.send('Incorrect usage of the command\n' + 'Usage:\n' + this.usage)
+            await interaction.reply({ ephemeral: true, content: 'Incorrect usage of the command\nUsage: ' + this.usage });
         }
     }
-}
+};
