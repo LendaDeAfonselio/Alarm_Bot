@@ -71,6 +71,11 @@ module.exports = {
             let channel_discord = interaction.channel;
             const guildId = interaction.guild ? interaction.guild.id : undefined;
 
+            if (!message_stg || message_stg.toString().length <= 5) {
+                await interaction.reply('Invalid message');
+                return;
+            }
+
             if (hasSpecifiedChannel) {
                 channel_discord = channelParam;
             }
@@ -109,6 +114,17 @@ module.exports = {
             const month = interaction.options.getString(MONTH_PARAM);
             const weekday = interaction.options.getString(WEEKDAY_PARAM);
             const alarm_id = interaction.options.getString(ALARM_ID_ARG);
+            if (!alarm_id || alarm_id === null ||
+                !timezone || timezone === null ||
+                !minute || minute === null ||
+                !hour || hour === null ||
+                !day_of_the_month || day_of_the_month === null ||
+                !month || month === null ||
+                !weekday || weekday === null) {
+
+                await interaction.reply({ ephemeral: true, content: 'Invalid params' });
+                return;
+            }
             if (!(await utility_functions.can_change_alarm(interaction, alarm_id))) {
                 await interaction.reply({ ephemeral: true, content: 'The alarm you selected is not yours or you aren\'t administrator on this server therefore you cannot delete it!\nIf you are the admin try checking the permissions of the bot.' });
                 return;
@@ -161,6 +177,18 @@ module.exports = {
             const channelParam = interaction.options.getChannel(CHANNEL_PARAM);
             const hasSpecifiedChannel = channelParam !== null;
             let channel_discord = interaction.channel;
+
+            if (!alarm_id || alarm_id === null ||
+                !timezone || timezone === null ||
+                !minute || minute === null ||
+                !hour || hour === null ||
+                !day_of_the_month || day_of_the_month === null ||
+                !month || month === null ||
+                !weekday || weekday === null ||
+                !message_stg || message_stg.toString().length <= 5) {
+                await interaction.reply({ ephemeral: true, content: 'Invalid params' });
+                return;
+            }
             if (hasSpecifiedChannel) {
                 channel_discord = channelParam;
             }
@@ -227,7 +255,7 @@ function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, cha
     // create the cron event to send the message...
     let scheduledMessage = new cron(cron_old, () => {
         try {
-            channel_discord.send(`${newMsg}`);
+            channel_discord.send(newMsg);
         } catch (err) {
             logging.logger.error(`Failed to send message for alarm with id ${alarm_id} after editing! Cause: ${err}`);
         }
