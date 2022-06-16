@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const Discord = require('discord.js');
 const { Permissions } = require('discord.js');
@@ -80,7 +80,7 @@ async function isPremiumUser(user_id) {
  * @param {Discord.Message} message - The Discord Message object
  */
 function isAdministrator(message) {
-    return message.member && message.member.permissions.has("ADMINISTRATOR");
+    return message.member && message.member.permissions.has('ADMINISTRATOR');
 }
 
 /**
@@ -160,7 +160,7 @@ function compareIgnoringCase(stg1, stg2) {
 
 async function send_message_to_default_channel(guild, message) {
     const channel = guild.channels.cache.find(
-        (c) => c.type === "text" && c.permissionsFor(guild.me).has("SEND_MESSAGES")
+        (c) => c.type === 'text' && c.permissionsFor(guild.me).has('SEND_MESSAGES')
     );
     if (channel) {
         await channel.send(message);
