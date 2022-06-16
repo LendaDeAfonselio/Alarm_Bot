@@ -12,119 +12,8 @@ const time_utils = require('../Utils/time_validation');
 const logging = require('../Utils/logging');
 
 const utility_functions = require('../Utils/utility_functions');
-const name_command = 'editalarm';
+const NAME_COMMAND = 'editalarm';
 
-async function getAlarmById(alarm_id, guild_id) {
-    if (utility_functions.isPrivateAlarm(alarm_id)) {
-        return await Private_alarm_model.findOne({ alarm_id: alarm_id });
-    } else if (utility_functions.isPublicAlarm(alarm_id)) {
-        return await Alarm_model.findOne({ alarm_id: alarm_id, guild: guild_id });
-    }
-    return undefined;
-}
-
-function editCronForAlarm(cron, cron_list, newMsg, channel_discord, msg, alarm_list) {
-    for (let alarm of alarm_list) {
-        let k = alarm.alarm_id;
-        if (utility_functions.isPrivateAlarm(k)) {
-            updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, msg.author, newMsg);
-        } else if (utility_functions.isPublicAlarm(k)) {
-            updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, channel_discord, newMsg);
-        }
-    }
-}
-
-function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, channel_discord, newMsg) {
-    cron_list[alarm_id].stop();
-    delete cron_list[alarm_id];
-
-    // create the cron event to send the message...
-    let scheduledMessage = new cron(cron_old, () => {
-        try {
-            channel_discord.send(`${newMsg}`);
-        } catch (err) {
-            logging.logger.error(`Failed to send message for alarm with id ${alarm_id} after editing! Cause: ${err}`);
-        }
-    }, {
-        scheduled: true
-    });
-    scheduledMessage.start();
-    cron_list[alarm_id] = scheduledMessage;
-}
-
-async function editAlarmMessageOnDatabase(newMsg, newChannel, alarm_id_regex, guild_id, author_id) {
-    try {
-        let publicUpdate = await Alarm_model.updateOne(
-            { $and: [{ alarm_id: alarm_id_regex }, { guild: guild_id }] },
-            { message: newMsg, channel: newChannel }
-        );
-
-        let privateUpdate = await Private_alarm_model.updateOne(
-            { $and: [{ alarm_id: alarm_id_regex }, { user_id: author_id }] },
-            { message: newMsg }
-        );
-        logging.logger.info(`Updated the message for ${publicUpdate.nModified} public alarms and ${privateUpdate.nModified} private alarms with regex ${alarm_id_regex}`);
-        return privateUpdate.nModified + publicUpdate.nModified;
-    } catch (err) {
-        logging.logger.info(`An error while trying to update the alarms with regex ${alarm_id_regex}.`);
-        logging.logger.error(err);
-    }
-    return 0;
-}
-
-async function editAlarmCronArgsOnDatabase(new_cron, alarm_id_to_change) {
-    try {
-        if (utility_functions.isPrivateAlarm(alarm_id_to_change)) {
-            let privateUpdate = await Private_alarm_model.updateOne(
-                { alarm_id: alarm_id_to_change },
-                { alarm_args: new_cron }
-            );
-            return checkIfUpdated(privateUpdate, alarm_id_to_change, new_cron, 'with the same message');
-        } else if (utility_functions.isPublicAlarm(alarm_id_to_change)) {
-            let publicUpdate = await Alarm_model.updateOne(
-                { alarm_id: alarm_id_to_change },
-                { alarm_args: new_cron }
-            );
-            return checkIfUpdated(publicUpdate, alarm_id_to_change, new_cron, 'with the same message');
-        }
-    } catch (err) {
-        logging.logger.info(`An error while trying to update the alarms with regex ${alarm_id_to_change}.`);
-        logging.logger.error(err);
-    }
-    return 0;
-}
-
-async function editAlarmCronAndMessageOnDatabase(new_msg, new_cron, alarm_id_to_change, new_channel, guild_id) {
-    try {
-        if (utility_functions.isPrivateAlarm(alarm_id_to_change)) {
-            let privateUpdate = await Private_alarm_model.updateOne(
-                { alarm_id: alarm_id_to_change },
-                { message: new_msg, alarm_args: new_cron }
-            );
-            return checkIfUpdated(privateUpdate, alarm_id_to_change, new_cron, new_msg);
-        } else if (utility_functions.isPublicAlarm(alarm_id_to_change)) {
-            let publicUpdate = await Alarm_model.updateOne(
-                { $and: [{ alarm_id: alarm_id_to_change }, { guild: guild_id }] },
-                { message: new_msg, alarm_args: new_cron, channel: new_channel }
-            );
-            return checkIfUpdated(publicUpdate, alarm_id_to_change, new_cron, new_msg);
-        }
-    } catch (err) {
-        logging.logger.info(`An error while trying to update the alarms with regex ${alarm_id_to_change}.`);
-        logging.logger.error(err);
-    }
-    return 0;
-}
-
-function checkIfUpdated(updateObject, alarm_id_to_change, new_cron, new_message) {
-    if (updateObject.nModified > 0) {
-        logging.logger.info(`Updated the cron for ${alarm_id_to_change} to ${new_cron} and ${new_message}`);
-        return 1;
-    } else {
-        logging.logger.info(`No alarms were updated... Maybe id ${alarm_id_to_change} was incorrect?`);
-    }
-    return 0;
-}
 
 const MESSAGE_COMMAND = 'edit-message';
 const CRON_COMMAND = 'edit-cron';
@@ -140,15 +29,15 @@ const MESSAGE_PARAM = 'message';
 const CHANNEL_PARAM = 'channel';
 
 module.exports = {
-    name: name_command,
+    name: NAME_COMMAND,
     description: 'Allows the user to edit the alarm. Use the following options:\n' +
         '`-m` - Allows the user to alter the message and the channel to which the message is sent in the alarm (if applicable).\n' +
         '`-c` - Allows the user to alter the cron parameters.\n',
-    usage: `/${name_command} -m <alarm_id_regex> <message> <channel?>\nOr:\t` +
-        `/${name_command} -c <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday>\nOr:\t` +
-        `/${name_command} -c -m <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>\n`,
+    usage: `/${NAME_COMMAND} -m <alarm_id_regex> <message> <channel?>\nOr:\t` +
+        `/${NAME_COMMAND} -c <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday>\nOr:\t` +
+        `/${NAME_COMMAND} -c -m <alarm_id> <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>\n`,
     data: new SlashCommandBuilder()
-        .setName(name_command)
+        .setName(NAME_COMMAND)
         .setDescription('Allows the user to edit the alarm.')
         .addSubcommand(option => option.setName(MESSAGE_COMMAND).setDescription('Changes the message for the alarm')
             .addStringOption(option => option.setName(ALARM_ID_ARG).setDescription('The alarm id'))
@@ -310,3 +199,115 @@ module.exports = {
         }
     }
 };
+
+async function getAlarmById(alarm_id, guild_id) {
+    if (utility_functions.isPrivateAlarm(alarm_id)) {
+        return await Private_alarm_model.findOne({ alarm_id: alarm_id });
+    } else if (utility_functions.isPublicAlarm(alarm_id)) {
+        return await Alarm_model.findOne({ alarm_id: alarm_id, guild: guild_id });
+    }
+    return undefined;
+}
+
+function editCronForAlarm(cron, cron_list, newMsg, channel_discord, msg, alarm_list) {
+    for (let alarm of alarm_list) {
+        let k = alarm.alarm_id;
+        if (utility_functions.isPrivateAlarm(k)) {
+            updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, msg.author, newMsg);
+        } else if (utility_functions.isPublicAlarm(k)) {
+            updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, channel_discord, newMsg);
+        }
+    }
+}
+
+function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, channel_discord, newMsg) {
+    cron_list[alarm_id].stop();
+    delete cron_list[alarm_id];
+
+    // create the cron event to send the message...
+    let scheduledMessage = new cron(cron_old, () => {
+        try {
+            channel_discord.send(`${newMsg}`);
+        } catch (err) {
+            logging.logger.error(`Failed to send message for alarm with id ${alarm_id} after editing! Cause: ${err}`);
+        }
+    }, {
+        scheduled: true
+    });
+    scheduledMessage.start();
+    cron_list[alarm_id] = scheduledMessage;
+}
+
+async function editAlarmMessageOnDatabase(newMsg, newChannel, alarm_id_regex, guild_id, author_id) {
+    try {
+        let publicUpdate = await Alarm_model.updateOne(
+            { $and: [{ alarm_id: alarm_id_regex }, { guild: guild_id }] },
+            { message: newMsg, channel: newChannel }
+        );
+
+        let privateUpdate = await Private_alarm_model.updateOne(
+            { $and: [{ alarm_id: alarm_id_regex }, { user_id: author_id }] },
+            { message: newMsg }
+        );
+        logging.logger.info(`Updated the message for ${publicUpdate.nModified} public alarms and ${privateUpdate.nModified} private alarms with regex ${alarm_id_regex}`);
+        return privateUpdate.nModified + publicUpdate.nModified;
+    } catch (err) {
+        logging.logger.info(`An error while trying to update the alarms with regex ${alarm_id_regex}.`);
+        logging.logger.error(err);
+    }
+    return 0;
+}
+
+async function editAlarmCronArgsOnDatabase(new_cron, alarm_id_to_change) {
+    try {
+        if (utility_functions.isPrivateAlarm(alarm_id_to_change)) {
+            let privateUpdate = await Private_alarm_model.updateOne(
+                { alarm_id: alarm_id_to_change },
+                { alarm_args: new_cron }
+            );
+            return checkIfUpdated(privateUpdate, alarm_id_to_change, new_cron, 'with the same message');
+        } else if (utility_functions.isPublicAlarm(alarm_id_to_change)) {
+            let publicUpdate = await Alarm_model.updateOne(
+                { alarm_id: alarm_id_to_change },
+                { alarm_args: new_cron }
+            );
+            return checkIfUpdated(publicUpdate, alarm_id_to_change, new_cron, 'with the same message');
+        }
+    } catch (err) {
+        logging.logger.info(`An error while trying to update the alarms with regex ${alarm_id_to_change}.`);
+        logging.logger.error(err);
+    }
+    return 0;
+}
+
+async function editAlarmCronAndMessageOnDatabase(new_msg, new_cron, alarm_id_to_change, new_channel, guild_id) {
+    try {
+        if (utility_functions.isPrivateAlarm(alarm_id_to_change)) {
+            let privateUpdate = await Private_alarm_model.updateOne(
+                { alarm_id: alarm_id_to_change },
+                { message: new_msg, alarm_args: new_cron }
+            );
+            return checkIfUpdated(privateUpdate, alarm_id_to_change, new_cron, new_msg);
+        } else if (utility_functions.isPublicAlarm(alarm_id_to_change)) {
+            let publicUpdate = await Alarm_model.updateOne(
+                { $and: [{ alarm_id: alarm_id_to_change }, { guild: guild_id }] },
+                { message: new_msg, alarm_args: new_cron, channel: new_channel }
+            );
+            return checkIfUpdated(publicUpdate, alarm_id_to_change, new_cron, new_msg);
+        }
+    } catch (err) {
+        logging.logger.info(`An error while trying to update the alarms with regex ${alarm_id_to_change}.`);
+        logging.logger.error(err);
+    }
+    return 0;
+}
+
+function checkIfUpdated(updateObject, alarm_id_to_change, new_cron, new_message) {
+    if (updateObject.nModified > 0) {
+        logging.logger.info(`Updated the cron for ${alarm_id_to_change} to ${new_cron} and ${new_message}`);
+        return 1;
+    } else {
+        logging.logger.info(`No alarms were updated... Maybe id ${alarm_id_to_change} was incorrect?`);
+    }
+    return 0;
+}
