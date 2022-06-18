@@ -40,7 +40,7 @@ module.exports = {
             if (subCommand && subCommand !== null) {
                 let isPrivate = subCommand === PRIVATE_ALARM;
                 const hour_min_args = interaction.options.getString(HOUR_MINUTE_PARAM);
-                const date_args = interaction.options.getString(DAY_MONTH_YEAR_PARAM);
+                let date_args = interaction.options.getString(DAY_MONTH_YEAR_PARAM);
                 const channel_param = interaction.options.getString(CHANNEL_PARAM);
                 const message = interaction.options.getString(MESSAGE_PARAM);
                 const timezone = interaction.options.getString(TIMEZOME_PARAM);
@@ -65,8 +65,8 @@ module.exports = {
                         if (difference === undefined) {
                             interaction.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!');
                         } else {
-                            if (date_args && date_args !== null) {
-
+                            if (date_args && date_args !== null && date_args.includes('/') && date_args.length >= 3 && date_args.length <= 10) {
+                                // complete date
                                 let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, interaction);
                                 const d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
                                 if (time_utils.isValidDate(d)) {
@@ -79,7 +79,36 @@ module.exports = {
                                         }
                                         let ota = createOneTimeCron(cron, d, message, channel_discord);
                                         if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
+                                            await setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
+                                        } else {
+                                            await interaction.reply({ ephemeral: true, content: 'There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!' });
+                                        }
+                                    } else {
+                                        await interaction.reply({ ephemeral: true, content: `The date you entered:${params_stg} already happened!` });
+                                    }
+                                } else {
+                                    await interaction.reply(`Oops something went when setting up the alarm! Usage: \`${this.usage}\``);
+                                }
+                            } else {
+                                // no date
+                                let today = new Date();
+                                date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+
+                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, interaction);
+                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
+
+                                if (time_utils.isValidDate(d)) {
+                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    let now = new Date();
+                                    if (d > now) {
+                                        if (!utils.can_send_messages_to_ch(interaction, channel_discord)) {
+                                            await interaction.reply({ ephemeral: true, content: 'Cannot setup the alarm to specified channel because the bot does not have permission to send messages to it.' });
+                                            return;
+                                        }
+                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
+
+                                        if (ota !== undefined) {
+                                            await setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
                                         } else {
                                             await interaction.reply({ ephemeral: true, content: 'There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!' });
                                         }
@@ -89,56 +118,21 @@ module.exports = {
                                 } else {
                                     await interaction.reply({ ephemeral: true, content: `Oops something went when setting up the alarm! Usage: \`${this.usage}\`` });
                                 }
-                            } else {
-
-                                message = args.slice(2, args.length).join(' ');
-
-                                let today = new Date();
-                                date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-
-                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, interaction);
-                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
-
-                                if (time_utils.isValidDate(d)) {
-                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                    let now = new Date();
-                                    if (d > now) {
-                                        let channel_discord;
-                                        ({ channel_discord, message } = extract_discord_channel(args, interaction, message));
-                                        if (!utils.can_send_messages_to_ch(interaction, channel_discord)) {
-                                            interaction.channel.send('Cannot setup the alarm to specified channel because the bot does not have permission to send messages to it.');
-                                            return;
-                                        }
-                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
-
-                                        if (ota !== undefined) {
-                                            setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
-                                        } else {
-                                            interaction.channel.send('There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!');
-                                        }
-                                    } else {
-                                        interaction.channel.send(`The date you entered:${params_stg} already happened!`);
-                                    }
-                                } else {
-                                    interaction.channel.send(`Oops something went when setting up the alarm! Usage: \`${this.usage}\``);
-                                }
                             }
                         }
                     } else {
+                        // partial date
                         let create = await utils.can_create_ota_alarm(interaction.author.id, undefined);
                         if (!create) {
-                            interaction.channel.send('You or this server have reached the maximum ammount of private one time alarms! Use `$premium` to find out how to get more alarms.');
+                            await interaction.reply({ content: 'You or this server have reached the maximum ammount of private one time alarms! Use `$premium` to find out how to get more alarms.' });
                             return;
                         }
-                        let timezone = args[1];
                         let difference = time_utils.get_offset_difference(timezone);
                         if (difference === undefined) {
-                            interaction.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!');
+                            await interaction.reply({ ephemeral: true, content: 'The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about timezones or use /timezonesinfo command!' });
                         }
                         else {
-                            if (args[3].includes('/') && args[3].length >= 3 && args[3].length <= 10) {
-                                date_args = args[3];
-                                message = args.slice(4, args.length).join(' ');
+                            if (date_args && date_args !== null && date_args.includes('/') && date_args.length >= 3 && date_args.length <= 10) {
 
                                 let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, interaction);
                                 let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
@@ -148,17 +142,16 @@ module.exports = {
                                     let now = new Date();
                                     if (d > now) {
                                         let ota = await createPrivateOneTimeCron(interaction, cron, d, message);
-                                        setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, interaction.channel);
+                                        await setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, interaction.channel);
                                     } else {
-                                        interaction.channel.send(`The date you entered:${params_stg} already happened!`);
+                                        await interaction.reply({ ephemeral: true, content: `The date you entered:${params_stg} already happened!` });
                                     }
                                 } else {
-                                    interaction.channel.send(`Oops something went when setting up the alarm! Usage: \`${this.usage}\``);
+                                    await interaction.reply(`Oops something went when setting up the alarm! Usage: \`${this.usage}\``);
                                     return;
 
                                 }
                             } else {
-                                message = args.slice(3, args.length).join(' ');
 
                                 let today = new Date();
                                 date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
@@ -171,12 +164,12 @@ module.exports = {
                                     let now = new Date();
                                     if (d > now) {
                                         let ota = await createPrivateOneTimeCron(interaction, cron, d, message);
-                                        setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, interaction.channel);
+                                        await setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, interaction.channel);
                                     } else {
-                                        interaction.channel.send(`The date you entered:${params_stg} already happened!`);
+                                        await interaction.reply({ ephemeral: true, content: `The date you entered:${params_stg} already happened!` });
                                     }
                                 } else {
-                                    interaction.channel.send(`Oops something went when setting up the alarm! Usage: \`${this.usage}\``);
+                                    await interaction.reply({ ephemeral: true, content: `Oops something went when setting up the alarm! Usage: \`${this.usage}\`` });
                                 }
                             }
                         }
