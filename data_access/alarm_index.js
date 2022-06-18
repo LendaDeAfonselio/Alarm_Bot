@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
@@ -35,7 +35,7 @@ async function add_ttsAlarm(alarm_id, alarm_args, message,
             return result;
         })
         .catch((err) => {
-            logging.logger.info(`An error while trying to add ${result} to the database.`);
+            logging.logger.info(`An error while trying to add ${JSON.stringify(newTTSAlarm)} to the database.`);
             logging.logger.error(err);
             return null;
         });
@@ -47,7 +47,7 @@ async function add_ttsAlarm(alarm_id, alarm_args, message,
  * @param {String} guild_id - The id of the server
  */
 async function get_all_ttsalarms_from_user_and_guild(author_id, guild_id) {
-    return await TTS_alarm_model_model.find({ "guild": { $regex: `.*${guild_id}.*` }, user_id: author_id });
+    return await TTS_alarm_model_model.find({ guild: { $regex: `.*${guild_id}.*` }, user_id: author_id });
 }
 
 /**
@@ -120,7 +120,7 @@ async function add_oneTimeAlarm(alarm_id, alarm_date, message,
             return result;
         })
         .catch((err) => {
-            logging.logger.info(`An error while trying to add ${result} to the database.`);
+            logging.logger.info(`An error while trying to add ${JSON.stringify(newOneTimeAlarm)} to the database.`);
             logging.logger.error(err);
             return null;
         });
@@ -199,7 +199,7 @@ async function get_all_oneTimeAlarm_from_user(author_id, isPrivate, guild) {
 async function delete_all_expired_one_time_alarms() {
     let current_date = new Date();
     return await One_Time_Alarm_model.deleteMany({
-        alarm_date: { "$lt": current_date }
+        alarm_date: { $lt: current_date }
     });
 }
 
@@ -212,7 +212,7 @@ async function get_all_alarms_from_guild(guild_id) {
 }
 
 async function get_all_alarms_from_user_and_guild(author_id, guild_id) {
-    return await Alarm_model.find({ "guild": { $regex: `.*${guild_id}.*` }, user_id: author_id });
+    return await Alarm_model.find({ guild: { $regex: `.*${guild_id}.*` }, user_id: author_id });
 }
 
 async function get_all_otas_from_user(author_id) {
@@ -305,4 +305,4 @@ module.exports = {
     delete_ttsAlarm_with_id: delete_ttsAlarm_with_id,
     get_all_ttsAlarms_for_guild: get_all_ttsAlarms_for_guild,
     delete_allttsalarm_from_guild: delete_allttsalarm_from_guild
-}
+};
