@@ -43,7 +43,7 @@ module.exports = {
                             { user_id: alarm_user },
                         );
                         to_be_removed.find(function (i) {
-                            cron_list[i.alarm_id].stop();
+                            cron_list[i.alarm_id]?.stop();
                             delete cron_list[i.alarm_id];
                         });
                         interaction.reply(`Sucessfully deleted ${x.deletedCount} alarms.`);
