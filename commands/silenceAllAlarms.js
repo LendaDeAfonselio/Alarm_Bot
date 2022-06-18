@@ -30,7 +30,9 @@ module.exports = {
 
                     // update in memory list
                     x.forEach(alarm => {
-                        cron_list[alarm.alarm_id].stop();
+                        if (cron_list[alarm.alarm_id]) {
+                            cron_list[alarm.alarm_id].stop();
+                        }
                     });
 
                     await Private_alarm_model.updateMany(
@@ -47,8 +49,12 @@ module.exports = {
                     let x = await Alarm_model.find(
                         { isActive: true, guild: interaction.guild.id, user_id: alarm_user });
 
+                    // TODO: cron_list must be inherited from index.js and not from bot.js
+                    // is also needs support concurrency 
                     x.forEach(alarm => {
-                        cron_list[alarm.alarm_id].stop();
+                        if (cron_list[alarm.alarm_id]) {
+                            cron_list[alarm.alarm_id].stop();
+                        }
                     });
 
                     await Alarm_model.updateMany(

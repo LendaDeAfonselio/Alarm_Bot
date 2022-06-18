@@ -29,7 +29,9 @@ module.exports = {
 
                     // update in memory list
                     privateAlarms.forEach(alarm => {
-                        cron_list[alarm.alarm_id].start();
+                        if (cron_list[alarm.alarm_id]) {
+                            cron_list[alarm.alarm_id].start();
+                        }
                     });
 
                     await Private_alarm_model.updateMany(
@@ -48,7 +50,9 @@ module.exports = {
                         { isActive: false, guild: interaction.guild.id, user_id: alarm_user });
 
                     alarms.forEach(alarm => {
-                        cron_list[alarm.alarm_id].start();
+                        if (cron_list[alarm.alarm_id]) {
+                            cron_list[alarm.alarm_id].start();
+                        }
                     });
 
                     await Alarm_model.updateMany(
