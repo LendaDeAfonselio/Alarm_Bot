@@ -11,3 +11,6 @@ clear
 npm i winston
 clear
 npm i -g pm2
+clear
+npm i @discordjs/rest
+clear
