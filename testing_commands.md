@@ -6,9 +6,9 @@
 /premium
 /timezonesinfo (all)
 /timezonesinfo (timezone) GMT
-/alarm GMT 0 12 * * * oi
-/alarm GMT 0 12 * * * oi #general
-/privatAalarm GMT 0 12 * * * oi
+/alarm timezone:GMT+1 minute:11 hour:12 day_of_the_month:* month:* weekday:* message:OOOH I NEVER MEANT TO BRAAAG
+/alarm timezone:GMT+1 minute:11 hour:12 day_of_the_month:* month:* weekday:* message:OOOH I NEVER MEANT TO BRAAAG channel:#general
+/privatealarm timezone:GMT+1 minute:13 hour:12 day_of_the_month:* month:* weekday:* message:OOOH I NEVER MEANT TO BRAAAG
 /silenceAlarm 
 /activateAlarm
 /silenceAllAlarms
