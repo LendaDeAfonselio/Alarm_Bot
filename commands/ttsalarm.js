@@ -109,6 +109,8 @@ module.exports = {
 
                     await alarm_index.add_ttsAlarm(alarm_id, crono, message_stg, interaction.guild.id, channel_discord.id, alarm_user, interaction.guild.name);
                     if (utility_functions.can_send_embeded(interaction)) {
+                        logging.logger.info(`Added ${alarm_id} to tts db`);
+
                         interaction.reply({
                             embeds: [{
                                 fields: { name: `Created TTS alarm ${alarm_id}!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },

@@ -93,6 +93,8 @@ module.exports = {
                 });
                 newAlarm.save()
                     .then(async (_) => {
+                        logging.logger.info(`Added ${alarm_id} to private alarm db`);
+
                         await interaction.reply({
                             embeds: [{
                                 color: 2447003,
