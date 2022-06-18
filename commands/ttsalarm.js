@@ -7,7 +7,6 @@ const logging = require('../Utils/logging');
 const alarm_index = require('../data_access/alarm_index');
 const utility_functions = require('../Utils/utility_functions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-
 const TIMEZOME_PARAM = 'timezone';
 const MINUTE_PARAM = 'minute';
 const HOUR_PARAM = 'hour';
@@ -78,7 +77,7 @@ module.exports = {
             }
             if (channel_discord !== undefined) {
                 if (!utility_functions.can_send_ttsmessages_to_ch(interaction, channel_discord)) {
-                    interaction.reply({
+                    await interaction.reply({
                         content: `Cannot setup the alarm in channel ${channel_discord.id} because the bot does not have permission to send messages to it.`,
                         ephemeral: true
                     });
@@ -92,9 +91,10 @@ module.exports = {
                     let this_alarm_id = Math.random().toString(36).substring(4);
                     let alarm_id = `${auth.tts_alarm_prefix}_${this_alarm_id}`;
 
-                    let scheduledMessage = new cron(crono, () => {
+                    let scheduledMessage = new cron(crono, async () => {
                         try {
-                            channel_discord.send(message_stg, {
+                            await channel_discord.send({
+                                content: message_stg,
                                 tts: true
                             });
                         } catch (err) {
@@ -111,7 +111,7 @@ module.exports = {
                     if (utility_functions.can_send_embeded(interaction)) {
                         logging.logger.info(`Added ${alarm_id} to tts db`);
 
-                        interaction.reply({
+                        await interaction.reply({
                             embeds: [{
                                 fields: { name: `Created TTS alarm ${alarm_id}!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
                                 timestamp: new Date()
@@ -133,7 +133,7 @@ module.exports = {
                     });
                 }
             } else {
-                interaction.reply({
+                await interaction.reply({
                     content: 'It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!',
                     ephemeral: true
                 });

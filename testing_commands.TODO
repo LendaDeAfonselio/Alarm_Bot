@@ -8,15 +8,19 @@
 ✔ /timezonesinfo (timezone) GMT @done(22-06-18 12:36)
 ✔ /alarm timezone:GMT+1 minute:11 hour:12 day_of_the_month:* month:* weekday:* message:OOOH I NEVER MEANT TO BRAAAG @done(22-06-18 12:36)
 ✔ /alarm timezone:GMT+1 minute:11 hour:12 day_of_the_month:* month:* weekday:* message:OOOH I NEVER MEANT TO BRAAAG channel:#general @done(22-06-18 12:36)
-✔ /privatealarm timezone:GMT+1 minute:13 hour:12 day_of_the_month:* month:* weekday:* message:OOOH I NEVER MEANT TO BRAAAG @done(22-06-18 12:36)
+✔ /privatealarm timezone:GMT+1 minute:13 hour:12 day_of_the_month:* month:* weekday:* message:OOOH I NEVER MEANT TO BRAAAG @started(22-06-18 12:41) @done(22-06-18 15:48) @lasted(3h7m54s)
 ✔ /silenceAlarm @done(22-06-18 12:36)
 ✔ /activateAlarm @done(22-06-18 12:36)
 ✔ /silenceAllAlarms @done(22-06-18 12:36)
 ✔ /activateAllAlarms @done(22-06-18 12:36)
-☐ /ttsalarm GMT 0 12 * * * oi
+☐ /ttsalarm GMT 0 12 * * * oi timezone:GMT+1 minute:11 hour:12 day_of_the_month:* month:* weekday:* message:OOOH I NEVER MEANT TO BRAAAG 
 ☐ /editAlarm GMT alarmId ola (edit-message)
 ☐ /editAlarm GMT alarmId memes #general (edit-message)
 ☐ /editAlarm GMT alarmId GMT 0 14 * * * (edit-cron)
 ☐ /editAlarm GMT alarmId GMT 0 15 * * * memes #general (edit-message-cron)
-☐ /deleteAlarm
-☐ /deleteAllAlarm
+✔ /deletealarm @done(22-06-18 12:42)
+☐ /deleteallalarms ota 
+☐ /deleteallalarms private-ota
+☐ /deleteallalarms tts
+☐ /deleteallalarms public
+☐ /deleteallalarms private
