@@ -220,7 +220,7 @@ async function setupCronForOTAlarm(d, interaction, cron_list, now, ota, data_stg
     let dif = d.getTime() - now.getTime();
     setTimeout(() => {
         try {
-            ota.stop();
+            ota?.stop();
             delete cron_list[alarm_id];
         }
         catch (e) {

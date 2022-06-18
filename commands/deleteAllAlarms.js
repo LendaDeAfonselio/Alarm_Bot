@@ -43,7 +43,7 @@ module.exports = {
                             { user_id: alarm_user },
                         );
                         to_be_removed.find(function (i) {
-                            cron_list[i.alarm_id]?.stop();
+                            cron_list[i.alarm_id]??.stop();
                             delete cron_list[i.alarm_id];
                         });
                         interaction.reply(`Sucessfully deleted ${x.deletedCount} alarms.`);
@@ -73,7 +73,7 @@ module.exports = {
                         });
                         to_be_removed.find(function (i) {
                             if (cron_list[i.alarm_id] !== undefined) {
-                                cron_list[i.alarm_id].stop();
+                                cron_list[i.alarm_id]?.stop();
                                 delete cron_list[i.alarm_id];
                             }
                         });
@@ -91,7 +91,7 @@ module.exports = {
                 let private_ota = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, true, '');
                 private_ota.find(function (i) {
                     if (cron_list[i.alarm_id] !== undefined) {
-                        cron_list[i.alarm_id].stop();
+                        cron_list[i.alarm_id]?.stop();
                         delete cron_list[i.alarm_id];
                     }
                 });
@@ -107,7 +107,7 @@ module.exports = {
                 let als = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, false, interaction.guild.id);
                 als.find(function (i) {
                     if (cron_list[i.alarm_id] !== undefined) {
-                        cron_list[i.alarm_id].stop();
+                        cron_list[i.alarm_id]?.stop();
                         delete cron_list[i.alarm_id];
                     }
                 });

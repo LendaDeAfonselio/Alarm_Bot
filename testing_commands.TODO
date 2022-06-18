@@ -21,6 +21,6 @@
 ✔ /deletealarm @done(22-06-18 12:42)
 ☐ /deleteallalarms ota 
 ☐ /deleteallalarms private-ota
-☐ /deleteallalarms tts
+✔ /deleteallalarms tts @done(22-06-18 16:20)
 ☐ /deleteallalarms public
-☐ /deleteallalarms private
+✔ /deleteallalarms private @done(22-06-18 16:20)

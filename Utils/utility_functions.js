@@ -189,7 +189,7 @@ async function broadcastEvalAndConcat(client, queryStg) {
 
 function deleteFromCronList(cron_list, alarm) {
     if (cron_list[alarm.alarm_id] !== undefined) {
-        cron_list[alarm.alarm_id].stop();
+        cron_list[alarm.alarm_id]?.stop();
         delete cron_list[alarm.alarm_id];
     }
 }

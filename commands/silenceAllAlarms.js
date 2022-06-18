@@ -31,7 +31,7 @@ module.exports = {
                     // update in memory list
                     x.forEach(alarm => {
                         if (cron_list[alarm.alarm_id]) {
-                            cron_list[alarm.alarm_id].stop();
+                            cron_list[alarm.alarm_id]?.stop();
                         }
                     });
 
@@ -53,7 +53,7 @@ module.exports = {
                     // is also needs support concurrency 
                     x.forEach(alarm => {
                         if (cron_list[alarm.alarm_id]) {
-                            cron_list[alarm.alarm_id].stop();
+                            cron_list[alarm.alarm_id]?.stop();
                         }
                     });
 

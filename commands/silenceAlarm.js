@@ -123,7 +123,7 @@ module.exports = {
                         }
                         try {
                             await silenceAlarmWithID(alarm_to_silence, false);
-                            cron_list[alarm_to_silence].stop();
+                            cron_list[alarm_to_silence]?.stop();
                             await interaction.reply(`${alarm_to_silence} is now silent.`);
                         } catch (e) {
                             logging.logger.info(`Error silencing alarm with id:${alarm_to_silence}... Please try again later!`);
