@@ -1,3 +1,4 @@
+'use strict';
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { clientId, token } = require('./appsettings.json');
@@ -8,18 +9,18 @@ const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	commands.push(command.data.toJSON());
+    const command = require(`./commands/${file}`);
+    commands.push(command.data.toJSON());
 }
 
 const rest = new REST({ version: '9' }).setToken(token);
 
-function registerSlashCommandsInGuild(guildId){
-	rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-	.then(() => logging.logger.info(`Successfully registered application commands for guild ${guildId}.`))
-	.catch(logging.logger.error);
+function registerSlashCommandsInGuild(guildId) {
+    rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
+        .then(() => logging.logger.info(`Successfully registered application commands for guild ${guildId}.`))
+        .catch(logging.logger.error);
 }
 
 module.exports = {
-	registerSlashCommandsInGuild: registerSlashCommandsInGuild
+    registerSlashCommandsInGuild: registerSlashCommandsInGuild
 }
