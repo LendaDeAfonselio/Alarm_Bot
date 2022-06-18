@@ -18,7 +18,7 @@ module.exports = {
                 'hour (0 - 23)\n' +
                 'day of month (1 - 31)\n' +
                 'month (0 - 11)\n' +
-                'day of week(0 - 6)(Sunday = 0, Caturday = 6)\n' +
+                'day of week(0 - 6, where Sunday = 0 and Caturday = 6)\n' +
                 '`<minutes> <hour> <day of month> <month> <day of week> <insert message here>`\n' +
                 'Some examples are described below:'
         };
