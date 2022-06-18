@@ -8,8 +8,8 @@ const utility_functions = require('../Utils/utility_functions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const PUBLIC_COMMAND = 'public';
 const PRIVATE_COMMAND = 'private';
-const ONE_TIME_PUBLIC_COMMAND = 'OTA';
-const ONE_TIME_PRIVATE_COMMAND = 'private OTA';
+const ONE_TIME_PUBLIC_COMMAND = 'ota';
+const ONE_TIME_PRIVATE_COMMAND = 'private-ota';
 const TTS_COMMAND = 'tts';
 
 

@@ -8,8 +8,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const PRIVATE_ALARM = 'private-one-time-alarm';
 const PUBLIC_ALARM = 'one-time-alarm';
 const TIMEZOME_PARAM = 'timezone';
-const HOUR_MINUTE_PARAM = 'hour:minute';
-const DAY_MONTH_YEAR_PARAM = 'day/month/year';
+const HOUR_MINUTE_PARAM = 'hour-minute';
+const DAY_MONTH_YEAR_PARAM = 'day-month-year';
 const MESSAGE_PARAM = 'message';
 const CHANNEL_PARAM = 'channel';
 
@@ -30,8 +30,8 @@ module.exports = {
             .addChannelOption(option => option.setName(CHANNEL_PARAM).setDescription('The channel (optional)')))
         .addSubcommand(option => option.setName(PRIVATE_ALARM).setDescription('Changes the cron for the alarm')
             .addStringOption(option => option.setName(TIMEZOME_PARAM).setDescription('The timezone the alarm will follow'))
-            .addStringOption(option => option.setName(HOUR_MINUTE_PARAM).setDescription('The hour and minute in which the alarm will go off'))
-            .addStringOption(option => option.setName(DAY_MONTH_YEAR_PARAM).setDescription('The day/month/year in which the alarm will go off'))
+            .addStringOption(option => option.setName(HOUR_MINUTE_PARAM).setDescription('The hour:minute in which the alarm will go off (HH:MM format)'))
+            .addStringOption(option => option.setName(DAY_MONTH_YEAR_PARAM).setDescription('The day/month/year in which the alarm will go off (DD/MM/YYYY format)'))
             .addStringOption(option => option.setName(MESSAGE_PARAM).setDescription('The message of the alarm'))),
     async execute(interaction, cron_list, cron) {
         if (utils.isAdministrator(interaction) || utils.hasAlarmRole(interaction, auth.alarm_role_name)) {
