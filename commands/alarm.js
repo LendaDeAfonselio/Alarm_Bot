@@ -111,7 +111,7 @@ module.exports = {
                                 if (utility_functions.can_send_embeded(interaction)) {
                                     await interaction.reply({
                                         embeds: [{
-                                            fields: { name: `Alarm with id: ${alarm_id} added!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                                            fields: { name: `Created alarm ${alarm_id}!`, value: `Alarm with crono: \`${old_c}\` and message: \`${message_stg}\` for channel ${channel_discord.name} added!` },
                                             timestamp: new Date()
                                         }]
                                     });

@@ -56,6 +56,8 @@ module.exports = {
             interaction.channel.send('The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information');
         }
         if (utils.validate_alarm_parameters(interaction, crono, message_stg)) {
+            let old_c = crono;
+
             crono = time_utils.updateParams(difference, crono);
             try {
                 let alarm_user = interaction.user.id;
@@ -64,7 +66,7 @@ module.exports = {
 
                 let scheduledMessage = new cron(crono, () => {
                     interaction.user.send(message_stg).catch((err) => {
-                        logging.logger.info(`Can't send private message to user ${interaction.author.id}. ${alarm_id}.`);
+                        logging.logger.info(`Can't send private message to user ${interaction.user.id}. ${alarm_id}.`);
                         logging.logger.error(err);
                         if (interaction.channel.type !== 'dm' && gen_utils.can_send_messages_to_ch(interaction, interaction.channel)) {
                             interaction.reply(`Cannot send you the DM for alarm with id ${alarm_id}. Check your permissions for DMs!`);
@@ -90,18 +92,21 @@ module.exports = {
                     timestamp: Date.now(),
                 });
                 newAlarm.save()
-                    .then((_) => {
-                        interaction.author.send({
-                            embed: {
-                                title: `Alarm ${alarm_id} with message: ${message_stg} was sucessfully saved with params: ${crono} and message ${message_stg}`,
+                    .then(async (_) => {
+                        await interaction.reply({
+                            embeds: [{
                                 color: 2447003,
-                                timestamp: new Date()
-                            }
-                        }).catch((err) => {
-                            logging.logger.info(`Can't send private message to user ${interaction.author.id}. Confirming the alarm ${alarm_id}.`);
+                                timestamp: new Date(),
+                                fields: [{
+                                    name: `Created alarm ${alarm_id}!`, value: `Private alarm with crono: \`${old_c}\` and message: \`${message_stg}\` added!`
+                                }]
+                            }],
+                            ephemeral: true
+                        }).catch(async (err) => {
+                            logging.logger.info(`Can't send private message to user ${interaction.user.id}. Confirming the alarm ${alarm_id}.`);
                             logging.logger.error(err);
                             if (interaction.channel.type !== 'dm' && gen_utils.can_send_messages_to_ch(interaction, interaction.channel)) {
-                                interaction.reply({
+                                await interaction.reply({
                                     content: `Cannot send you the DM for alarm with id ${alarm_id}. Check your permissions for DMs! The alarm was stored, but with your current preferences the bot will not be able to send the message to you!`
                                     , ephemeral: true
                                 });
