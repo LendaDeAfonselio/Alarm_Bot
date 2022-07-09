@@ -14,7 +14,7 @@
 ✔ /silenceAllAlarms @done(22-06-18 12:36)
 ✔ /activateAllAlarms @done(22-06-18 12:36)
 ✔ /ttsalarm timezone: GMT+1 minute: 12 hour: 16 day_of_the_month: * month: * weekday: * message: OOOH I NEVER MEANT TO BRAAAG @done(22-06-18 16:16)
-☐ /editAlarm GMT alarmId ola (edit-message)
+✔ /editalarm edit-message alarm-id:a_706jhty1s message:grande meme @done(22-07-09 17:16)
 ☐ /editAlarm GMT alarmId memes #general (edit-message)
 ☐ /editAlarm GMT alarmId GMT 0 14 * * * (edit-cron)
 ☐ /editAlarm GMT alarmId GMT 0 15 * * * memes #general (edit-message-cron)

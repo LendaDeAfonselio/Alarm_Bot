@@ -61,7 +61,7 @@ module.exports = {
             .addStringOption(option => option.setName(WEEKDAY_PARAM).setDescription('The weekday in which the alarm goes off, * for every weekday'))
             .addStringOption(option => option.setName(MESSAGE_PARAM).setDescription('The message to be sent'))
             .addChannelOption(option => option.setName(CHANNEL_PARAM).setDescription('The channel for which the alarm will be sent (optional)'))),
-    async execute(interaction, cron, cron_list) {
+    async execute(interaction, cron_list, cron) {
         const subCommand = interaction.options.getSubcommand();
         if (subCommand === MESSAGE_COMMAND) {
             const message_stg = interaction.options.getString(MESSAGE_PARAM);
@@ -70,6 +70,7 @@ module.exports = {
             const hasSpecifiedChannel = channelParam !== null;
             let channel_discord = interaction.channel;
             const guildId = interaction.guild ? interaction.guild.id : undefined;
+            const alarm_by_id = await getAlarmById(alarm_id, guildId);
 
             if (!message_stg || message_stg.toString().length <= 5) {
                 await interaction.reply('Invalid message');
@@ -93,16 +94,9 @@ module.exports = {
                 return;
             }
             if (channel_discord !== undefined) {
-                let public_alarms = new Array();
-
-                let private_alarms = await Private_alarm_model.find(
-                    { $and: [{ alarm_id: alarm_id }, { user_id: interaction.author.id }] }
-                );
-
-                let combination = public_alarms.concat(private_alarms);
-                await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id, guildId, interaction.author.id);
-                editCronForAlarm(cron, cron_list, message_stg, channel_discord, interaction, combination);
-                await interaction.reply(`Updated the message for ${combination.length} alarms that contain \`${alarm_id}\` in the id`);
+                const combination = await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id, guildId, interaction.user.id);
+                editCronForAlarm(cron, cron_list, message_stg, channel_discord, interaction, alarm_by_id);
+                await interaction.reply(`Updated the message for ${combination} alarms that contain \`${alarm_id}\` in the id`);
             } else {
                 await interaction.reply('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
             }
@@ -146,10 +140,10 @@ module.exports = {
                 let channel;
 
                 if (utility_functions.isPrivateAlarm(alarm.alarm_id)) {
-                    channel = await client.users.fetch(interaction.author.id);
+                    channel = await client.users.fetch(interaction.user.id);
                     if (channel === undefined) {
                         let allchannels = await utility_functions.fetchValuesAndConcatValues(client, 'users.cache');
-                        channel = (allchannels.filter(z => z.id === interaction.author.id))[0];
+                        channel = (allchannels.filter(z => z.id === interaction.user.id))[0];
                     }
                 } else {
                     let guild = interaction.guild;
@@ -237,19 +231,18 @@ async function getAlarmById(alarm_id, guild_id) {
     return undefined;
 }
 
-function editCronForAlarm(cron, cron_list, newMsg, channel_discord, msg, alarm_list) {
-    for (let alarm of alarm_list) {
-        let k = alarm.alarm_id;
-        if (utility_functions.isPrivateAlarm(k)) {
-            updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, msg.author, newMsg);
-        } else if (utility_functions.isPublicAlarm(k)) {
-            updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, channel_discord, newMsg);
-        }
+function editCronForAlarm(cron, cron_list, newMsg, channel_discord, msg, alarm) {
+    let k = alarm.alarm_id;
+    if (utility_functions.isPrivateAlarm(k)) {
+        updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, msg.user, newMsg);
+    } else if (utility_functions.isPublicAlarm(k)) {
+        updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, channel_discord, newMsg);
     }
+
 }
 
 function updateCronWithParamsAndMessage(cron, cron_list, alarm_id, cron_old, channel_discord, newMsg) {
-    cron_list[alarm_id].stop();
+    cron_list[alarm_id]?.stop();
     delete cron_list[alarm_id];
 
     // create the cron event to send the message...
