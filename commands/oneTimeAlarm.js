@@ -41,22 +41,24 @@ module.exports = {
                 let isPrivate = subCommand === PRIVATE_ALARM;
                 const hour_min_args = interaction.options.getString(HOUR_MINUTE_PARAM);
                 let date_args = interaction.options.getString(DAY_MONTH_YEAR_PARAM);
-                const channel_param = interaction.options.getString(CHANNEL_PARAM);
+                const channel_param = interaction.options.getChannel(CHANNEL_PARAM);
                 const message = interaction.options.getString(MESSAGE_PARAM);
                 const timezone = interaction.options.getString(TIMEZOME_PARAM);
                 const channel_discord = channel_param && channel_param !== null ? channel_param : interaction.channel;
-                if (message && timezone && hour_min_args &&
+                if (!(message && timezone && hour_min_args &&
                     message !== null &&
                     timezone !== null &&
-                    hour_min_args !== null) {
-                    interaction.channel.send('Insuficient arguments were passed for this alarm!\n' +
-                        'Usage: `' + this.usage + '`\n' +
-                        'Try `$help` for more information!');
+                    hour_min_args !== null)) {
+                    interaction.reply({
+                        content: 'Insuficient arguments were passed for this alarm!\n' +
+                            'Usage: `' + this.usage + '`\n' +
+                            'Try `$help` for more information!', ephemeral: true
+                    });
                 }
                 else {
 
                     if (!isPrivate) {
-                        let canCreate = await utils.can_create_ota_alarm(interaction.author.id, interaction.guild?.id);
+                        let canCreate = await utils.can_create_ota_alarm(interaction.user.id, interaction.guild?.id);
                         if (!canCreate) {
                             interaction.channel.send(auth.limit_alarm_message);
                             return;
@@ -122,7 +124,7 @@ module.exports = {
                         }
                     } else {
                         // partial date
-                        let create = await utils.can_create_ota_alarm(interaction.author.id, undefined);
+                        let create = await utils.can_create_ota_alarm(interaction.user.id, undefined);
                         if (!create) {
                             await interaction.reply({ content: 'You or this server have reached the maximum ammount of private one time alarms! Use `$premium` to find out how to get more alarms.' });
                             return;
@@ -207,7 +209,7 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
 
 async function setupCronForOTAlarm(d, interaction, cron_list, now, ota, data_stg, timezone, isPrivate, message, discord_channel) {
     ota.start();
-    let alarm_user = interaction.author.id;
+    let alarm_user = interaction.user.id;
     let this_alarm_id = Math.random().toString(36).substring(4);
     let alarm_id = `${auth.one_time_prefix}_${this_alarm_id}`;
 
@@ -248,8 +250,8 @@ function createOneTimeCron(cron, d, message, channel_discord) {
 async function createPrivateOneTimeCron(msg, cron, d, message) {
     try {
         let ota = new cron(d, async () => {
-            await msg.author.send(message).catch((err) => {
-                logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.author.id}.`);
+            await msg.user.send(message).catch((err) => {
+                logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.user.id}.`);
                 logging.logger.error(err);
                 if (msg.channel.type !== 'dm' && utils.can_send_messages_to_ch(msg, msg.channel)) {
                     msg.reply('Unable to send you the private alarms via DM. Check your permissions!');
