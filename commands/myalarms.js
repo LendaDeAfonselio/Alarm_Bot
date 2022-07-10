@@ -93,7 +93,7 @@ module.exports = {
 
         let tts_chunks = utility.chunkArray(tts_alarms, 20);
 
-        if (general_alarms.length <= 0 && tts_alarms.length <= 0) {
+        if (general_alarms.length <= 0 && tts_alarms.length <= 0 && general_otas <= 0) {
             await interaction.reply('You do not have alarms in this server!');
         }
 

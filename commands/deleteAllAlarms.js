@@ -88,14 +88,14 @@ module.exports = {
                 }
             }
             else if (subcommand === ONE_TIME_PUBLIC_COMMAND) {
-                let private_ota = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, true, '');
+                let private_ota = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, false, '');
                 private_ota.find(function (i) {
                     if (cron_list[i.alarm_id] !== undefined) {
                         cron_list[i.alarm_id]?.stop();
                         delete cron_list[i.alarm_id];
                     }
                 });
-                let f = await alarm_db.delete_all_private_oneTimeAlarm_from_user(alarm_user);
+                let f = await alarm_db.delete_all_public_oneTimeAlarm_from_user(alarm_user, interaction.guild.id);
                 interaction.reply(`Sucessfully deleted ${f.deletedCount} alarms.`);
 
             }
