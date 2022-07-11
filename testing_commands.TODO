@@ -28,6 +28,8 @@
 ✔ /onetimealarm one-time-alarm timezone:GMT+1 hour-minute:22:12 message:Er day-month-year:10/07 @done(22-07-10 22:13)
 ✔ /onetimealarm one-time-alarm timezone:GMT+1 hour-minute:22:12 message:Er day-month-year:10/07/2022 @done(22-07-10 22:13)
 ✔ /onetimealarm one-time-alarm timezone:GMT hour-minute:22:02 message:Er channel:#general @done(22-07-10 22:18)
-
-☐ /deleteallalarms ota 
+✔ /onetimealarm private-one-time-alarm timezone:GMT+1 hour-minute:18:31 message:Er @started(22-07-11 18:34) @done(22-07-11 18:34) @lasted(25s)
+✔ /onetimealarm private-one-time-alarm timezone:GMT+1 hour-minute:18:31 message:Er day-month-year:11/07 @done(22-07-11 18:36)
+✔ /onetimealarm private-one-time-alarm timezone:GMT+1 hour-minute:18:31 message:Er day-month-year:11/07/2022 @done(22-07-11 18:36)
+✔ /deleteallalarms ota @done(22-07-11 18:36)
 ☐ /deleteallalarms private-ota

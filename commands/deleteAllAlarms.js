@@ -46,7 +46,7 @@ module.exports = {
                             cron_list[i.alarm_id]?.stop();
                             delete cron_list[i.alarm_id];
                         });
-                        interaction.reply(`Sucessfully deleted ${x.deletedCount} alarms.`);
+                        interaction.reply(`Sucessfully deleted ${x?.deletedCount} alarms.`);
                     } else {
                         interaction.reply({ content: 'No private alarm found for your user. Try `myAlarms` to check your alarms.', ephemeral: true });
                     }
@@ -60,7 +60,7 @@ module.exports = {
                     let to_be_removed = await Alarm_model.find({
                         $and: [
                             { user_id: alarm_user },
-                            { guild: interaction.guild.id },
+                            { guild: interaction.guild?.id },
                         ]
                     });
                     if (to_be_removed.length > 0) {
@@ -77,7 +77,7 @@ module.exports = {
                                 delete cron_list[i.alarm_id];
                             }
                         });
-                        interaction.reply(`Sucessfully deleted ${y.deletedCount} alarms.`);
+                        interaction.reply(`Sucessfully deleted ${y?.deletedCount} alarms.`);
                     } else {
                         interaction.reply({ content: 'No alarm found for you in this server. Try `myAlarms` to check your alarms', ephemeral: true });
                     }
@@ -95,28 +95,25 @@ module.exports = {
                         delete cron_list[i.alarm_id];
                     }
                 });
-                let f = await alarm_db.delete_all_public_oneTimeAlarm_from_user(alarm_user, interaction.guild.id);
-                interaction.reply(`Sucessfully deleted ${f.deletedCount} alarms.`);
+                let f = await alarm_db.delete_all_public_oneTimeAlarm_from_user(alarm_user, interaction.guild?.id);
+                interaction.reply(`Sucessfully deleted ${f?.deletedCount} alarms.`);
 
             }
             else if (subcommand === ONE_TIME_PRIVATE_COMMAND) {
-                if (interaction.channel.type === 'dm') {
-                    interaction.reply('Can only delete public one time alarms in a server, otherwise the bot does not know which alarms to delete.');
-                    return;
-                }
-                let als = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, false, interaction.guild.id);
+
+                let als = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, true, interaction.guild?.id);
                 als.find(function (i) {
                     if (cron_list[i.alarm_id] !== undefined) {
                         cron_list[i.alarm_id]?.stop();
                         delete cron_list[i.alarm_id];
                     }
                 });
-                let n = await alarm_db.delete_all_public_oneTimeAlarm_from_user(alarm_user, interaction.guild.id);
-                interaction.reply(`Sucessfully deleted ${n.deletedCount} alarms.`);
+                let n = await alarm_db.delete_all_private_oneTimeAlarm_from_user(alarm_user, interaction.guild?.id);
+                interaction.reply(`Sucessfully deleted ${n?.deletedCount} alarms.`);
             } else if (subcommand === TTS_COMMAND) {
-                let tts_alarms = await alarm_db.get_all_ttsalarms_from_user_and_guild(alarm_user, interaction.guild.id);
+                let tts_alarms = await alarm_db.get_all_ttsalarms_from_user_and_guild(alarm_user, interaction.guild?.id);
                 tts_alarms.find(i => utility_functions.deleteFromCronList(cron_list, i));
-                let num_del_tts = await alarm_db.delete_all_ttsAlarm_from_user(alarm_user, interaction.guild.id);
+                let num_del_tts = await alarm_db.delete_all_ttsAlarm_from_user(alarm_user, interaction.guild?.id);
                 interaction.reply(`Sucessfully deleted ${num_del_tts.deletedCount} tts alarms.`);
             }
         } else {

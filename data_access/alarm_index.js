@@ -116,7 +116,7 @@ async function add_oneTimeAlarm(alarm_id, alarm_date, message,
     });
     newOneTimeAlarm.save()
         .then((result) => {
-            logging.logger.info(`${result} added to database`);
+            logging.logger.info(`${alarm_id} added to database`);
             return result;
         })
         .catch((err) => {
