@@ -15,11 +15,21 @@ for (const file of commandFiles) {
 
 const rest = new REST({ version: '9' }).setToken(token);
 
-function registerSlashCommandsInGuild(guildId) {
-    rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
+async function registerSlashCommandsInGuild(guildId) {
+    return await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
         .catch(logging.logger.error);
 }
 
+async function registerGlobalSlashCommands() {
+    return await rest.put(Routes.applicationCommands(clientId), { body: commands })
+        .catch(logging.logger.error);
+}
+
+registerGlobalSlashCommands()
+    .then(result => logging.logger.info(`Setup ${result.length} global slash command alarms`))
+    .catch(logging.logger.error);
+
 module.exports = {
-    registerSlashCommandsInGuild: registerSlashCommandsInGuild
+    registerSlashCommandsInGuild: registerSlashCommandsInGuild,
+    registerGlobalSlashCommands: registerGlobalSlashCommands
 };

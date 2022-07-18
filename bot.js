@@ -2,7 +2,6 @@
 // Packages and dependencies
 const { Collection, Client, Intents } = require('discord.js');
 const logging = require('./Utils/logging');
-const deployCommands = require('./deployCommands');
 // configuration files
 const appsettings = require('./appsettings.json'); // on github project this file 
 // is not completed, it does need some 
@@ -54,20 +53,24 @@ client.once('ready', async () => {
 
     let allGuilds = client.guilds.cache;
     allGuilds.forEach(async (guild) => { //for each guild the bot is in
+        // bootstrap alarms
         try {
-            deployCommands.registerSlashCommandsInGuild(guild.id);
-            
+            // fetch public alarms
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id, client);
 
+            // if not found delete
             if (f === undefined) {
                 await alarm_db.delete_all_alarms_for_guild(guild.id);
             }
+
+            // fetch OTAs
             let a = await load_alarms.fetchOTAsforGuild(cron_list, cron, guild, guild.id, client);
 
             if (a === undefined) {
                 await alarm_db.delete_all_pubota_alarms_for_guild(guild.id);
             }
 
+            // fetch tts alarms
             let b = await load_alarms.fetchTTSAlarms(cron_list, cron, guild, guild.id, client);
 
             if (b === undefined) {
@@ -78,36 +81,10 @@ client.once('ready', async () => {
             logging.logger.error(`Error booting up the alarms for guild ${guild.id}. ${e}`);
         }
     });
-    logging.logger.info(`Deployed commands on ${allGuilds.length}`);
     client.user.setActivity('$help to get started!');
 });
 
 /*************************** Execute Commands ************************/
-client.on('messageCreate', async message => {
-    const channelPrefix = auth.prefix;
-    if (!message.content.startsWith(channelPrefix)) { return; }
-    if (message.author.bot) { return; }
-    else {
-        let args = message.content.slice(auth.prefix.length).split(/ +/);
-        let command = args.shift();
-        if (command !== undefined) {
-            command = command.toLowerCase();
-        }
-        if (!client.commands.has(command)) { return; }
-        else {
-            if (utility_functions.can_send_messages(message)) {
-                try {
-                    let executable = client.commands.get(command);
-                    await executable.execute(message, args, client, cron, cron_list, mongoose);
-                } catch (error) {
-                    logging.logger.error(`An error has occured while executing the following command: ${message.content}. Error: ${error}`);
-                    message.reply('There was an error trying to execute that command!');
-                }
-            }
-        }
-    }
-});
-
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) {
         return;
