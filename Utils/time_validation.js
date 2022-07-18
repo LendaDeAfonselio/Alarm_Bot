@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
 const timezones_remote_library = require('timezones.json');
 const custom_timezones = require('../timezones.json');
 
-var r = 0;
+let r = 0;
 // Parameter parsing
 function small_time_interval(mins) {
     if (mins.includes(',')) {
@@ -19,7 +19,7 @@ function small_time_interval(mins) {
         let n = parseInt(num_minutes);
         let isDigit = num_minutes.match(/^[0-9]+$/);
 
-        return isDigit == null || isNaN(n) || n < 30;
+        return isDigit === null || isNaN(n) || n < 30;
     }
     if (mins === '*') {
         return true;
@@ -28,7 +28,7 @@ function small_time_interval(mins) {
         return true;
     }
     let isDigit = mins.match(/^[0-9]+$/);
-    return isDigit == null;
+    return isDigit === null;
 }
 
 /**
@@ -39,7 +39,7 @@ function small_time_interval(mins) {
  */
 function isAValidRangeGroupOrNumber(stg, min, max) {
     // TODO: Rework this function to not be recursive
-    if (stg == '*') {
+    if (stg === '*') {
         return true;
     } else if (stg.includes(',')) {
         let tokens = stg.split(',');
@@ -52,22 +52,22 @@ function isAValidRangeGroupOrNumber(stg, min, max) {
         let a = isAValidRangeGroupOrNumber(tokens[0], min, max);
         let isDigit = tokens[1].match(/^[0-9]+$/);
         let b = parseInt(tokens[1]);
-        return isDigit != null && a && b >= min && b <= max;
+        return isDigit !== null && a && b >= min && b <= max;
     } else if (stg.includes('-')) {
         let tokens = stg.split('-');
         let isDigit1 = tokens[0].match(/^[0-9]+$/);
         let isDigit2 = tokens[1].match(/^[0-9]+$/);
         let a = parseInt(tokens[0]);
         let b = parseInt(tokens[1]);
-        return isDigit1 != null && isDigit2 != null && a < b && a >= min && b <= max;
+        return isDigit1 !== null && isDigit2 !== null && a < b && a >= min && b <= max;
     }
     let isDigit = stg.match(/^[0-9]+$/);
     let num = parseInt(stg);
-    return isDigit != null && num >= min && num <= max;
+    return isDigit !== null && num >= min && num <= max;
 }
 
 async function validate_alarm_parameters(msg, cron_stg, message_stg) {
-    let cron_params = cron_stg.split(" ");
+    let cron_params = cron_stg.split(' ');
     if (message_stg.length <= 3) {
         await msg.channel.send('The message is to short! Use at least 3 characters');
         return false;
@@ -84,35 +84,35 @@ async function validate_alarm_parameters(msg, cron_stg, message_stg) {
     }
     let mins = cron_params[0];
     if (!isAValidRangeGroupOrNumber(mins, 0, 59)) {
-        await msg.channel.send("The minute parameter is invalid. This value must be between 0 and 59.\nTry `$alarmHelp` for more information!");
+        await msg.channel.send('The minute parameter is invalid. This value must be between 0 and 59.\nTry `$alarmHelp` for more information!');
         return false;
     }
     if (small_time_interval(mins)) {
-        await msg.channel.send("The minute parameter you sent is susceptible to spam. Only groups of 5 members or less and digits are allowed to avoid spam.");
+        await msg.channel.send('The minute parameter you sent is susceptible to spam. Only groups of 5 members or less and digits are allowed to avoid spam.');
         return false;
     }
 
     let hours = cron_params[1];
     if (!isAValidRangeGroupOrNumber(hours, 0, 23)) {
-        await msg.channel.send("The hour parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!");
+        await msg.channel.send('The hour parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!');
         return false;
     }
 
     let month_day = cron_params[2];
     if (!isAValidRangeGroupOrNumber(month_day, 1, 31)) {
-        await msg.channel.send("The day of the month parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!");
+        await msg.channel.send('The day of the month parameter is invalid! This value must be between 0 and 23.\nTry `$alarmHelp` for more information!');
         return false;
     }
 
     let month = cron_params[3];
     if (!isAValidRangeGroupOrNumber(month, 0, 11)) {
-        await msg.channel.send("The month parameter is invalid! This value must be between 0 and 11.\nTry `$alarmHelp` for more information!");
+        await msg.channel.send('The month parameter is invalid! This value must be between 0 and 11.\nTry `$alarmHelp` for more information!');
         return false;
     }
 
     let weekday = cron_params[4];
     if (!isAValidRangeGroupOrNumber(weekday, 0, 6)) {
-        await msg.channel.send("The weekday parameter is invalid! This value must be between 0 (Sunday) and 6 (Saturday).\nTry `$alarmHelp` for more information!");
+        await msg.channel.send('The weekday parameter is invalid! This value must be between 0 (Sunday) and 6 (Saturday).\nTry `$alarmHelp` for more information!');
         return false;
     }
 
@@ -126,17 +126,20 @@ Date.prototype.stdTimezoneOffset = function () {
     let jan = new Date(this.getFullYear(), 0, 1);
     let jul = new Date(this.getFullYear(), 6, 1);
     return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
-}
+};
 
 // https://stackoverflow.com/questions/11887934/how-to-check-if-dst-daylight-saving-time-is-in-effect-and-if-so-the-offset
 Date.prototype.isDstObserved = function () {
     return this.getTimezoneOffset() < this.stdTimezoneOffset();
-}
+};
 
 
 function get_timezone_by_abreviation(abr) {
+    if (!abr) {
+        return undefined;
+    }
     return custom_timezones.filter(
-        function (data) { return data.timezone_abbreviation.toUpperCase() == abr.toUpperCase() }
+        function (data) { return data.timezone_abbreviation.toUpperCase() === abr.toUpperCase(); }
     )[0];
 }
 
@@ -146,7 +149,7 @@ function get_timezone_by_city(city) {
     }
     return timezones_remote_library.filter(
         function (data) {
-            return data.utc.find(a => a.includes(city))
+            return data.utc.find(a => a.includes(city));
         }
     )[0];
 }
@@ -193,7 +196,7 @@ function get_offset_difference(stg) {
 function updateParams(difference, crono) {
     let hour_diff = Math.trunc(difference);
     let min_diff = (difference % 1) * 60;
-    let cron_params = crono.split(" ");
+    let cron_params = crono.split(' ');
     cron_params[0] = updateParamsAux(cron_params[0], 0, 60, min_diff);
     cron_params[1] = updateParamsAux(cron_params[1], 0, 24, hour_diff);
     let r1 = r;
@@ -210,7 +213,7 @@ function updateParamsAux(stg, min_value, max_value, diff) {
     if (diff === 0 && r === 0) {
         return stg;
     }
-    if (stg == '*') {
+    if (stg === '*') {
         return stg;
     } else if (stg.includes(',')) {
         let tokens = stg.split(',');
@@ -335,11 +338,15 @@ function get_offset_from_stg(ref, stg) {
     }
 }
 
+function isValidDate(d) {
+    return d instanceof Date && !isNaN(d);
+}
 module.exports = {
     validate_alarm_parameters: validate_alarm_parameters,
     get_timezone_offset: get_timezone_offset,
     get_offset_difference: get_offset_difference,
     updateParams: updateParams,
     generateDateGivenOffset: generateDateGivenOffset,
-    get_timezone_by_abreviation: get_timezone_by_abreviation
-}
+    get_timezone_by_abreviation: get_timezone_by_abreviation,
+    isValidDate: isValidDate
+};

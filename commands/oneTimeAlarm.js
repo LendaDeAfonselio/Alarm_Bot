@@ -1,13 +1,190 @@
-"use strict";
+'use strict';
 const auth = require('./../auth.json');
 const utils = require('../Utils/utility_functions');
 const logging = require('../Utils/logging');
 const time_utils = require('../Utils/time_validation');
 const alarm_db = require('../data_access/alarm_index');
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const PRIVATE_ALARM = 'private-one-time-alarm';
+const PUBLIC_ALARM = 'one-time-alarm';
+const TIMEZOME_PARAM = 'timezone';
+const HOUR_MINUTE_PARAM = 'hour-minute';
+const DAY_MONTH_YEAR_PARAM = 'day-month-year';
+const MESSAGE_PARAM = 'message';
+const CHANNEL_PARAM = 'channel';
 
-function isValidDate(d) {
-    return d instanceof Date && !isNaN(d);
-}
+module.exports = {
+    name: 'oneTimeAlarm',
+    description: 'Sets up an alarm that will play one time\n' +
+        'For a private alarm use the -p flag as the second argument otherwise it will send the message to the channel you typed the command at\n' +
+        'If no Date is specified then it will default to today',
+    usage: '`/oneTimeAlarm <-p?> <Timezone> <HH:MM> <Day/Month/Year> <Message> <channel?>`',
+    data: new SlashCommandBuilder()
+        .setName('onetimealarm')
+        .setDescription('Sets up an alarm that will play one time')
+        .addSubcommand(option => option.setName(PUBLIC_ALARM).setDescription('Changes the cron for the alarm')
+            .addStringOption(option => option.setName(TIMEZOME_PARAM).setDescription('The timezone the alarm will follow'))
+            .addStringOption(option => option.setName(HOUR_MINUTE_PARAM).setDescription('The hour and minute in which the alarm will go off'))
+            .addStringOption(option => option.setName(DAY_MONTH_YEAR_PARAM).setDescription('The day/month/year in which the alarm will go off'))
+            .addStringOption(option => option.setName(MESSAGE_PARAM).setDescription('The message of the alarm'))
+            .addChannelOption(option => option.setName(CHANNEL_PARAM).setDescription('The channel (optional)')))
+        .addSubcommand(option => option.setName(PRIVATE_ALARM).setDescription('Changes the cron for the alarm')
+            .addStringOption(option => option.setName(TIMEZOME_PARAM).setDescription('The timezone the alarm will follow'))
+            .addStringOption(option => option.setName(HOUR_MINUTE_PARAM).setDescription('The hour:minute in which the alarm will go off (HH:MM format)'))
+            .addStringOption(option => option.setName(DAY_MONTH_YEAR_PARAM).setDescription('The day/month/year in which the alarm will go off (DD/MM/YYYY format)'))
+            .addStringOption(option => option.setName(MESSAGE_PARAM).setDescription('The message of the alarm'))),
+    async execute(interaction, cron_list, cron) {
+        if (utils.isAdministrator(interaction) || utils.hasAlarmRole(interaction, auth.alarm_role_name)) {
+            const subCommand = interaction.options.getSubcommand();
+
+            if (subCommand && subCommand !== null) {
+                let isPrivate = subCommand === PRIVATE_ALARM;
+                const hour_min_args = interaction.options.getString(HOUR_MINUTE_PARAM);
+                let date_args = interaction.options.getString(DAY_MONTH_YEAR_PARAM);
+                const channel_param = interaction.options.getChannel(CHANNEL_PARAM);
+                const message = interaction.options.getString(MESSAGE_PARAM);
+                const timezone = interaction.options.getString(TIMEZOME_PARAM);
+                const channel_discord = channel_param && channel_param !== null ? channel_param : interaction.channel;
+                if (!(message && timezone && hour_min_args &&
+                    message !== null &&
+                    timezone !== null &&
+                    hour_min_args !== null)) {
+                    interaction.reply({
+                        content: 'Insuficient arguments were passed for this alarm!\n' +
+                            'Usage: `' + this.usage + '`\n' +
+                            'Try `$help` for more information!', ephemeral: true
+                    });
+                }
+                else {
+
+                    if (!isPrivate) {
+                        let canCreate = await utils.can_create_ota_alarm(interaction.user.id, interaction.guild?.id);
+                        if (!canCreate) {
+                            interaction.channel.send(auth.limit_alarm_message);
+                            return;
+                        }
+                        let difference = time_utils.get_offset_difference(timezone);
+                        if (difference === undefined) {
+                            interaction.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!');
+                        } else {
+                            if (date_args && date_args !== null && date_args.includes('/') && date_args.length >= 3 && date_args.length <= 10) {
+                                // complete date
+                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, interaction);
+                                const d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
+                                if (time_utils.isValidDate(d)) {
+                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    let now = new Date();
+                                    if (d > now) {
+                                        if (!utils.can_send_messages_to_ch(interaction, channel_discord)) {
+                                            await interaction.reply({ ephemeral: true, content: 'Cannot setup the alarm in that channel because the bot does not have permission to send messages to it.' });
+                                            return;
+                                        }
+                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
+                                        if (ota !== undefined) {
+                                            await setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
+                                        } else {
+                                            await interaction.reply({ ephemeral: true, content: 'There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!' });
+                                        }
+                                    } else {
+                                        await interaction.reply({ ephemeral: true, content: `The date you entered:${params_stg} already happened!` });
+                                    }
+                                } else {
+                                    await interaction.reply(`Oops something went when setting up the alarm! Usage: \`${this.usage}\``);
+                                }
+                            } else {
+                                // no date
+                                let today = new Date();
+                                date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+
+                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, interaction);
+                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
+
+                                if (time_utils.isValidDate(d)) {
+                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    let now = new Date();
+                                    if (d > now) {
+                                        if (!utils.can_send_messages_to_ch(interaction, channel_discord)) {
+                                            await interaction.reply({ ephemeral: true, content: 'Cannot setup the alarm to specified channel because the bot does not have permission to send messages to it.' });
+                                            return;
+                                        }
+                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
+
+                                        if (ota !== undefined) {
+                                            await setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
+                                        } else {
+                                            await interaction.reply({ ephemeral: true, content: 'There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!' });
+                                        }
+                                    } else {
+                                        await interaction.reply({ ephemeral: true, content: `The date you entered:${params_stg} already happened!` });
+                                    }
+                                } else {
+                                    await interaction.reply({ ephemeral: true, content: `Oops something went when setting up the alarm! Usage: \`${this.usage}\`` });
+                                }
+                            }
+                        }
+                    } else {
+                        // partial date
+                        let create = await utils.can_create_ota_alarm(interaction.user.id, undefined);
+                        if (!create) {
+                            await interaction.reply({ content: 'You or this server have reached the maximum ammount of private one time alarms! Use `$premium` to find out how to get more alarms.' });
+                            return;
+                        }
+                        let difference = time_utils.get_offset_difference(timezone);
+                        if (difference === undefined) {
+                            await interaction.reply({ ephemeral: true, content: 'The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about timezones or use /timezonesinfo command!' });
+                        }
+                        else {
+                            if (date_args && date_args !== null && date_args.includes('/') && date_args.length >= 3 && date_args.length <= 10) {
+
+                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, interaction);
+                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
+
+                                if (time_utils.isValidDate(d)) {
+                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    let now = new Date();
+                                    if (d > now) {
+                                        let ota = await createPrivateOneTimeCron(interaction, cron, d, message);
+                                        await setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, interaction.channel);
+                                    } else {
+                                        await interaction.reply({ ephemeral: true, content: `The date you entered:${params_stg} already happened!` });
+                                    }
+                                } else {
+                                    await interaction.reply(`Oops something went when setting up the alarm! Usage: \`${this.usage}\``);
+                                    return;
+
+                                }
+                            } else {
+
+                                let today = new Date();
+                                date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+
+                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, interaction);
+                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
+
+                                if (time_utils.isValidDate(d)) {
+                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
+                                    let now = new Date();
+                                    if (d > now) {
+                                        let ota = await createPrivateOneTimeCron(interaction, cron, d, message);
+                                        await setupCronForOTAlarm(d, interaction, cron_list, now, ota, params_stg, timezone, isPrivate, message, interaction.channel);
+                                    } else {
+                                        await interaction.reply({ ephemeral: true, content: `The date you entered:${params_stg} already happened!` });
+                                    }
+                                } else {
+                                    await interaction.reply({ ephemeral: true, content: `Oops something went when setting up the alarm! Usage: \`${this.usage}\`` });
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                await interaction.reply({ ephemeral: true, content: `Oops something went when setting up the alarm! Usage: ${this.usage}` });
+            }
+        } else {
+            await interaction.reply({ content: 'You do not have permissions to set that alarm! Ask for the admins on your server to create and (then) give you the `Alarming` role!' });
+        }
+    }
+};
 
 function parseDateAndTime(date_args, hour_min_args, msg) {
     let date_tokens = date_args.split('/');
@@ -30,46 +207,30 @@ function parseDateAndTime(date_args, hour_min_args, msg) {
     return undefined;
 }
 
-async function setupCronForOTAlarm(d, msg, cron_list, now, ota, data_stg, timezone, isPrivate, message, discord_channel) {
+async function setupCronForOTAlarm(d, interaction, cron_list, now, ota, data_stg, timezone, isPrivate, message, discord_channel) {
     ota.start();
-   await msg.channel.send(`Alarm for ${data_stg} (${timezone}) has been setup`);
-    let alarm_user = msg.author.id;
+    let alarm_user = interaction.user.id;
     let this_alarm_id = Math.random().toString(36).substring(4);
     let alarm_id = `${auth.one_time_prefix}_${this_alarm_id}`;
 
-    await alarm_db.add_oneTimeAlarm(alarm_id, d, message, isPrivate, msg.guild?.id, discord_channel?.id, alarm_user, msg.guild?.name);
+    await alarm_db.add_oneTimeAlarm(alarm_id, d, message, isPrivate, interaction.guild?.id, discord_channel?.id, alarm_user, interaction.guild?.name);
 
     // save locally
     cron_list[alarm_id] = ota;
+    await interaction.reply(`Setup a new one time alarm for ${data_stg} (${timezone})`);
 
     let dif = d.getTime() - now.getTime();
     setTimeout(() => {
         try {
-            ota.stop();
+            ota?.stop();
             delete cron_list[alarm_id];
         }
         catch (e) {
-            logging.logger.info(`Error stopping or deleting the cron for OneTimeAlarm.`);
+            logging.logger.info('Error stopping or deleting the cron for OneTimeAlarm.');
             logging.logger.error(e);
         }
     }, dif + 5000);
     logging.logger.info(`One time alarm: ${alarm_id} has been setup for ${ota.cronTime.source}`);
-}
-
-
-
-
-function extract_discord_channel(args, msg, message) {
-    let channel = args.pop();
-    let hasSpecifiedChannel = utils.isAChannel(channel);
-    // need to put this outside to keep it in memory then use it when saving to the database
-    let channel_discord = msg.channel;
-    if (hasSpecifiedChannel) {
-        channel_discord = msg.guild.channels.cache.get(channel.replace(/[<>#]/g, ''));
-        let lastIndex = message.lastIndexOf(" ");
-        message = message.substring(0, lastIndex);
-    }
-    return { channel_discord, message };
 }
 
 function createOneTimeCron(cron, d, message, channel_discord) {
@@ -89,8 +250,8 @@ function createOneTimeCron(cron, d, message, channel_discord) {
 async function createPrivateOneTimeCron(msg, cron, d, message) {
     try {
         let ota = new cron(d, async () => {
-            await msg.author.send(message).catch((err) => {
-                logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.author.id}.`);
+            await msg.user.send(message).catch((err) => {
+                logging.logger.info(`Can't send reply to one time alarm with ${d} from user ${msg.user.id}.`);
                 logging.logger.error(err);
                 if (msg.channel.type !== 'dm' && utils.can_send_messages_to_ch(msg, msg.channel)) {
                     msg.reply('Unable to send you the private alarms via DM. Check your permissions!');
@@ -103,169 +264,3 @@ async function createPrivateOneTimeCron(msg, cron, d, message) {
     }
     return undefined;
 }
-
-module.exports = {
-    name: 'oneTimeAlarm',
-    description: 'Sets up an alarm that will play one time\n'
-        + 'For a private alarm use the -p flag as the second argument otherwise it will send the message to the channel you typed the command at\n'
-        + 'If no Date is specified then it will default to today',
-    usage: auth.prefix + 'oneTimeAlarm <-p?> <Timezone> <HH:MM> <Day/Month/Year> <Message>\n',
-    async execute(msg, args, client, cron, cron_list, mongoose) {
-        if (msg.channel.type === 'dm' || utils.isAdministrator(msg) || utils.hasAlarmRole(msg, auth.alarm_role_name)) {
-            if (args.length > 1) {
-                let isPrivate = args[0].toLowerCase() === '-p';
-                if (isPrivate && args.length < 4 || !isPrivate && args.length < 3) {
-                   await msg.channel.send('Insuficient arguments were passed for this alarm!\n'
-                        + 'Usage: `' + this.usage + '`\n'
-                        + 'Try `$help` for more information!');
-                }
-                else {
-                    let hour_min_args = args[2];
-                    let date_args = '';
-                    let message = '';
-                    if (!isPrivate) {
-                        let canCreate = await utils.can_create_ota_alarm(msg.author.id, msg.guild?.id);
-                        if (!canCreate) {
-                           await msg.channel.send(auth.limit_alarm_message);
-                            return;
-                        }
-                        let timezone = args[0];
-                        let difference = time_utils.get_offset_difference(timezone);
-                        if (difference === undefined) {
-                           await msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
-                        } else {
-                            hour_min_args = args[1];
-                            if (args[2].includes('/') && args[2].length >= 3 && args[2].length <= 10) {
-                                date_args = args[2];
-                                message = args.slice(3, args.length).join(' ');
-
-                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
-                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
-                                if (isValidDate(d)) {
-                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                    let now = new Date();
-                                    if (d > now) {
-                                        let channel_discord;
-                                        ({ channel_discord, message } = extract_discord_channel(args, msg, message));
-                                        if (!utils.can_send_messages_to_ch(msg, channel_discord)) {
-                                           await msg.channel.send(`Cannot setup the alarm in that channel because the bot does not have permission to send messages to it.`)
-                                            return;
-                                        }
-                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
-                                        if (ota !== undefined) {
-                                            await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
-                                        } else {
-                                           await msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
-                                        }
-                                    } else {
-                                       await msg.channel.send(`The date you entered:${params_stg} already happened!`);
-                                    }
-                                } else {
-                                   await msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
-                                        + 'Try `$help` for more information!');
-                                }
-                            } else {
-
-                                message = args.slice(2, args.length).join(' ');
-
-                                let today = new Date();
-                                date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-
-                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
-                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
-
-                                if (isValidDate(d)) {
-                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                    let now = new Date();
-                                    if (d > now) {
-                                        let channel_discord;
-                                        ({ channel_discord, message } = extract_discord_channel(args, msg, message));
-                                        if (!utils.can_send_messages_to_ch(msg, channel_discord)) {
-                                           await msg.channel.send(`Cannot setup the alarm to specified channel because the bot does not have permission to send messages to it.`)
-                                            return;
-                                        }
-                                        let ota = createOneTimeCron(cron, d, message, channel_discord);
-
-                                        if (ota !== undefined) {
-                                            await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, channel_discord);
-                                        } else {
-                                           await msg.channel.send(`There was a problem trying to fetch the channel that you have specified. Please make sure that the bot has access to it!`);
-                                        }
-                                    } else {
-                                       await msg.channel.send(`The date you entered:${params_stg} already happened!`);
-                                    }
-                                } else {
-                                   await msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
-                                        + 'Try `$help` for more information!');
-                                }
-                            }
-                        }
-                    } else {
-                        let create = await utils.can_create_ota_alarm(msg.author.id, undefined);
-                        if (!create) {
-                           await msg.channel.send('You or this server have reached the maximum ammount of private one time alarms! Use `$premium` to find out how to get more alarms.');
-                            return;
-                        }
-                        let timezone = args[1];
-                        let difference = time_utils.get_offset_difference(timezone);
-                        if (difference === undefined) {
-                           await msg.channel.send('The timezone you have entered is invalid. Please visit https://www.timeanddate.com/time/map/ for information about your timezone!')
-                        }
-                        else {
-                            if (args[3].includes('/') && args[3].length >= 3 && args[3].length <= 10) {
-                                date_args = args[3];
-                                message = args.slice(4, args.length).join(' ');
-
-                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
-                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
-
-                                if (isValidDate(d)) {
-                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                    let now = new Date();
-                                    if (d > now) {
-                                        let ota = await createPrivateOneTimeCron(msg, cron, d, message);
-                                        await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
-                                    } else {
-                                       await msg.channel.send(`The date you entered:${params_stg} already happened!`);
-                                    }
-                                } else {
-                                   await msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
-                                        + 'Try `$help` for more information!');
-                                }
-                            } else {
-                                message = args.slice(3, args.length).join(' ');
-
-                                let today = new Date();
-                                date_args = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-
-                                let nonTransformedDate = parseDateAndTime(date_args, hour_min_args, msg);
-                                let d = time_utils.generateDateGivenOffset(nonTransformedDate, difference);
-
-                                if (isValidDate(d)) {
-                                    let params_stg = date_args.toString() + ' ' + hour_min_args.toString();
-                                    let now = new Date();
-                                    if (d > now) {
-                                        let ota = createPrivateOneTimeCron(msg, cron, d, message);
-                                        await setupCronForOTAlarm(d, msg, cron_list, now, ota, params_stg, timezone, isPrivate, message, msg.channel);
-                                    } else {
-                                       await msg.channel.send(`The date you entered:${params_stg} already happened!`);
-                                    }
-                                } else {
-                                   await msg.channel.send('Oops something went when setting up the alarm!\nUsage: `' + this.usage + '`\n'
-                                        + 'Try `$help` for more information!');
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-               await msg.channel.send('No arguments were passed for this alarm!\n'
-                    + 'Usage: `' + this.usage + '`\n'
-                    + 'Try `$help` for more information!');
-            }
-        } else {
-           await msg.channel.send('You do not have permissions to set that alarm! Ask for the admins on your server to create and (then) give you the `Alarming` role!');
-        }
-    }
-}
-

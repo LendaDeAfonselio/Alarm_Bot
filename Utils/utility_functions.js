@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const Discord = require('discord.js');
 const { Permissions } = require('discord.js');
@@ -26,7 +26,7 @@ function isTTSAlarm(alarm_id) {
 }
 
 function isString(input) {
-    return typeof input === 'string' && Object.prototype.toString.call(input) === '[object String]'
+    return typeof input === 'string' && Object.prototype.toString.call(input) === '[object String]';
 }
 /**
  * Checks if an user can create a public alarm
@@ -39,8 +39,8 @@ async function can_create_public_alarm(user_id, guild_id) {
         return alarmsUser.length < auth.max_alarms_VIP;
     }
     let alarmsGuild = await alarm_db.get_all_alarms_from_guild(guild_id);
-    return alarmsUser.length < auth.max_alarms_user
-        && alarmsGuild.length < auth.max_alarms_server;
+    return alarmsUser.length < auth.max_alarms_user &&
+        alarmsGuild.length < auth.max_alarms_server;
 }
 
 /**
@@ -66,8 +66,8 @@ async function can_create_ota_alarm(user_id, guild_id) {
         return alarmsUser.length < auth.max_alarms_VIP;
     }
     let alarmsGuild = guild_id !== undefined ? (await alarm_db.get_all_otas_from_guild(guild_id))?.length : 0;
-    return alarmsUser.length < auth.max_alarms_user
-        && alarmsGuild < auth.max_alarms_server;
+    return alarmsUser.length < auth.max_alarms_user &&
+        alarmsGuild < auth.max_alarms_server;
 }
 
 async function isPremiumUser(user_id) {
@@ -77,15 +77,15 @@ async function isPremiumUser(user_id) {
 
 /**
  * Checks if an user is a Administrator on a Guild
- * @param {Discord.Message} message - The Discord Message object
+ * @param {Discord.Interaction} message - The Discord Message object
  */
 function isAdministrator(message) {
-    return message.member && message.member.hasPermission("ADMINISTRATOR");
+    return message.member && message.member.permissions.has('ADMINISTRATOR');
 }
 
 /**
  * Checks if an user has the alarm role 
- * @param {Discord.Message} message - the Discord Message object
+ * @param {Discord.Interaction} message - the Discord Message object
  * @param {String} alarm_role - The name of the role
  */
 function hasAlarmRole(message, alarm_role) {
@@ -98,16 +98,16 @@ function hasAlarmRole(message, alarm_role) {
 
 /**
  * Checks if a certain user has the permissions to change the alarm
- * @param {Discord.Message} message - The Discord Message object
+ * @param {Discord.Interaction} interaction - The Discord Interaction object
  * @param {String} alarm_id - The string with the id of the alarm
  */
-async function can_change_alarm(message, alarm_id) {
+async function can_change_alarm(interaction, alarm_id) {
     let al = await alarm_db.get_alarm_by_id(alarm_id);
     if (!al) {
         return false;
     }
-    let isOwner = al?.user_id == message.author.id;
-    return (message.channel.type === 'dm' && isOwner) || isOwner || (!isPrivateAlarm && isAdministrator(message) && al?.guild === message.guild.id);
+    let isOwner = al?.user_id === interaction.user.id;
+    return (interaction.channel.type === 'dm' && isOwner) || isOwner || (!isPrivateAlarm && isAdministrator(interaction) && al?.guild === interaction.guild.id);
 }
 
 /**
@@ -160,7 +160,7 @@ function compareIgnoringCase(stg1, stg2) {
 
 async function send_message_to_default_channel(guild, message) {
     const channel = guild.channels.cache.find(
-        (c) => c.type === "text" && c.permissionsFor(guild.me).has("SEND_MESSAGES")
+        (c) => c.type === 'text' && c.permissionsFor(guild.me).has('SEND_MESSAGES')
     );
     if (channel) {
         await channel.send(message);
@@ -172,7 +172,7 @@ async function send_message_to_default_channel(guild, message) {
 async function fetchValuesAndConcatValues(client, queryStg) {
     return client.shard.fetchClientValues(queryStg).then(
         (allArrays) => {
-            return Array.prototype.concat.apply([], allArrays)
+            return Array.prototype.concat.apply([], allArrays);
         }
     );
 }
@@ -189,7 +189,7 @@ async function broadcastEvalAndConcat(client, queryStg) {
 
 function deleteFromCronList(cron_list, alarm) {
     if (cron_list[alarm.alarm_id] !== undefined) {
-        cron_list[alarm.alarm_id].stop();
+        cron_list[alarm.alarm_id]?.stop();
         delete cron_list[alarm.alarm_id];
     }
 }
@@ -274,4 +274,4 @@ module.exports = {
     can_send_ttsmessages_to_ch: can_send_ttsmessages_to_ch,
     can_send_messages_to_ch_using_guild: can_send_messages_to_ch_using_guild,
     isString: isString
-}
+};

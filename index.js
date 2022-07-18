@@ -1,3 +1,4 @@
+'use strict';
 const { ShardingManager } = require('discord.js');
 const appsettings = require('./appsettings.json');
 const logging = require('./Utils/logging');
@@ -10,24 +11,24 @@ const shards = new ShardingManager('./bot.js', {
 });
 
 shards.on('shardCreate', async (shard) => {
-    shard.on("ready", () => {
+    shard.on('ready', () => {
         logging.logger.info(`New shard with id ${shard.id}`);
 
-        shard.send({ type: "shardId", data: { shardId: shard.id } });
+        shard.send({ type: 'shardId', data: { shardId: shard.id } });
     });
     shard.on('reconnecting', (a, b) => {
         logging.logger.info(`Shard ${shard.id} reconnecting`);
         logging.logger.info(a);
         logging.logger.info(b);
-        shard.send({ type: "shardId", data: { shardId: shard.id } });
+        shard.send({ type: 'shardId', data: { shardId: shard.id } });
     });
     shard.on('death', () => {
         logging.logger.error(`RIP Bozo! Shard ${shard.id}`);
     });
     shard.on('error', (err) => {
         logging.logger.error(`Error in  ${shard.id} with : ${err} `)
-        shard.respawn()
+        shard.respawn();
     });
 });
 
-shards.spawn('auto', 20000).catch(error => logging.logger.error(`[ERROR/SHARD] Shard failed to spawn. Error: ${error}`));
+shards.spawn({ delay: 20000 }).catch(error => logging.logger.error(`[ERROR/SHARD] Shard failed to spawn. Error: ${error}`));
