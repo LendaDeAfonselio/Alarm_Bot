@@ -17,10 +17,9 @@ const rest = new REST({ version: '9' }).setToken(token);
 
 function registerSlashCommandsInGuild(guildId) {
     rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-        .then(() => logging.logger.info(`Successfully registered application commands for guild ${guildId}.`))
         .catch(logging.logger.error);
 }
 
 module.exports = {
     registerSlashCommandsInGuild: registerSlashCommandsInGuild
-}
+};

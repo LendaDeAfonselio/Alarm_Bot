@@ -54,8 +54,9 @@ client.once('ready', async () => {
 
     let allGuilds = client.guilds.cache;
     allGuilds.forEach(async (guild) => { //for each guild the bot is in
-        deployCommands.registerSlashCommandsInGuild(guild.id);
         try {
+            deployCommands.registerSlashCommandsInGuild(guild.id);
+            
             let f = await load_alarms.fetchAlarmsforGuild(cron_list, cron, guild, guild.id, client);
 
             if (f === undefined) {
@@ -77,7 +78,7 @@ client.once('ready', async () => {
             logging.logger.error(`Error booting up the alarms for guild ${guild.id}. ${e}`);
         }
     });
-
+    logging.logger.info(`Deployed commands on ${allGuilds.length}`);
     client.user.setActivity('$help to get started!');
 });
 

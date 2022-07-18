@@ -32,4 +32,4 @@
 ✔ /onetimealarm private-one-time-alarm timezone:GMT+1 hour-minute:18:31 message:Er day-month-year:11/07 @done(22-07-11 18:36)
 ✔ /onetimealarm private-one-time-alarm timezone:GMT+1 hour-minute:18:31 message:Er day-month-year:11/07/2022 @done(22-07-11 18:36)
 ✔ /deleteallalarms ota @done(22-07-11 18:36)
-☐ /deleteallalarms private-ota
+✔ /deleteallalarms private-ota @done(22-07-18 14:07)
