@@ -14,3 +14,7 @@ npm i -g pm2
 clear
 npm i @discordjs/rest
 clear
+npm install @discordjs/rest discord-api-types
+clear
+npm install @discordjs/builders
+clear
