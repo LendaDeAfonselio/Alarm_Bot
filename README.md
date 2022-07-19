@@ -26,6 +26,9 @@ You can check out the bot's page on [top.gg](https://top.gg/bot/7543502178763408
 4. Run the node script `deployCommands.js` with `$node deployCommands.js` 
 5. Use the command `$pm2 start index.js` in the project's folder.
 
+
+Do be aware that some DNS setting may have issues interacting with discord js v13 and mongo, therefore you should check [if you can query your mongo cluster](https://stackoverflow.com/questions/68875026/error-querysrv-eservfail-mongodb-tcp-cluster0-abcd0-mongodb-net) and if not, try using the Google DNS.
+
 ## Usage and examples
 
 The parameters for `alarm` and `privateAlarm` work as follows:
