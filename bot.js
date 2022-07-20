@@ -102,7 +102,7 @@ client.on('interactionCreate', async interaction => {
                     await interaction.reply('There was an error trying to execute that command!');
                 }
             } else {
-                interaction.author.send('AlarmBot does not have permission to send messages. Please check AlarmBot permissions and try again.')
+                interaction.user.send('AlarmBot does not have permission to send messages. Please check AlarmBot permissions and try again.')
                     .catch((err) => {
                         logging.logger.info(`Can't send reply to message ${interaction.commandName}  ${interaction.options}. From user ${interaction.user.id}. And no permissions in the channel...`);
                         logging.logger.error(err);
