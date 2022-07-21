@@ -83,7 +83,6 @@ module.exports = {
         let general_otas = createMessageWithOTAEntries(results_ota_pub);
         let priv_otas = createMessageWithOTAEntries(results_ota_priv);
 
-
         // chunk it because of the max size for discord messages
         let public_chunks = utility.chunkArray(general_alarms, 20);
         let private_chunks = utility.chunkArray(private_alarms, 20);

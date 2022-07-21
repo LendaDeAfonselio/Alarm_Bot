@@ -96,7 +96,7 @@ client.on('interactionCreate', async interaction => {
             } catch (error) {
                 logging.logger.info(`An error has occured while executing the following command: ${interaction.commandName}; options: ${interaction.options}`);
                 logging.logger.error(error);
-                await interaction.reply('There was an error trying to execute that command!');
+                await interaction.channel.send('There was an error trying to execute that command!');
             }
         }
     }
