@@ -98,10 +98,17 @@ module.exports = {
         }
 
         // send public alarms
-        sendChunksAsPublicMsg(public_chunks, interaction, 'Your public alarms in this server are:');
-        sendChunksAsPublicMsg(public_chunks2, interaction, 'Your public one time alarms in this server are:');
-        sendChunksAsPublicMsg(tts_chunks, interaction, 'Your TTS alarms for this server are:');
-
+        const alarmsEmbed = makeEmbedsForPubMsg(public_chunks,  'Your public alarms in this server are:');
+        const otaembeds = makeEmbedsForPubMsg(public_chunks2,  'Your public one time alarms in this server are:');
+        const ttsembeds = makeEmbedsForPubMsg(tts_chunks,  'Your TTS alarms for this server are:');
+        const all_embeds = [...alarmsEmbed, ...otaembeds, ...ttsembeds];
+        if (utility_functions.can_send_embeded(interaction)) {
+            await interaction.reply({
+                embeds: all_embeds
+            });
+        } else {
+            await interaction.reply('Embeded messages are disallowed for this server. Try turning them on or use `$myalarms -id`.');
+        }
         // send private alarms
         for (let chunk of private_chunks) {
             interaction.user.send({
@@ -138,21 +145,17 @@ module.exports = {
     }
 };
 
-async function sendChunksAsPublicMsg(public_chunks, interaction, title_message) {
+function makeEmbedsForPubMsg(public_chunks,  title_message) {
+    let embeds = [];
     for (let chunk of public_chunks) {
-        if (utility_functions.can_send_embeded(interaction)) {
-            await interaction.reply({
-                embeds: [{
-                    color: 0xff80d5,
-                    title: title_message,
-                    fields: chunk,
-                    timestamp: new Date()
-                }]
-            });
-        } else {
-            await interaction.reply('Embeded messages are disallowed for this server. Try turning them on or use `$myalarms -id`.');
-        }
+        let e = {
+            color: 0xff80d5,
+            title: title_message,
+            fields: chunk,
+        };
+        embeds.push(e);
     }
+    return embeds;
 }
 
 function createMessageWithEntries(msgs) {
