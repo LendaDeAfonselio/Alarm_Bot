@@ -1,7 +1,8 @@
 'use strict';
 
+// eslint-disable-next-line no-unused-vars
 const Discord = require('discord.js');
-const { Permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 
 const auth = require('./../auth.json');
 const alarm_db = require('./../data_access/alarm_index');
@@ -195,56 +196,57 @@ function deleteFromCronList(cron_list, alarm) {
 }
 
 function can_send_embeded(msg) {
-    if (!msg || !msg.channel || !msg.guild || !msg.guild.me) {
+    if (!msg || !msg.channel || !msg.guild || !msg.guild.members.me) {
         return false;
     }
     let ch = msg.channel;
-    let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.EMBED_LINKS);
+    let permission = msg.guild.members.me.permissionsIn(ch);
+    return permissions_include(permission, PermissionsBitField.Flags.EmbedLinks);
 }
 
 
 function can_send_tts_messages(msg) {
-    if (!msg || !msg.channel || !msg.guild || !msg.guild.me) {
+    if (!msg || !msg.channel || !msg.guild || !msg.guild.members.me) {
         return false;
     }
     let ch = msg.channel;
-    let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
+    let permission = msg.guild.members.me.permissionsIn(ch);
+    return permissions_include(permission, PermissionsBitField.Flags.SendTTSMessages);
 }
 
 function can_send_messages(msg) {
-    if (!msg || !msg.channel || !msg.guild || !msg.guild.me) {
+    if (!msg || !msg.channel || !msg.guild || !msg.guild.members.me) {
         return false;
     }
     let ch = msg.channel;
-    let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+    let permission = msg.guild.members.me.permissionsIn(ch);
+    return permissions_include(permission, PermissionsBitField.Flags.SendMessages);
 }
 
 function can_send_messages_to_ch(msg, ch) {
-    if (!ch || !msg || !msg.guild || !msg.guild.me) {
+    if (!ch || !msg || !msg.guild || !msg.guild.members.me) {
+        console.log("siu");
         return false;
     }
-    let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+    let permission = msg.guild.members.me.permissionsIn(ch);
+    return permissions_include(permission, PermissionsBitField.Flags.SendMessages);
 }
 function can_send_ttsmessages_to_ch(msg, ch) {
-    if (!ch || !msg || !msg.guild || !msg.guild.me) {
+    if (!ch || !msg || !msg.guild || !msg.guild.members.me) {
         return false;
     }
-    let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
+    let permission = msg.guild.members.me.permissionsIn(ch);
+    return permissions_include(permission, PermissionsBitField.Flags.SendTTSMessages);
 }
 
 function permissions_include(permissions, perm) {
 
-    return permissions && permissions.has(Permissions.FLAGS.VIEW_CHANNEL) && permissions.has(perm);
+    return permissions && permissions.has(PermissionsBitField.Flags.ViewChannel) && permissions.has(perm);
 }
 
 function can_send_messages_to_ch_using_guild(guild, ch) {
     let permission = guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+    return permissions_include(permission, PermissionsBitField.Flags.SendMessages);
 }
 
 module.exports = {

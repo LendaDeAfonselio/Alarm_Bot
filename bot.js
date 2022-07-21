@@ -1,13 +1,11 @@
 'use strict';
 // Packages and dependencies
-const { Collection, Client, Intents } = require('discord.js');
+const { Collection, Client, GatewayIntentBits, Partials, InteractionType } = require('discord.js');
 const logging = require('./Utils/logging');
 // configuration files
 const appsettings = require('./appsettings.json'); // on github project this file 
 // is not completed, it does need some 
 // values like the bot token and the mongo db url
-
-const auth = require('./auth.json');
 
 // auxiliary js files with functions
 const load_alarms = require('./load_alarms');
@@ -30,7 +28,7 @@ mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrl
 });
 
 // Instances
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages], partials: [Partials.Channel] });
 const cron_list = {}; // the in memory crono list
 const cron = require('cron').CronJob;
 const fs = require('fs');
@@ -86,27 +84,19 @@ client.once('ready', async () => {
 
 /*************************** Execute Commands ************************/
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) {
+    if (!interaction.type === InteractionType.ApplicationCommand) {
         return;
     }
     else {
         const command = client.commands.get(interaction.commandName);
         if (!command) { return; }
         else {
-            if (utility_functions.can_send_messages(interaction)) {
-                try {
-                    await command.execute(interaction, cron_list, cron);
-                } catch (error) {
-                    logging.logger.info(`An error has occured while executing the following command: ${interaction.commandName}; options: ${interaction.options}`);
-                    logging.logger.error(error);
-                    await interaction.reply('There was an error trying to execute that command!');
-                }
-            } else {
-                interaction.user.send('AlarmBot does not have permission to send messages. Please check AlarmBot permissions and try again.')
-                    .catch((err) => {
-                        logging.logger.info(`Can't send reply to message ${interaction.commandName}  ${interaction.options}. From user ${interaction.user.id}. And no permissions in the channel...`);
-                        logging.logger.error(err);
-                    });
+            try {
+                await command.execute(interaction, cron_list, cron, client);
+            } catch (error) {
+                logging.logger.info(`An error has occured while executing the following command: ${interaction.commandName}; options: ${interaction.options}`);
+                logging.logger.error(error);
+                await interaction.reply('There was an error trying to execute that command!');
             }
         }
     }
