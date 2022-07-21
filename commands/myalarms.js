@@ -114,7 +114,7 @@ module.exports = {
                 embeds: [{
                     color: 0x5CFF5C,
                     title: 'Your private alarms are:',
-                    fields: chunk,
+                    fields: [chunk],
                     timestamp: new Date()
                 }]
             }).catch(async (err) => {
@@ -131,7 +131,7 @@ module.exports = {
                 embeds: [{
                     color: 0xcc1100,
                     title: 'Your private one time alarms alarms are:',
-                    fields: chunk,
+                    fields: [chunk],
                     timestamp: new Date()
                 }]
             }).catch(async _ => {
@@ -150,7 +150,7 @@ function makeEmbedsForPubMsg(public_chunks, title_message) {
         let e = {
             color: 0xff80d5,
             title: title_message,
-            fields: chunk,
+            fields: [chunk],
         };
         embeds.push(e);
     }
