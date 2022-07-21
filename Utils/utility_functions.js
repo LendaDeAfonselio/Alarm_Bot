@@ -245,7 +245,7 @@ function permissions_include(permissions, perm) {
 }
 
 function can_send_messages_to_ch_using_guild(guild, ch) {
-    let permission = guild.me.permissionsIn(ch);
+    let permission = guild.members.me.permissionsIn(ch);
     return permissions_include(permission, PermissionsBitField.Flags.SendMessages);
 }
 
