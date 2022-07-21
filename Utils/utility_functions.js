@@ -1,7 +1,8 @@
 'use strict';
 
+// eslint-disable-next-line no-unused-vars
 const Discord = require('discord.js');
-const { Permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 
 const auth = require('./../auth.json');
 const alarm_db = require('./../data_access/alarm_index');
@@ -200,7 +201,7 @@ function can_send_embeded(msg) {
     }
     let ch = msg.channel;
     let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.EMBED_LINKS);
+    return permissions_include(permission, PermissionsBitField.Flags.EmbedLinks);
 }
 
 
@@ -210,7 +211,7 @@ function can_send_tts_messages(msg) {
     }
     let ch = msg.channel;
     let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
+    return permissions_include(permission, PermissionsBitField.Flags.SendTTSMessages);
 }
 
 function can_send_messages(msg) {
@@ -219,7 +220,7 @@ function can_send_messages(msg) {
     }
     let ch = msg.channel;
     let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+    return permissions_include(permission, PermissionsBitField.Flags.SendMessages);
 }
 
 function can_send_messages_to_ch(msg, ch) {
@@ -227,24 +228,24 @@ function can_send_messages_to_ch(msg, ch) {
         return false;
     }
     let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+    return permissions_include(permission, PermissionsBitField.Flags.SendMessages);
 }
 function can_send_ttsmessages_to_ch(msg, ch) {
     if (!ch || !msg || !msg.guild || !msg.guild.me) {
         return false;
     }
     let permission = msg.guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_TTS_MESSAGES);
+    return permissions_include(permission, PermissionsBitField.Flags.SendTTSMessages);
 }
 
 function permissions_include(permissions, perm) {
 
-    return permissions && permissions.has(Permissions.FLAGS.VIEW_CHANNEL) && permissions.has(perm);
+    return permissions && permissions.has(PermissionsBitField.Flags.ViewChannel) && permissions.has(perm);
 }
 
 function can_send_messages_to_ch_using_guild(guild, ch) {
     let permission = guild.me.permissionsIn(ch);
-    return permissions_include(permission, Permissions.FLAGS.SEND_MESSAGES);
+    return permissions_include(permission, PermissionsBitField.Flags.SendMessages);
 }
 
 module.exports = {

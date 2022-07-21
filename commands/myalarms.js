@@ -98,17 +98,16 @@ module.exports = {
         }
 
         // send public alarms
-        const alarmsEmbed = makeEmbedsForPubMsg(public_chunks,  'Your public alarms in this server are:');
-        const otaembeds = makeEmbedsForPubMsg(public_chunks2,  'Your public one time alarms in this server are:');
-        const ttsembeds = makeEmbedsForPubMsg(tts_chunks,  'Your TTS alarms for this server are:');
+        const alarmsEmbed = makeEmbedsForPubMsg(public_chunks, 'Your public alarms in this server are:');
+        const otaembeds = makeEmbedsForPubMsg(public_chunks2, 'Your public one time alarms in this server are:');
+        const ttsembeds = makeEmbedsForPubMsg(tts_chunks, 'Your TTS alarms for this server are:');
         const all_embeds = [...alarmsEmbed, ...otaembeds, ...ttsembeds];
-        if (utility_functions.can_send_embeded(interaction)) {
+        if (all_embeds.length > 0) {
             await interaction.reply({
                 embeds: all_embeds
             });
-        } else {
-            await interaction.reply('Embeded messages are disallowed for this server. Try turning them on or use `$myalarms -id`.');
         }
+
         // send private alarms
         for (let chunk of private_chunks) {
             interaction.user.send({
@@ -145,7 +144,7 @@ module.exports = {
     }
 };
 
-function makeEmbedsForPubMsg(public_chunks,  title_message) {
+function makeEmbedsForPubMsg(public_chunks, title_message) {
     let embeds = [];
     for (let chunk of public_chunks) {
         let e = {

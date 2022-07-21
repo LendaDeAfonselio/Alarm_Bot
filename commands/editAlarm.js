@@ -3,9 +3,6 @@
 const Alarm_model = require('../models/alarm_model');
 const Private_alarm_model = require('../models/private_alarm_model');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { Client, Intents } = require('discord.js');
-
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
 const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
@@ -61,7 +58,7 @@ module.exports = {
             .addStringOption(option => option.setName(WEEKDAY_PARAM).setDescription('The weekday in which the alarm goes off, * for every weekday'))
             .addStringOption(option => option.setName(MESSAGE_PARAM).setDescription('The message to be sent'))
             .addChannelOption(option => option.setName(CHANNEL_PARAM).setDescription('The channel for which the alarm will be sent (optional)'))),
-    async execute(interaction, cron_list, cron) {
+    async execute(interaction, cron_list, cron, client) {
         const subCommand = interaction.options.getSubcommand();
         if (subCommand === MESSAGE_COMMAND) {
             const message_stg = interaction.options.getString(MESSAGE_PARAM);
