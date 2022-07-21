@@ -1,6 +1,5 @@
 'use strict';
-const { SlashCommandBuilder } = require('@discordjs/builders');
-
+const { ApplicationCommandType, SlashCommandBuilder } = require('discord.js');
 const Alarm_model = require('../models/alarm_model');
 const auth = require('./../auth.json');
 const time_utils = require('../Utils/time_validation');
@@ -21,6 +20,7 @@ module.exports = {
     name: 'alarm',
     description: 'Sets up an alarm that will be repeated according to parameters passed',
     usage: '`/alarm <timezone/city/UTC> <minute> <hour> <day_of_the_month> <month> <weekday> <message> <channel?>`',
+    type: ApplicationCommandType.ChatInput,
     data: new SlashCommandBuilder()
         .setName('alarm')
         .setDescription('Sets up an alarm that will be repeated according to parameters passed')

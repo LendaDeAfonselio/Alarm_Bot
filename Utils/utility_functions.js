@@ -196,45 +196,46 @@ function deleteFromCronList(cron_list, alarm) {
 }
 
 function can_send_embeded(msg) {
-    if (!msg || !msg.channel || !msg.guild || !msg.guild.me) {
+    if (!msg || !msg.channel || !msg.guild || !msg.guild.members.me) {
         return false;
     }
     let ch = msg.channel;
-    let permission = msg.guild.me.permissionsIn(ch);
+    let permission = msg.guild.members.me.permissionsIn(ch);
     return permissions_include(permission, PermissionsBitField.Flags.EmbedLinks);
 }
 
 
 function can_send_tts_messages(msg) {
-    if (!msg || !msg.channel || !msg.guild || !msg.guild.me) {
+    if (!msg || !msg.channel || !msg.guild || !msg.guild.members.me) {
         return false;
     }
     let ch = msg.channel;
-    let permission = msg.guild.me.permissionsIn(ch);
+    let permission = msg.guild.members.me.permissionsIn(ch);
     return permissions_include(permission, PermissionsBitField.Flags.SendTTSMessages);
 }
 
 function can_send_messages(msg) {
-    if (!msg || !msg.channel || !msg.guild || !msg.guild.me) {
+    if (!msg || !msg.channel || !msg.guild || !msg.guild.members.me) {
         return false;
     }
     let ch = msg.channel;
-    let permission = msg.guild.me.permissionsIn(ch);
+    let permission = msg.guild.members.me.permissionsIn(ch);
     return permissions_include(permission, PermissionsBitField.Flags.SendMessages);
 }
 
 function can_send_messages_to_ch(msg, ch) {
-    if (!ch || !msg || !msg.guild || !msg.guild.me) {
+    if (!ch || !msg || !msg.guild || !msg.guild.members.me) {
+        console.log("siu");
         return false;
     }
-    let permission = msg.guild.me.permissionsIn(ch);
+    let permission = msg.guild.members.me.permissionsIn(ch);
     return permissions_include(permission, PermissionsBitField.Flags.SendMessages);
 }
 function can_send_ttsmessages_to_ch(msg, ch) {
-    if (!ch || !msg || !msg.guild || !msg.guild.me) {
+    if (!ch || !msg || !msg.guild || !msg.guild.members.me) {
         return false;
     }
-    let permission = msg.guild.me.permissionsIn(ch);
+    let permission = msg.guild.members.me.permissionsIn(ch);
     return permissions_include(permission, PermissionsBitField.Flags.SendTTSMessages);
 }
 
