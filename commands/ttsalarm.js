@@ -113,7 +113,7 @@ module.exports = {
 
                         await interaction.reply({
                             embeds: [{
-                                fields: { name: `Created TTS alarm ${alarm_id}!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` },
+                                fields: [{ name: `Created TTS alarm ${alarm_id}!`, value: `Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success!` }],
                                 timestamp: new Date()
                             }],
                             ephemeral: true

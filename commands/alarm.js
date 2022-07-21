@@ -112,7 +112,10 @@ module.exports = {
                                     logging.logger.info(`Added ${alarm_id} to alarm db`);
                                     await interaction.reply({
                                         embeds: [{
-                                            fields: { name: `Created alarm ${alarm_id}!`, value: `Alarm with crono: \`${old_c}\` and message: \`${message_stg}\` for channel ${channel_discord.name} added!` },
+                                            fields: [{
+                                                name: `Created alarm ${alarm_id}!`,
+                                                value: `Alarm with crono: \`${old_c}\` and message: \`${message_stg}\` for channel ${channel_discord.name} added!`
+                                            }],
                                             timestamp: new Date()
                                         }]
                                     });
