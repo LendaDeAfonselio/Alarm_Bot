@@ -1,6 +1,6 @@
 'use strict';
 // Packages and dependencies
-const { Collection, Client, Intents } = require('discord.js');
+const { Collection, Client, GatewayIntentBits, Partials } = require('discord.js');
 const logging = require('./Utils/logging');
 // configuration files
 const appsettings = require('./appsettings.json'); // on github project this file 
@@ -30,7 +30,7 @@ mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrl
 });
 
 // Instances
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds], partials: [Partials.Channel] });
 const cron_list = {}; // the in memory crono list
 const cron = require('cron').CronJob;
 const fs = require('fs');
