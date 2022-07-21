@@ -81,7 +81,7 @@ async function isPremiumUser(user_id) {
  * @param {Discord.Interaction} message - The Discord Message object
  */
 function isAdministrator(message) {
-    return message.member && message.member.permissions.has('ADMINISTRATOR');
+    return message.member && message.member.permissions.has(PermissionsBitField.Flags.Administrator);
 }
 
 /**
@@ -225,7 +225,6 @@ function can_send_messages(msg) {
 
 function can_send_messages_to_ch(msg, ch) {
     if (!ch || !msg || !msg.guild || !msg.guild.members.me) {
-        console.log("siu");
         return false;
     }
     let permission = msg.guild.members.me.permissionsIn(ch);
