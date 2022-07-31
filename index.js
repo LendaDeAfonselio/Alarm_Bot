@@ -4,7 +4,7 @@ const appsettings = require('./appsettings.json');
 const logging = require('./Utils/logging');
 
 const shards = new ShardingManager('./bot.js', {
-    totalShards: 'auto', // this value should always be 'auto', if its a number it should only be used for testing
+    totalShards: 'auto', // this value should be 'auto', if its a number it should favourably used for testing
     token: appsettings.token,
     execArgv: ['--trace-warnings'],
     respawn: true
@@ -26,8 +26,8 @@ shards.on('shardCreate', async (shard) => {
         logging.logger.error(`RIP Bozo! Shard ${shard.id}`);
     });
     shard.on('error', (err) => {
-        logging.logger.error(`Error in  ${shard.id} with : ${err} `)
-        shard.respawn();
+        logging.logger.error(`Error in ${shard.id} with : ${err}`);
+        shard.respawn({ delay: 20000 });
     });
 });
 

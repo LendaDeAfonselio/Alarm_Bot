@@ -108,21 +108,8 @@ module.exports = {
                         });
                         newAlarm.save()
                             .then(async (_) => {
-                                if (utility_functions.can_send_embeded(interaction)) {
-                                    logging.logger.info(`Added ${alarm_id} to alarm db`);
-                                    await interaction.reply({
-                                        embeds: [{
-                                            fields: [{
-                                                name: `Created alarm ${alarm_id}!`,
-                                                value: `Alarm with crono: \`${old_c}\` and message: \`${message_stg}\` for channel ${channel_discord.name} added!`
-                                            }],
-                                            timestamp: new Date()
-                                        }]
-                                    });
-                                }
-                                else {
-                                    await interaction.reply(`Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord.name} was added with success! Consider turning on embed links for the bot to get a prettier message :)`);
-                                }
+                                logging.logger.info(`Added ${alarm_id} to alarm db`);
+                                await interaction.reply(`Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord?.name} was added with success!`);
                             })
                             .catch((err) => {
                                 logging.logger.info(`An error while trying to add ${alarm_id} to the database.`);
