@@ -26,34 +26,34 @@ module.exports = {
 
         let example1 = {
             name: 'Sending `hello` everyday at 19:35',
-            value: '`/alarm GMT 35 19 * * * Hello!`'
+            value: '`/alarm timezone:GMT minute:35 hour:19 day_of_the_month:* month:* weekday:* message:Hello!`'
         };
 
         msg_fields.push(example1);
 
         let example3 = {
             name: 'Sending `I am here` every wednesday at 19:35',
-            value: '`/alarm GMT 35 19 * * 3 I am here!`'
+            value: '`/alarm timezone:GMT minute:35 hour:19 day_of_the_month:* month:* weekday:3 message:I am here!`'
         };
 
         msg_fields.push(example3);
 
         let example2 = {
             name: 'Sending `Goodbye` every Monday, Wednesday and Friday at 19:00',
-            value: '`/alarm UTC+0 0 19 * * 1,3,5`'
+            value: '`/alarm timezone:UTC+0 minute:0 hour:19 day_of_the_month:* month:* weekday:1,3,5 message:Goodbye`'
         };
         msg_fields.push(example2);
 
         let example4 = {
             name: 'Send `aaa` every 30 minutes from 9 to 19(excluding) everyday',
-            value: '`/alarm UTC+0 */30 9-18 * * * aaa`'
+            value: '`/alarm timezone:UTC+0 minute:*/30 hour:9-18 day_of_the_month:* month:* weekday:* message:aaa`'
         };
 
         msg_fields.push(example4);
 
         let channel_example = {
             name: 'Sending `I am here` everyday at 19:35 in #general channel',
-            value: '`/alarm UTC+0 35 9-18 * * * aaa #general`'
+            value: '`/alarm timezone:UTC+0 minute:35 hour:9-18 day_of_the_month:* month:* weekday:* message:aaa channel:#general`'
         };
 
         msg_fields.push(channel_example);
