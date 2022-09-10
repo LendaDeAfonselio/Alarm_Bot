@@ -28,7 +28,7 @@ module.exports = {
                     let x = await Alarm_model.find(
                         { isActive: true, guild: interaction.guild.id, user_id: alarm_user });
 
-                    // TODO: cron_list must be inherited from index.js and not from bot.js
+                    // TODO: cron_list must be inherited from Cluster and not from bot.js
                     // is also needs support concurrency 
                     x.forEach(alarm => {
                         if (cron_list[alarm.alarm_id]) {

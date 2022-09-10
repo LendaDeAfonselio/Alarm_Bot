@@ -25,7 +25,7 @@ You can check out the bot's page on [top.gg](https://top.gg/bot/7543502178763408
 2. Install all of the necessary node modules (you can install them individually or use `nodeInstall.sh`).
 3. Go to `appsettings.json` and insert a discord bot token in the `token` field and a url to a mongodb database in `mongo_db_url`. Instructions to [get a token for a discord bot](https://www.writebots.com/discord-bot-token/). Instructions to [setup a mongo database](https://docs.atlas.mongodb.com/connect-to-cluster/).
 4. Run the node script `deployCommands.js` with `$node deployCommands.js` 
-5. Use the command `$pm2 start index.js` in the project's folder.
+5. Use the command `$pm2 start Cluster.js` in the project's folder.
 
 
 Do be aware that some DNS setting may have issues interacting with discord js v13 and mongo, therefore you should check [if you can query your mongo cluster](https://stackoverflow.com/questions/68875026/error-querysrv-eservfail-mongodb-tcp-cluster0-abcd0-mongodb-net) and if not, try using the Google DNS.

@@ -31,4 +31,4 @@ manager.on('clusterCreate', async (cluster) => {
         logging.logger.error(`Error in ${cluster.id}: ${err}`);
     });
 });
-manager.spawn({ timeout: -1 });
+manager.spawn({ delay: 20000, timeout: -1 });
