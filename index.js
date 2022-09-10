@@ -11,16 +11,16 @@ const shards = new ShardingManager('./bot.js', {
 });
 
 shards.on('shardCreate', async (shard) => {
-    shard.on('ready', () => {
+    shard.on('ready', async () => {
         logging.logger.info(`New shard with id ${shard.id}`);
 
-        shard.send({ type: 'shardId', data: { shardId: shard.id } });
+        await shard.send({ type: 'shardId', data: { shardId: shard.id } });
     });
-    shard.on('reconnecting', (a, b) => {
+    shard.on('reconnecting', async (a, b) => {
         logging.logger.info(`Shard ${shard.id} reconnecting`);
         logging.logger.info(a);
         logging.logger.info(b);
-        shard.send({ type: 'shardId', data: { shardId: shard.id } });
+        await shard.send({ type: 'shardId', data: { shardId: shard.id } });
     });
     shard.on('death', () => {
         logging.logger.error(`RIP Bozo! Shard ${shard.id}`);
