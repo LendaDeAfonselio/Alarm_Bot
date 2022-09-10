@@ -6,6 +6,7 @@ const logging = require('./Utils/logging');
 const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
     totalShards: 'auto',
     mode: 'process', // you can also choose "worker"
+    shardsPerClusters: 2,
     token: appsettings.token,
     respawn: true,
     spawnOptions: {
