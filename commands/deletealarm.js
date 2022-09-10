@@ -1,11 +1,9 @@
 'use strict';
 const Alarm_model = require('../models/alarm_model');
-const Private_alarm_model = require('../models/private_alarm_model');
 
 const utility_functions = require('../Utils/utility_functions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
-const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
 const db_alarms = require('../data_access/alarm_index');
 const ALARM_ID_FLAG = 'alarm-id';
@@ -31,11 +29,7 @@ module.exports = {
             else {
                 if (cron_list[alarm_to_delete] !== undefined) {
                     try {
-                        if (utility_functions.isPrivateAlarm(alarm_to_delete)) {
-                            await Private_alarm_model.deleteOne(
-                                { alarm_id: alarm_to_delete }
-                            );
-                        } else if (utility_functions.isPublicAlarm(alarm_to_delete)) {
+                        if (utility_functions.isPublicAlarm(alarm_to_delete)) {
                             await Alarm_model.deleteOne({ alarm_id: alarm_to_delete });
                         } else if (utility_functions.isOtaAlarm(alarm_to_delete)) {
                             await db_alarms.delete_oneTimeAlarm_with_id(alarm_to_delete);

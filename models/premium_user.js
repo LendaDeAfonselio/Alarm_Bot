@@ -1,3 +1,5 @@
+'use strict';
+
 const mongoose = require('mongoose');
 const premiumUser = mongoose.Schema({
     discord_user_id: String,
@@ -7,4 +9,4 @@ const premiumUser = mongoose.Schema({
     timestamp: Date
 });
 
-module.exports = mongoose.model("Premium_User_Model", premiumUser);
+module.exports = mongoose.model('Premium_User_Model', premiumUser);

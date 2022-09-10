@@ -24,9 +24,7 @@ module.exports = {
         let guild_id = interaction.channel.type === 'dm' ? '' : interaction.guild?.id;
 
         let results_pub = await db_alarms.get_all_alarms_from_user_and_guild(interaction.user.id, guild_id);
-        let results_priv = await db_alarms.get_all_privAlarms_from_user(interaction.user.id);
-        let results_ota_pub = await db_alarms.get_all_oneTimeAlarm_from_user(interaction.user.id, false, interaction.guild?.id);
-        let results_ota_priv = await db_alarms.get_all_oneTimeAlarm_from_user(interaction.user.id, true, interaction.guild?.id);
+        let results_ota_pub = await db_alarms.get_all_oneTimeAlarm_from_user(interaction.user.id, interaction.guild?.id);
         let results_tts = await db_alarms.get_all_ttsalarms_from_user_and_guild(interaction.user.id, guild_id);
 
         if (flag && flag === optionFlag) {
@@ -47,17 +45,6 @@ module.exports = {
                 await interaction.reply(chunk);
             }
 
-            id_stg = '**Private Alarms**:\n';
-            results_priv.forEach(p_alarm => {
-                id_stg += `${p_alarm.alarm_id}\n`;
-            });
-
-            id_stg += '**Private One Time Alarms:**\n';
-
-            results_ota_priv.forEach(ota => {
-                id_stg += `${ota.alarm_id}\n`;
-            });
-
             chunks = utility_functions.chunkArray(id_stg, 2000);
 
             try {
@@ -76,19 +63,15 @@ module.exports = {
 
         // create alarm messages
         let general_alarms = createMessageWithEntries(results_pub);
-        let private_alarms = createMessageWithEntries(results_priv);
         let tts_alarms = createMessageWithEntries(results_tts);
 
         // ota message
         let general_otas = createMessageWithOTAEntries(results_ota_pub);
-        let priv_otas = createMessageWithOTAEntries(results_ota_priv);
 
         // chunk it because of the max size for discord messages
         let public_chunks = utility.chunkArray(general_alarms, 20);
-        let private_chunks = utility.chunkArray(private_alarms, 20);
 
         let public_chunks2 = utility.chunkArray(general_otas, 20);
-        let private_chunks2 = utility.chunkArray(priv_otas, 20);
 
         let tts_chunks = utility.chunkArray(tts_alarms, 20);
 
@@ -106,40 +89,6 @@ module.exports = {
                 embeds: all_embeds
             });
         }
-
-        // send private alarms
-        for (let chunk of private_chunks) {
-            interaction.user.send({
-                embeds: [{
-                    color: 0x5CFF5C,
-                    title: 'Your private alarms are:',
-                    fields: chunk,
-                    timestamp: new Date()
-                }]
-            }).catch(async (err) => {
-                logging.logger.info(`Can't send reply to myalarms message from user ${interaction.user.id}.`);
-                logging.logger.error(err);
-                if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
-                    await interaction.reply('Unable to send you the private alarms via DM. Check your permissions!');
-                }
-            });
-        }
-
-        for (let chunk of private_chunks2) {
-            interaction.user.send({
-                embeds: [{
-                    color: 0xcc1100,
-                    title: 'Your private one time alarms alarms are:',
-                    fields: chunk,
-                    timestamp: new Date()
-                }]
-            }).catch(async _ => {
-                if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
-                    await interaction.reply('Unable to send you the private alarms via DM. Check your permissions!');
-                }
-            });
-        }
-
     }
 };
 
@@ -179,20 +128,13 @@ function createMessageWithOTAEntries(results) {
         let alarm_id = alarm.alarm_id;
         let alarm_params = alarm.alarm_date;
         let alarm_preview = alarm.message.substring(0, 30);
-        if (!alarm.isPrivate) {
-            let server = alarm.server_name ?? alarm.guild;
-            let field = {
-                name: `ID: ${alarm_id}`,
-                value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\nIn server: ${server}`
-            };
-            general_alarms.push(field);
-        } else {
-            let field = {
-                name: `ID: ${alarm_id} (Private)`,
-                value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}`
-            };
-            general_alarms.push(field);
-        }
+        let server = alarm.server_name ?? alarm.guild;
+        let field = {
+            name: `ID: ${alarm_id}`,
+            value: `\tFor date: ${alarm_params}\nMessage: ${alarm_preview}\nIn server: ${server}`
+        };
+        general_alarms.push(field);
+
     }
     return general_alarms;
 }

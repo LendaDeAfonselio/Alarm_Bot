@@ -2,17 +2,14 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const Alarm_model = require('../models/alarm_model');
-const Private_alarm_model = require('../models/private_alarm_model');
 
 const logging = require('../Utils/logging');
 const PUBLIC_COMMAND = 'public';
-const PRIVATE_COMMAND = 'private';
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('activateallalarms')
         .setDescription('Activates all alarms that are currently silent')
-        .addSubcommand(option => option.setName(PUBLIC_COMMAND).setDescription('Activates all public alarms'))
-        .addSubcommand(option => option.setName(PRIVATE_COMMAND).setDescription('Activates all private alarms')),
+        .addSubcommand(option => option.setName(PUBLIC_COMMAND).setDescription('Activates all public alarms')),
     name: 'activateallalarms',
     description: 'Activates all alarms that are currently silent.',
     usage: '`/activateAllAlarms public` or `/activateAllAlarms private`\nUse private to activate all private alarms, and public to activate regular alarms',
@@ -22,25 +19,7 @@ module.exports = {
             let alarm_user = interaction.user.id;
 
             try {
-                if (subcommand === PRIVATE_COMMAND) {
-                    let privateAlarms = await Private_alarm_model.find(
-                        { isActive: false, user_id: alarm_user }
-                    );
-
-                    // update in memory list
-                    privateAlarms.forEach(alarm => {
-                        if (cron_list[alarm.alarm_id]) {
-                            cron_list[alarm.alarm_id].start();
-                        }
-                    });
-
-                    await Private_alarm_model.updateMany(
-                        { isActive: false, user_id: alarm_user },
-                        { isActive: true }
-                    );
-                    await interaction.reply(`Sucesfully re-activated ${privateAlarms.length} private alarms.`);
-
-                } else if (subcommand === PUBLIC_COMMAND) {
+                if (subcommand === PUBLIC_COMMAND) {
                     if (interaction.channel.type === 'dm') {
                         await interaction.reply('Can only activate public alarms in a server, otherwise the bot does not know which alarms to activate.');
                         return;

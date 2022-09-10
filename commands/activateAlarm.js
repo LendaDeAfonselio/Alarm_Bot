@@ -2,7 +2,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
 const Alarm_model = require('../models/alarm_model');
-const Private_alarm_model = require('../models/private_alarm_model');
 const utility_functions = require('../Utils/utility_functions');
 
 const logging = require('../Utils/logging');
@@ -34,14 +33,7 @@ module.exports = {
                     if (!cron_list[alarm_to_activate].running) {
                         // add verification for DMs and guild id
                         try {
-                            if (utility_functions.isPrivateAlarm(alarm_to_activate)) {
-                                await Private_alarm_model.updateOne(
-                                    { alarm_id: alarm_to_activate },
-                                    {
-                                        isActive: true
-                                    }
-                                );
-                            } else if (utility_functions.isPublicAlarm(alarm_to_activate)) {
+                            if (utility_functions.isPublicAlarm(alarm_to_activate)) {
                                 await Alarm_model.updateOne(
                                     { alarm_id: alarm_to_activate },
                                     {
