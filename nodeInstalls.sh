@@ -18,3 +18,5 @@ npm install @discordjs/rest discord-api-types
 clear
 npm install @discordjs/builders
 clear
+npm i discord-hybrid-sharding
+clear

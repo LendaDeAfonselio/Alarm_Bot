@@ -16,6 +16,7 @@ You can check out the bot's page on [top.gg](https://top.gg/bot/7543502178763408
 - `npm install @discordjs/rest discord-api-types`
 - `npm install @discordjs/builders`
 - `npm i @discordjs/rest`
+- `npm i discord-hybrid-sharding`
 ## Running the bot
 
 **Steps to run the bot**:
