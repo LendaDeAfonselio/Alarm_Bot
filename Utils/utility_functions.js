@@ -155,7 +155,7 @@ async function send_message_to_default_channel(guild, message) {
 }
 
 async function fetchValuesAndConcatValues(client, queryStg) {
-    return client.shard.fetchClientValues(queryStg).then(
+    return client.cluster.fetchClientValues(queryStg).then(
         (allArrays) => {
             return Array.prototype.concat.apply([], allArrays);
         }
@@ -163,12 +163,12 @@ async function fetchValuesAndConcatValues(client, queryStg) {
 }
 
 async function broadcastEvalAndConcatLambda(client, query) {
-    let resultsArray = await client.shard.broadcastEval(query);
+    let resultsArray = await client.cluster.broadcastEval(query);
     return Array.prototype.concat.apply([], resultsArray);
 }
 
 async function broadcastEvalAndConcat(client, queryStg) {
-    let resultsArray = await client.shard.broadcastEval(queryStg);
+    let resultsArray = await client.cluster.broadcastEval(queryStg);
     return Array.prototype.concat.apply([], resultsArray);
 }
 
