@@ -1,3 +1,5 @@
+'use strict';
+
 const Alarm_model = require('./models/alarm_model');
 const alarm_db = require('./data_access/alarm_index');
 const utility_functions = require('./Utils/utility_functions');
@@ -21,4 +23,4 @@ async function deleteTTSAlarmsForGuild(cron_list, guild_id) {
 module.exports = {
     deleteAlarmsForGuild: deleteAlarmsForGuild,
     deleteTTSAlarmsForGuild: deleteTTSAlarmsForGuild
-}
+};

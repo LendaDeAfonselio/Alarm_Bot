@@ -1,7 +1,6 @@
 'use strict';
 
 const Alarm_model = require('../models/alarm_model');
-const Private_alarm_model = require('../models/private_alarm_model');
 
 const logging = require('../Utils/logging');
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -34,14 +33,7 @@ function parseDate(date_args) {
 }
 
 async function silenceAlarmWithID(alarm_to_silence, activate) {
-    if (utility_functions.isPrivateAlarm(alarm_to_silence)) {
-        await Private_alarm_model.updateOne(
-            { alarm_id: alarm_to_silence },
-            {
-                isActive: activate
-            }
-        );
-    } else if (utility_functions.isPublicAlarm(alarm_to_silence)) {
+    if (utility_functions.isPublicAlarm(alarm_to_silence)) {
         await Alarm_model.updateOne(
             { alarm_id: alarm_to_silence },
             {

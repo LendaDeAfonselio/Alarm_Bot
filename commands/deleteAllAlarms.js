@@ -1,15 +1,12 @@
 'use strict';
 const Alarm_model = require('../models/alarm_model');
-const Private_alarm_model = require('../models/private_alarm_model');
 const alarm_db = require('../data_access/alarm_index');
 const auth = require('./../auth.json');
 const logging = require('../Utils/logging');
 const utility_functions = require('../Utils/utility_functions');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const PUBLIC_COMMAND = 'public';
-const PRIVATE_COMMAND = 'private';
 const ONE_TIME_PUBLIC_COMMAND = 'ota';
-const ONE_TIME_PRIVATE_COMMAND = 'private-ota';
 const TTS_COMMAND = 'tts';
 
 
@@ -23,9 +20,7 @@ module.exports = {
         .setName('deleteallalarms')
         .setDescription('Deletes all of YOUR alarms in the server')
         .addSubcommand(option => option.setName(PUBLIC_COMMAND).setDescription('Deletes all public alarms in this server'))
-        .addSubcommand(option => option.setName(PRIVATE_COMMAND).setDescription('Deletes all private alarms'))
         .addSubcommand(option => option.setName(ONE_TIME_PUBLIC_COMMAND).setDescription('Deletes all public one time alarms in this server'))
-        .addSubcommand(option => option.setName(ONE_TIME_PRIVATE_COMMAND).setDescription('Deletes all one time private alarms'))
         .addSubcommand(option => option.setName(TTS_COMMAND).setDescription('Deletes all one time private alarms')),
 
     async execute(interaction, cron_list) {
@@ -33,29 +28,8 @@ module.exports = {
 
         let alarm_user = interaction.user.id;
         if (subcommand && subcommand !== null) {
-            if (subcommand === PRIVATE_COMMAND) {
-                try {
-                    let to_be_removed = await Private_alarm_model.find(
-                        { user_id: alarm_user },
-                    );
-                    if (to_be_removed.length > 0) {
-                        let x = await Private_alarm_model.deleteMany(
-                            { user_id: alarm_user },
-                        );
-                        to_be_removed.find(function (i) {
-                            cron_list[i.alarm_id]?.stop();
-                            delete cron_list[i.alarm_id];
-                        });
-                        interaction.reply(`Sucessfully deleted ${x?.deletedCount} alarms.`);
-                    } else {
-                        interaction.reply({ content: 'No private alarm found for your user. Try `myAlarms` to check your alarms.', ephemeral: true });
-                    }
-                } catch (e) {
-                    logging.logger.error(e);
-                    interaction.reply('Error deleting your private alarms...');
-                }
-            }
-            else if (subcommand === PUBLIC_COMMAND) {
+
+            if (subcommand === PUBLIC_COMMAND) {
                 try {
                     let to_be_removed = await Alarm_model.find({
                         $and: [
@@ -88,7 +62,7 @@ module.exports = {
                 }
             }
             else if (subcommand === ONE_TIME_PUBLIC_COMMAND) {
-                let private_ota = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, false, '');
+                let private_ota = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, '');
                 private_ota.find(function (i) {
                     if (cron_list[i.alarm_id] !== undefined) {
                         cron_list[i.alarm_id]?.stop();
@@ -99,18 +73,7 @@ module.exports = {
                 interaction.reply(`Sucessfully deleted ${f?.deletedCount} alarms.`);
 
             }
-            else if (subcommand === ONE_TIME_PRIVATE_COMMAND) {
-
-                let als = await alarm_db.get_all_oneTimeAlarm_from_user(alarm_user, true, interaction.guild?.id);
-                als.find(function (i) {
-                    if (cron_list[i.alarm_id] !== undefined) {
-                        cron_list[i.alarm_id]?.stop();
-                        delete cron_list[i.alarm_id];
-                    }
-                });
-                let n = await alarm_db.delete_all_private_oneTimeAlarm_from_user(alarm_user, interaction.guild?.id);
-                interaction.reply(`Sucessfully deleted ${n?.deletedCount} alarms.`);
-            } else if (subcommand === TTS_COMMAND) {
+            else if (subcommand === TTS_COMMAND) {
                 let tts_alarms = await alarm_db.get_all_ttsalarms_from_user_and_guild(alarm_user, interaction.guild?.id);
                 tts_alarms.find(i => utility_functions.deleteFromCronList(cron_list, i));
                 let num_del_tts = await alarm_db.delete_all_ttsAlarm_from_user(alarm_user, interaction.guild?.id);

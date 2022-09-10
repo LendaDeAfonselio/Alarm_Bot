@@ -9,10 +9,6 @@ const alarm_db = require('./../data_access/alarm_index');
 const premium_db = require('./../data_access/premium_index');
 const logging = require('./logging');
 
-function isPrivateAlarm(alarm_id) {
-    return alarm_id.startsWith(auth.private_prefix);
-}
-
 function isOtaAlarm(alarm_id) {
     return alarm_id.startsWith(auth.one_time_prefix);
 
@@ -42,18 +38,6 @@ async function can_create_public_alarm(user_id, guild_id) {
     let alarmsGuild = await alarm_db.get_all_alarms_from_guild(guild_id);
     return alarmsUser.length < auth.max_alarms_user &&
         alarmsGuild.length < auth.max_alarms_server;
-}
-
-/**
- * Check if users can create a private alarms
- * @param {String} user_id - the id of the user
- */
-async function can_create_private_alarm(user_id) {
-    let alarmsUser = await alarm_db.get_all_privAlarms_from_user(user_id);
-    if (await (isPremiumUser(user_id))) {
-        return alarmsUser.length < auth.max_alarms_VIP;
-    }
-    return alarmsUser.length < auth.max_alarms_user;
 }
 
 /**
@@ -108,7 +92,7 @@ async function can_change_alarm(interaction, alarm_id) {
         return false;
     }
     let isOwner = al?.user_id === interaction.user.id;
-    return (interaction.channel.type === 'dm' && isOwner) || isOwner || (!isPrivateAlarm && isAdministrator(interaction) && al?.guild === interaction.guild.id);
+    return (interaction.channel.type === 'dm' && isOwner) || isOwner || (isAdministrator(interaction) && al?.guild === interaction.guild.id);
 }
 
 /**
@@ -257,9 +241,7 @@ module.exports = {
     isAChannel: isAChannel,
     compareIgnoringCase: compareIgnoringCase,
     can_create_public_alarm: can_create_public_alarm,
-    can_create_private_alarm: can_create_private_alarm,
     can_create_ota_alarm: can_create_ota_alarm,
-    isPrivateAlarm: isPrivateAlarm,
     isOtaAlarm: isOtaAlarm,
     isPublicAlarm: isPublicAlarm,
     fetchValuesAndConcatValues: fetchValuesAndConcatValues,

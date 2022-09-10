@@ -1,3 +1,5 @@
+'use strict';
+
 const mongoose = require('mongoose');
 const alarmSchema = mongoose.Schema({
     alarm_id: String,
@@ -11,4 +13,4 @@ const alarmSchema = mongoose.Schema({
     timestamp: Date
 });
 
-module.exports = mongoose.model("Alarm_model", alarmSchema);
+module.exports = mongoose.model('Alarm_model', alarmSchema);
