@@ -5,7 +5,6 @@ const logging = require('./Utils/logging');
 
 const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
     totalShards: 'auto',
-    shardsPerClusters: 2,
     mode: 'process', // you can also choose "worker"
     token: appsettings.token,
     respawn: true,
@@ -18,17 +17,20 @@ const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
 manager.on('clusterCreate', async (cluster) => {
     logging.logger.info(`Launched Cluster ${cluster.id}`);
     cluster.on('spawn', spawnedCluster => {
-        logging.logger.info(`Spawned Cluster ${spawnedCluster.id}`);
+        logging.logger.info(`Spawned Cluster with PID ${spawnedCluster?.pid}`);
     });
-    cluster.on('ready', async (readyCluster) => {
-        logging.logger.info(`Cluster ${readyCluster.id} is ready`);
-        await readyCluster.send({ type: 'shardId', data: { shardId: readyCluster.id } });
+    cluster.on('ready', async () => {
+        logging.logger.info(`Cluster ${cluster?.id} is ready`);
+        await cluster.send({ type: 'shardId', data: { shardId: cluster?.id } });
     });
     cluster.on('disconnect', (disconnectedCluster) => {
-        logging.logger.info(`Cluster ${disconnectedCluster.id} disconencted`);
+        logging.logger.info(`Cluster ${disconnectedCluster?.id} disconnected`);
     });
     cluster.on('error', err => {
         logging.logger.error(`Error in ${cluster.id}: ${err}`);
+    });
+    cluster.on('death', () => {
+        logging.logger.error(`RIP Bozo! Cluster ${cluster.id}`);
     });
 });
 manager.spawn({ delay: 20000, timeout: -1 });

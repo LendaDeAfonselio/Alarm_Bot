@@ -155,7 +155,7 @@ async function send_message_to_default_channel(guild, message) {
 }
 
 async function fetchValuesAndConcatValues(client, queryStg) {
-    return client.shard.fetchClientValues(queryStg).then(
+    return client.cluster.fetchClientValues(queryStg).then(
         (allArrays) => {
             return Array.prototype.concat.apply([], allArrays);
         }
