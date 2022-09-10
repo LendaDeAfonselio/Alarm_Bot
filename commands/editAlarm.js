@@ -91,7 +91,7 @@ module.exports = {
             }
             if (channel_discord !== undefined) {
                 const combination = await editAlarmMessageOnDatabase(message_stg, channel_discord.id, alarm_id, guildId, interaction.user.id);
-                editCronForAlarm(cron, cron_list, message_stg, channel_discord, interaction, alarm_by_id);
+                editCronForAlarm(cron, cron_list, message_stg, channel_discord, alarm_by_id);
                 await interaction.reply(`Updated the message for ${combination} alarms that contain \`${alarm_id}\` in the id`);
             } else {
                 await interaction.reply('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
@@ -218,7 +218,7 @@ async function getAlarmById(alarm_id, guild_id) {
     return undefined;
 }
 
-function editCronForAlarm(cron, cron_list, newMsg, channel_discord, msg, alarm) {
+function editCronForAlarm(cron, cron_list, newMsg, channel_discord, alarm) {
     let k = alarm.alarm_id;
     if (utility_functions.isPublicAlarm(k)) {
         updateCronWithParamsAndMessage(cron, cron_list, k, alarm.alarm_args, channel_discord, newMsg);

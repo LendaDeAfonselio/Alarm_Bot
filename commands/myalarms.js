@@ -46,18 +46,6 @@ module.exports = {
             }
 
             chunks = utility_functions.chunkArray(id_stg, 2000);
-
-            try {
-                for (let chunk of chunks) {
-                    interaction.user.send(chunk);
-                }
-            } catch (err) {
-                logging.logger.info(`Can't send reply to \`myalarms\` ${flag} message from user ${interaction.user.id}.`);
-                logging.logger.error(err);
-                if (interaction.channel.type !== 'dm' && utility_functions.can_send_messages_to_ch(interaction, interaction.channel)) {
-                    await interaction.reply('Unable to send you the private alarms via DM. Check your permissions!');
-                }
-            }
             return;
         }
 

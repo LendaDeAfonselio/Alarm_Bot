@@ -115,9 +115,6 @@ process.on('message', async message => {
             let deletedpremium = await premium_db.delete_all_expired_memberships();
             logging.logger.info(deletedpremium.deletedCount + ' premium memberships have expired');
         }
-        // fetch private alarms
-        shard_id = message.data.shardId;
-        await fetchPrivate(message.data.shardId);
 
         // log total guilds every day at midnight
         await logTotalGuildsDaily();
@@ -151,16 +148,6 @@ async function logTotalGuildsDaily() {
         scheduled: true
     });
     scheduledMessage.start();
-}
-
-// delete private alarms on bootstrap
-async function fetchPrivate(shardid) {
-    try {
-        await load_alarms.fetchPrivateAlarms(cron_list, cron, client, shardid);
-        await load_alarms.fetchPrivateOTAs(cron_list, cron, client, shardid);
-    } catch (err) {
-        logging.logger.error(err);
-    }
 }
 
 //Login
