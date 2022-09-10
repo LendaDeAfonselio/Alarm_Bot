@@ -163,12 +163,12 @@ async function fetchValuesAndConcatValues(client, queryStg) {
 }
 
 async function broadcastEvalAndConcatLambda(client, query) {
-    let resultsArray = await client.shard.broadcastEval(query);
+    let resultsArray = await client.cluster.broadcastEval(query);
     return Array.prototype.concat.apply([], resultsArray);
 }
 
 async function broadcastEvalAndConcat(client, queryStg) {
-    let resultsArray = await client.shard.broadcastEval(queryStg);
+    let resultsArray = await client.cluster.broadcastEval(queryStg);
     return Array.prototype.concat.apply([], resultsArray);
 }
 

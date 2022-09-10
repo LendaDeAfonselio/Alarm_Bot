@@ -1,8 +1,10 @@
 'use strict';
-// Packages and dependencies
+// Packages and dependencies for Discord client and Cluster manager
 const { Collection, Client, GatewayIntentBits, Partials, InteractionType } = require('discord.js');
-const logging = require('./Utils/logging');
+const Cluster = require('discord-hybrid-sharding');
+
 // configuration files
+const logging = require('./Utils/logging');
 const appsettings = require('./appsettings.json'); // on github project this file 
 // is not completed, it does need some 
 // values like the bot token and the mongo db url
@@ -17,7 +19,6 @@ const premium_db = require('./data_access/premium_index');
 
 // Mongo setup
 const mongoose = require('mongoose');
-let shard_id;
 mongoose.connect(appsettings.mongo_db_url, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
     if (err) {
         logging.logger.error(`Error connecting to MONGODB: ${err}`);
@@ -32,7 +33,6 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 const cron_list = {}; // the in memory crono list
 const cron = require('cron').CronJob;
 const fs = require('fs');
-const utility_functions = require('./Utils/utility_functions');
 
 /****** Gets all available commands ******/
 client.commands = new Collection();
@@ -117,7 +117,6 @@ process.on('message', async message => {
         }
 
         // log total guilds every day at midnight
-        await logTotalGuildsDaily();
     }
 
 });
@@ -139,16 +138,7 @@ client.on('guildDelete', async (guild) => {
     }
 });
 
-// aux function to get all guilds every day
-async function logTotalGuildsDaily() {
-    let scheduledMessage = new cron('0 0 * * *', async () => {
-        let allguilds = await utility_functions.fetchValuesAndConcatValues(client, 'guilds.cache');
-        logging.logger.info('Running in ' + allguilds.length + ' guilds');
-    }, {
-        scheduled: true
-    });
-    scheduledMessage.start();
-}
 
 //Login
+client.cluster = new Cluster.Client(client);
 client.login(appsettings.token);
