@@ -68,7 +68,7 @@ module.exports = {
             return;
         }
 
-        if (time_utils.validate_alarm_parameters(interaction, crono, message_stg)) {
+        if ((await time_utils.validate_alarm_parameters(interaction, crono, message_stg))) {
             let channelParam = interaction.options.getChannel(CHANNEL_PARAM);
             let hasSpecifiedChannel = channelParam !== null;
             let channel_discord = interaction.channel;

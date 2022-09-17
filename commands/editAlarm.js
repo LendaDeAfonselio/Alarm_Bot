@@ -131,7 +131,7 @@ module.exports = {
                 await interaction.reply({ ephemeral: true, content: 'The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information' });
                 return;
             }
-            else if (time_utils.validate_alarm_parameters(interaction, crono, alarm.message)) {
+            else if ((await time_utils.validate_alarm_parameters(interaction, crono, alarm.message))) {
                 crono = time_utils.updateParams(difference, crono);
                 let channel;
 
@@ -194,7 +194,7 @@ module.exports = {
                 await interaction.reply({ ephemeral: true, content: 'The timezone you have entered is invalid. Please do `' + auth.prefix + 'timezonesinfo` for more information' });
                 return;
             }
-            else if (time_utils.validate_alarm_parameters(interaction, crono, message_stg)) {
+            else if ((await time_utils.validate_alarm_parameters(interaction, crono, message_stg))) {
 
                 if (channel_discord === undefined) {
                     await interaction.reply({ ephemeral: true, content: 'It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!' });

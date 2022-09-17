@@ -61,7 +61,7 @@ module.exports = {
             if (difference === undefined) {
                 await interaction.reply({ content: 'The timezone you have entered is invalid. Please do `/timezonesinfo` for more information', ephemeral: true });
             }
-            else if (time_utils.validate_alarm_parameters(interaction, crono, message_stg)) {
+            else if ((await time_utils.validate_alarm_parameters(interaction, crono, message_stg))) {
                 let channelParam = interaction.options.getChannel(CHANNEL_PARAM);
                 let hasSpecifiedChannel = channelParam !== null;
                 let channel_discord = interaction.channel;
@@ -109,7 +109,7 @@ module.exports = {
                         newAlarm.save()
                             .then(async (_) => {
                                 logging.logger.info(`Added ${alarm_id} to alarm db`);
-                                await interaction.reply(`Alarm with params: ${old_c} and message ${message_stg} for channel ${channel_discord?.name} was added with success!`);
+                                await interaction.reply(`Alarm \`${alarm_id}\` registered! Cron: \`${old_c}\`; message: \`${message_stg}\`; channel: \`${channel_discord?.name}\``);
                             })
                             .catch((err) => {
                                 logging.logger.info(`An error while trying to add ${alarm_id} to the database.`);
@@ -118,7 +118,7 @@ module.exports = {
                     } catch (err) {
                         logging.logger.info(`An error while trying to add alarm with params: ${interaction.content}`);
                         logging.logger.error(err);
-                        await interaction.reply(`Error adding the alarm with params: ${crono}, with message ${message_stg}`);
+                        await interaction.reply(`Error adding the alarm with params: \`${crono}\` and message: \`${message_stg}\``);
                     }
                 } else {
                     await interaction.reply('It was not possible to use the channel to send the message... Please check the setting of the server and if the bot has the necessary permissions!');
