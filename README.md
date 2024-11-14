@@ -1,7 +1,7 @@
 # AlarmBot
 A Discord Bot that allows users to set up alarms periodic or one time alarms and receive them via DM or in a certain channel.
 
-You can check out the bot's page on [top.gg](https://top.gg/bot/754350217876340816) to invite AlarmBot to your server!
+You can check out the bot's page on [top.gg](https://top.gg/bot/754350217876340816) to invite AlarmBot to your server! 
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A07J64F)
 
